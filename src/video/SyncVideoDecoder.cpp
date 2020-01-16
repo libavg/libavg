@@ -56,11 +56,10 @@ SyncVideoDecoder::~SyncVideoDecoder()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void SyncVideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration, 
-        bool bEnableSound)
+void SyncVideoDecoder::open(const string& sFilename, bool bEnableSound)
 {
     m_bProcessingLastFrames = false;
-    VideoDecoder::open(sFilename, false, false);
+    VideoDecoder::open(sFilename, false);
 
     if (getVStreamIndex() >= 0) {
         if (m_bUseStreamFPS) {
@@ -83,7 +82,7 @@ void SyncVideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
     m_pFrameDecoder = FFMpegFrameDecoderPtr(new FFMpegFrameDecoder(getVideoStream()));
     m_pFrameDecoder->setFPS(m_FPS);
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(54, 28, 0) 
-    m_pFrame = avcodec_alloc_frame();
+    m_pFrame = av_frame_alloc();
 #else
     m_pFrame = new AVFrame;
 #endif
@@ -96,7 +95,9 @@ void SyncVideoDecoder::close()
 
     m_pFrameDecoder = FFMpegFrameDecoderPtr();
     VideoDecoder::close();
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(54, 28, 0) 
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(55, 45,101)
+    av_frame_free(&m_pFrame);
+#elif LIBAVCODEC_VERSION_INT > AV_VERSION_INT(54, 28, 0) 
     avcodec_free_frame(&m_pFrame);
 #else
     delete m_pFrame;

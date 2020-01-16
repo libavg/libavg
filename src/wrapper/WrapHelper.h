@@ -23,11 +23,13 @@
 #define _WrapHelper_H_
 
 #include "../api.h"
+
+#include "../player/BoostPython.h"
+
 #include "../base/GLMHelper.h"
 #include "../base/Exception.h"
 #include "../base/ILogSink.h"
 
-#include "../player/BoostPython.h"
 #include "../player/Player.h"
 #include "../player/TypeRegistry.h"
 
@@ -82,115 +84,13 @@ struct to_dict
     static const PyTypeObject* get_pytype() { return &PyDict_Type; }
 };
 
-struct default_policy
+struct from_python_sequence_base
 {
-  static bool check_convertibility_per_element() { return false; }
-
-  template <typename ContainerType>
-  static bool check_size(boost::type<ContainerType>, std::size_t /*sz*/)
-  {
-    return true;
-  }
-
-  template <typename ContainerType>
-  static void assert_size(boost::type<ContainerType>, std::size_t /*sz*/) {}
-
-  template <typename ContainerType>
-  static void reserve(ContainerType& a, std::size_t sz) {}
-};
-
-struct fixed_size_policy
-{
-  static bool check_convertibility_per_element() { return true; }
-
-  template <typename ContainerType>
-  static bool check_size(boost::type<ContainerType>, std::size_t sz)
-  {
-    return ContainerType::size() == sz;
-  }
-
-  template <typename ContainerType>
-  static void assert_size(boost::type<ContainerType>, std::size_t sz)
-  {
-    if (!check_size(boost::type<ContainerType>(), sz)) {
-      PyErr_SetString(PyExc_RuntimeError,
-        "Insufficient elements for fixed-size array.");
-      boost::python::throw_error_already_set();
-    }
-  }
-
-  template <typename ContainerType>
-  static void reserve(ContainerType& /*a*/, std::size_t sz)
-  {
-    if (sz > ContainerType::size()) {
-      PyErr_SetString(PyExc_RuntimeError,
-        "Too many elements for fixed-size array.");
-      boost::python::throw_error_already_set();
-    }
-  }
-
-  template <typename ContainerType, typename ValueType>
-  static void set_value(ContainerType& a, std::size_t i, ValueType const& v)
-  {
-    reserve(a, i+1);
-    a[i] = v;
-  }
-};
-   
-struct variable_capacity_policy : default_policy
-{
-  template <typename ContainerType>
-  static void reserve(ContainerType& a, std::size_t sz)
-  {
-    a.reserve(sz);
-  }
-
-  template <typename ContainerType, typename ValueType>
-  static void set_value(
-    ContainerType& a,
-    std::size_t
-#if !defined(NDEBUG)
-    i
-#endif
-    ,
-    ValueType const& v)
-  {
-    assert(a.size() == i);
-    a.push_back(v);
-  }
-};
-
-struct fixed_capacity_policy : variable_capacity_policy
-{
-  template <typename ContainerType>
-  static bool check_size(boost::type<ContainerType>, std::size_t sz)
-  {
-    return ContainerType::max_size() >= sz;
-  }
-};
-
-struct linked_list_policy : default_policy
-{
-  template <typename ContainerType, typename ValueType>
-  static void
-  set_value(ContainerType& a, std::size_t /*i*/, ValueType const& v)
-  {
-    a.push_back(v);
-  }
-};
-
-struct set_policy : default_policy
-{
-  template <typename ContainerType, typename ValueType>
-  static void
-  set_value(ContainerType& a, std::size_t /*i*/, ValueType const& v)
-  {
-    a.insert(v);
-  }
+  static void* convertible(PyObject* obj_ptr);
 };
 
 template <typename ContainerType, typename ConversionPolicy>
-struct from_python_sequence
+struct from_python_sequence: from_python_sequence_base
 {
   typedef typename ContainerType::value_type container_element_type;
 
@@ -287,9 +187,8 @@ struct from_python_sequence
       if (!py_elem_hdl.get()) break; // end of iteration
       boost::python::object py_elem_obj(py_elem_hdl);
       boost::python::extract<container_element_type> elem_proxy(py_elem_obj);
-      ConversionPolicy::set_value(result, i, elem_proxy());
+      result.push_back(elem_proxy());
     }
-    ConversionPolicy::assert_size(boost::type<ContainerType>(), i);
   }
 };
 
@@ -350,7 +249,7 @@ avg::NodePtr createNode(const boost::python::tuple &args,
 {
     checkEmptyArgs(args);
     return avg::Player::get()->createNode(pszType, attrs, args[0]);
-};
+}
 
 template <typename T>struct Exception_to_python_exception
 {
@@ -386,6 +285,23 @@ public:
     PyObject* m_PyExcept;
 
 };
+
+// These function templates essentially call functions such as AreaNode::getPos()
+// and return a version of the result that doesn't allow setting of the individual
+// elements of the vec2 returned.
+// Without this stuff, python code like node.pos.x=30 would fail silently. With it,
+// it at least throws an exception.
+template<class CLASS, const glm::vec2& (CLASS::*FUNC)() const>
+ConstVec2 constPointGetterRef(const CLASS& node)
+{
+    return (node.*FUNC)();
+}
+
+template<class CLASS, glm::vec2 (CLASS::*FUNC)() const>
+ConstVec2 constPointGetter(const CLASS& node)
+{
+    return (node.*FUNC)();
+}
 
 template <typename T> void translateException(PyObject* e) {
   ExceptionTranslator<T> my_translator(e);

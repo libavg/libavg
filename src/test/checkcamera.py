@@ -30,7 +30,7 @@ import six
 import camcfgs
 import optparse
 
-from testcase import *
+from libavg.testcase import *
 
 def parseCmdLine():
     global g_TestParams
@@ -96,9 +96,7 @@ class CameraTestCase(AVGTestCase):
 
     def testParams(self):
         def buildParamActionList(testCfg):
-            actions = []
-            actions.append(setDefaultParams)
-            actions.append(None)
+            actions = [setDefaultParams, None]
             for val in testCfg.testValues:
                 actions.append(lambda paramName=testCfg.name, val=val:
                         setCamParam(paramName, val))
@@ -126,10 +124,8 @@ class CameraTestCase(AVGTestCase):
             bmp = self.cam.getBitmap()
             self.camBmps.append(bmp)
             if isColorParam(param):
-                colour = []
-                colour.append(bmp.getChannelAvg(0))
-                colour.append(bmp.getChannelAvg(1))
-                colour.append(bmp.getChannelAvg(2))
+                colour = [bmp.getChannelAvg(0), bmp.getChannelAvg(1),
+                    bmp.getChannelAvg(2)]
                 self.averages.append(colour)
             else:
                 self.averages.append(bmp.getAvg())
@@ -137,14 +133,15 @@ class CameraTestCase(AVGTestCase):
         def checkCamImageChange(testCfg):
 
             def saveCamImages():
-                dir = AVGTestCase.getImageResultDir()
+#                print()
+#                print("Average image brightnesses: ",minAverages, medAverages, maxAverages)
+                imageDir = AVGTestCase.getImageResultDir()
                 for (i, category) in enumerate(("min", "med", "max")):
-                    self.camBmps[i].save(dir+"/cam"+testCfg.name+category+".png")
+                    self.camBmps[i].save(imageDir+"/cam"+testCfg.name+category+".png")
 
             minAverages = self.averages[0]
             medAverages = self.averages[1]
             maxAverages = self.averages[2]
-            ok = False
             if isColorParam(testCfg.name):
                 pass
             else:
@@ -189,7 +186,7 @@ class CameraTestCase(AVGTestCase):
                 avg.player.stop()
             else:
                 action = self.actions[self.lastCameraFrame]
-                if action != None:
+                if action is not None:
                     action()
 
     def __dumpFormat(self):

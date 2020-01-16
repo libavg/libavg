@@ -34,11 +34,11 @@
 
 #ifdef __APPLE__
     #include "CGLContext.h"
-#elif defined linux
+#elif defined __linux__
     #ifdef AVG_ENABLE_EGL
         #include "EGLContext.h"
     #else
-        #include "SDLGLXContext.h"
+        #include "GLXContext.h"
     #endif
 #elif defined _WIN32
     #include "WGLContext.h"
@@ -91,13 +91,13 @@ GLContext* GLContextManager::createContext(const GLConfig& glConfig,
     GLContext* pContext;
 #ifdef __APPLE__
     pContext = new CGLContext(glConfig, windowSize, pSDLWMInfo);
-#elif defined linux
+#elif defined __linux__
     #ifdef AVG_ENABLE_EGL
         GLConfig tempConfig = glConfig;
         tempConfig.m_bGLES = true;
         pContext = new EGLContext(tempConfig, windowSize, pSDLWMInfo);
     #else
-        pContext = new SDLGLXContext(glConfig, windowSize, pSDLWMInfo);
+        pContext = new GLXContext(glConfig, windowSize, pSDLWMInfo);
     #endif
 #elif defined _WIN32
     pContext = new WGLContext(glConfig, windowSize, pSDLWMInfo);
@@ -125,22 +125,31 @@ void GLContextManager::unregisterContext(GLContext* pContext)
     AVG_ASSERT(false);
 }
 
-MCTexturePtr GLContextManager::createTexture(const IntPoint& size, PixelFormat pf, 
-        bool bMipmap, unsigned wrapSMode, unsigned wrapTMode, 
-        bool bForcePOT, int potBorderColor)
+int GLContextManager::getContextIndex(GLContext* pContext)
 {
-    MCTexturePtr pTex(new MCTexture(size, pf, bMipmap, wrapSMode, wrapTMode, bForcePOT,
-            potBorderColor));
+    for (int i=0; i<int(m_pContexts.size()); ++i) {
+        if (pContext == m_pContexts[i]) {
+            return i;
+        }
+    }
+    AVG_ASSERT(false);
+    return -1;
+}
+
+MCTexturePtr GLContextManager::createTexture(const IntPoint& size, PixelFormat pf, 
+        bool bMipmap, bool bForcePOT, int potBorderColor)
+{
+    MCTexturePtr pTex(new MCTexture(size, pf, bMipmap, bForcePOT, potBorderColor));
     m_pPendingTexCreates.push_back(pTex);
     return pTex;
 }
 
 MCFBOPtr GLContextManager::createFBO(const IntPoint& size, PixelFormat pf, 
         unsigned numTextures, unsigned multisampleSamples, bool bUsePackedDepthStencil,
-        bool bUseStencil, bool bMipmap, unsigned wrapSMode, unsigned wrapTMode)
+        bool bUseStencil, bool bMipmap)
 {
     MCFBOPtr pFBO(new MCFBO(size, pf, numTextures, multisampleSamples, 
-            bUsePackedDepthStencil, bUseStencil, bMipmap, wrapSMode, wrapTMode));
+            bUsePackedDepthStencil, bUseStencil, bMipmap));
     m_pPendingFBOCreates.push_back(pFBO);
     return pFBO;
 }
@@ -161,10 +170,10 @@ void GLContextManager::scheduleTexUpload(MCTexturePtr pTex, BitmapPtr pBmp)
 }
 
 MCTexturePtr GLContextManager::createTextureFromBmp(BitmapPtr pBmp, bool bMipmap,
-        unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT, int potBorderColor)
+        bool bForcePOT, int potBorderColor)
 {
     MCTexturePtr pTex = createTexture(pBmp->getSize(), pBmp->getPixelFormat(), bMipmap,
-            wrapSMode, wrapTMode, bForcePOT, potBorderColor);
+            bForcePOT, potBorderColor);
     scheduleTexUpload(pTex, pBmp);
     return pTex;
 }
@@ -210,7 +219,7 @@ void GLContextManager::uploadDataForContext()
     }
 
     for (unsigned i=0; i<m_pPendingVACreates.size(); ++i) {
-        m_pPendingVACreates[i]->initForGLContext();
+        m_pPendingVACreates[i]->initForGLContext(pContext);
     }
 
     for (unsigned i=0; i<m_PendingTexDeletes.size(); ++i) {
@@ -219,14 +228,14 @@ void GLContextManager::uploadDataForContext()
     }
 
     for (unsigned i=0; i<m_pPendingTexCreates.size(); ++i) {
-        m_pPendingTexCreates[i]->initForGLContext();
+        m_pPendingTexCreates[i]->initForGLContext(pContext);
     }
 
     TexUploadMap::iterator it;
     for (it=m_pPendingTexUploads.begin(); it!=m_pPendingTexUploads.end(); ++it) {
         MCTexturePtr pTex = it->first;
         BitmapPtr pBmp = it->second;
-        pTex->moveBmpToTexture(pBmp);
+        pTex->moveBmpToTexture(pContext, pBmp);
     }
 
     for (unsigned i=0; i<m_pPendingFBOCreates.size(); ++i) {
@@ -241,9 +250,11 @@ void GLContextManager::uploadDataForContext()
 
 void GLContextManager::reset()
 {
+    // Tex deletes are cleared first, because clearing the creates/uploads can actually
+    // cause texture deletes to be scheduled!
+    m_PendingTexDeletes.clear();
     m_pPendingTexCreates.clear();
     m_pPendingTexUploads.clear();
-    m_PendingTexDeletes.clear();
 
     m_pPendingFBOCreates.clear();
     m_pPendingShaderParamCreates.clear();
@@ -254,7 +265,7 @@ void GLContextManager::reset()
 
 bool GLContextManager::isGLESSupported()
 {
-#if defined linux
+#if defined __linux__
     #ifdef AVG_ENABLE_EGL
     return true;
     #else

@@ -21,7 +21,7 @@
 
 from six.moves import range
 from libavg import avg, player
-from testcase import *
+from libavg.testcase import *
 
 class VectorTestCase(AVGTestCase):
     def __init__(self, testFuncName):
@@ -64,6 +64,7 @@ class VectorTestCase(AVGTestCase):
         canvas = self.makeEmptyCanvas()
         addLines()
         line = canvas.getChild(0)
+        handlerTester = NodeHandlerTester(self, line)
         self.start(False,
                 (lambda: self.compareImage("testline1"), 
                  changeLine,
@@ -71,7 +72,12 @@ class VectorTestCase(AVGTestCase):
                  moveLine,
                  lambda: self.compareImage("testline3"),
                  blendMode,
-                 lambda: self.compareImage("testline4")
+                 lambda: self.compareImage("testline4"),
+                 lambda: self.fakeClick(50, 27),
+                 lambda: handlerTester.assertState(()),
+                 lambda: self.fakeClick(50,33),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP)),
                 ))
 
     def testLotsOfLines(self):
@@ -153,7 +159,6 @@ class VectorTestCase(AVGTestCase):
             rect = avg.RectNode(pos=(2, 2), size=(50, 30), fillopacity=1, 
                     strokewidth=0)
             canvas.appendChild(rect)
-            rect.subscribe(avg.Node.CURSOR_DOWN, onMouseDown)
             return rect
         
         def moveRect():
@@ -173,12 +178,9 @@ class VectorTestCase(AVGTestCase):
             rect.color = "FFFF00"
             canvas.insertChild(rect, 0)
         
-        def onMouseDown(event):
-            self.__mouseDownCalled = True
-        
-        self.__mouseDownCalled = False
         canvas = self.makeEmptyCanvas()
         rect = addRect()
+        handlerTester = NodeHandlerTester(self, rect)
         self.start(False,
                 (lambda: self.compareImage("testRect1"),
                  moveRect,
@@ -187,12 +189,22 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testRect3"),
                  addRect2,
                  lambda: self.compareImage("testRect4"),
-                 lambda: self.fakeClick(100, 100),
-                 lambda: self.assertEqual(self.__mouseDownCalled, False),
-                 lambda: self.fakeClick(55, 50),
-                 lambda: self.assertEqual(self.__mouseDownCalled, False),
-                 lambda: self.fakeClick(65, 65),
-                 lambda: self.assert_(self.__mouseDownCalled)
+                ))
+
+    def testRectEvents(self):
+        canvas = self.makeEmptyCanvas()
+        rect = avg.RectNode(pos=(10, 10), size=(50, 30), fillopacity=1,
+                strokewidth=10, parent=canvas)
+        handlerTester = NodeHandlerTester(self, rect)
+        self.start(False,
+                (lambda: self.fakeClick(70, 10),
+                 lambda: handlerTester.assertState(()),
+                 lambda: self.fakeClick(20, 20),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP)),
+                 lambda: self.fakeClick(10, 7),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_UP)),
                 ))
 
     def testTexturedRect(self):
@@ -282,7 +294,7 @@ class VectorTestCase(AVGTestCase):
         
         canvas = self.makeEmptyCanvas()
         curve = addCurve()
-        self.assertAlmostEqual(curve.length, 210)
+        self.assertAlmostEqual(curve.length, 210, epsilon=0.001)
         self.assertAlmostEqual(curve.getPtOnCurve(0), (10.5,10))
         self.assertAlmostEqual(curve.getPtOnCurve(1), (80.5,10))
         self.assertAlmostEqual(curve.getPtOnCurve(0.5), (45.5,62.5))
@@ -295,6 +307,22 @@ class VectorTestCase(AVGTestCase):
                  addCurve2,
                  lambda: self.compareImage("testCurve4"),
                 )) 
+
+    def testCurveEvents(self):
+        canvas = self.makeEmptyCanvas()
+        curve = avg.CurveNode(pos1=(10.5, 10), pos2=(10.5, 80), pos3=(80.5, 80), 
+                pos4=(80.5, 10), strokewidth=20, parent=canvas)
+        handlerTester = NodeHandlerTester(self, curve)
+        self.start(False,
+                (lambda: self.fakeClick(40, 20),
+                 lambda: handlerTester.assertState(()),
+                 lambda: self.fakeClick(10, 20),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP)),
+                 lambda: self.fakeClick(45, 65),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_UP)),
+                ))
 
     def testTexturedCurve(self):
         def addCurve():
@@ -352,13 +380,28 @@ class VectorTestCase(AVGTestCase):
             polyline2.linejoin="bevel"
             polyline2.pos = [(50,10), (60,10), (50,11)]
             canvas.removeChild(1)
-        
+
+        def createSamePts():
+            avg.PolyLineNode(pos=((10,20), (10,20), (10,20)), parent=canvas)
+            avg.PolyLineNode(pos=((10,20), (10,20), (20,30)), parent=canvas)
+            avg.PolyLineNode(pos=((20,30), (10,20), (10,20)), parent=canvas)
+            avg.PolyLineNode(pos=((10,20), (20,30), (10,20)), parent=canvas)
+
         canvas = self.makeEmptyCanvas()
         polyline = addPolyLine()
+        handlerTester = NodeHandlerTester(self, polyline)
         self.start(False,
                 (lambda: self.compareImage("testPolyLine1"),
                  changePolyLine,
                  lambda: self.compareImage("testPolyLine2"),
+                 lambda: self.fakeClick(25,25),
+                 lambda: handlerTester.assertState(()),
+                 lambda: self.fakeClick(30,10),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP)),
+                 lambda: self.fakeClick(70,30),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_UP)),
                  miterPolyLine,
                  lambda: self.compareImage("testPolyLine3"),
                  addPolyLine2,
@@ -368,7 +411,8 @@ class VectorTestCase(AVGTestCase):
                  testAlmostEmptyPolyLine,
                  lambda: self.compareImage("testPolyLine5"),
                  testAcutePolyLine,
-                 lambda: self.compareImage("testPolyLine6")
+                 lambda: self.compareImage("testPolyLine6"),
+                 createSamePts
                 ))
 
     def testTexturedPolyLine(self):
@@ -405,7 +449,6 @@ class VectorTestCase(AVGTestCase):
         def addPolygon():
             polygon = avg.PolygonNode(strokewidth=2, color="FF00FF",
                     pos=((10,10), (50,10), (90,50), (90, 90)))
-            polygon.subscribe(avg.Node.CURSOR_DOWN, onMouseDown)
             canvas.appendChild(polygon)
             return polygon
         
@@ -442,9 +485,6 @@ class VectorTestCase(AVGTestCase):
             polygon2 = canvas.getChild(0)
             polygon2.linejoin = "miter"
         
-        def onMouseDown(event):
-            self.__mouseDownCalled = True
-      
         def addEmptyPolygon():
             avg.PolygonNode(parent=canvas, fillopacity=1)
 
@@ -461,20 +501,17 @@ class VectorTestCase(AVGTestCase):
             polygon.pos = ( (35,0), (55,10), (65,30), (65,50), (55,60), (45,50), (45,30),
                     (35,30), (25,30), (25,50), (15,60), (5,50), (5,30), (15,10) )
 
-        def createOneHole():
-            polygon.holes = ( [(35,10), (40,15), (35,20), (30,15)], )
+        def createSelfIntersectingPolygon():
+            polygon.pos = ( (10,10), (50,10), (10,50), (50,50) )
 
-        def createMoreHoles():
-            newHoles = ( polygon.holes[0], [(20,35), (20,45), (10,40)], 
-                    [(50,35), (50,45), (60,40)], )
-            polygon.holes = newHoles
+        def createDegeneratePolygon():
+            polygon.pos = ((10,10), (10, 10), (50,10), (90,50), (90, 90))
 
         def clearCanvas():
             for i in range(canvas.getNumChildren()-1):
                 dell = canvas.getChild(i)
                 canvas.removeChild(dell)
 
-        self.__mouseDownCalled = False
         canvas = self.makeEmptyCanvas()
         polygon = addPolygon()
         self.start(False,
@@ -489,10 +526,6 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testPolygon5"),
                  miterPolygons,
                  lambda: self.compareImage("testPolygon6"),
-                 lambda: self.fakeClick(50, 50),
-                 lambda: self.assertEqual(self.__mouseDownCalled, False),
-                 lambda: self.fakeClick(20, 87),
-                 lambda: self.assert_(self.__mouseDownCalled),
                  addEmptyPolygon,
                  clearCanvas,
                  createLeftOpenPolygon,
@@ -501,10 +534,64 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testPolygon8"),
                  createBottomOpenPolygon,
                  lambda: self.compareImage("testPolygon9"),
-                 createOneHole,
-                 lambda: self.compareImage("testPolygonHole1"),
-                 createMoreHoles,
-                 lambda: self.compareImage("testPolygonHole2")
+                 createSelfIntersectingPolygon,
+                 lambda: self.compareImage("testPolygon10"),
+                 createDegeneratePolygon,
+                 lambda: self.compareImage("testPolygon11")
+                ))
+
+    def testPolygonInDiv(self):
+        def createPolygonInInivisbleDiv():
+            canvas = self.makeEmptyCanvas()
+            div = avg.DivNode(parent=canvas, opacity=0)
+            avg.PolygonNode(parent=div,
+                    strokewidth=2, color="FF00FF",
+                    fillopacity=1, fillcolor="00FF00",
+                    pos=((10, 10), (50, 10), (90, 50), (90, 90)))
+            return div
+
+        def makeDivVisible():
+            div.opacity = 1
+
+        def makeDivInvisible():
+            div.opacity = 0
+
+        div = createPolygonInInivisbleDiv()
+
+        self.start(False,
+                (lambda: self.compareImage("testPolygonDiv1"),
+                 makeDivVisible,
+                 lambda: self.compareImage("testPolygonDiv2"),
+                 makeDivInvisible,
+                 lambda: self.compareImage("testPolygonDiv1"),
+                 makeDivVisible,
+                 lambda: self.compareImage("testPolygonDiv2"),
+                ))
+
+    def testPolygonEvents(self):
+        def moveNode():
+            div.pos = (40,40)
+
+        canvas = self.makeEmptyCanvas()
+        div = avg.DivNode(parent=canvas)
+        polygon = avg.PolygonNode(strokewidth=10, color="FF00FF",
+                    pos=((10,10), (50,10), (90,50), (90, 90)), parent=div)
+        handlerTester = NodeHandlerTester(self, polygon)
+        self.start(False,
+                (lambda: self.fakeClick(20, 50),
+                 lambda: handlerTester.assertState(()),
+                 lambda: self.fakeClick(70, 50),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP)),
+                 lambda: self.fakeClick(30, 7),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_UP)),
+                 moveNode,
+                 lambda: self.fakeClick(20, 20),
+                 lambda: handlerTester.assertState([avg.Node.CURSOR_OUT]),
+                 lambda: self.fakeClick(50, 50),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP)),
                 ))
 
     def testTexturedPolygon(self):
@@ -557,13 +644,12 @@ class VectorTestCase(AVGTestCase):
     def testCircle(self):
         def addCircle():
             circle = avg.CircleNode(pos=(30, 30), r=20)
-            circle.subscribe(avg.Node.CURSOR_DOWN, onMouseDown)
             canvas.appendChild(circle)
             return circle
         
         def changeCircle():
             circle.color="FF0000"
-            circle.fillcolor=u"FFFFFF"
+            circle.fillcolor="FFFFFF"
             circle.fillopacity=0.5
             circle.strokewidth=3
         
@@ -584,26 +670,27 @@ class VectorTestCase(AVGTestCase):
             circle.filltexcoord1 = (0.5, 0.5)
             circle.filltexcoord2 = (1.5, 1.5)
         
-        def onMouseDown(event):
-            self.__mouseDownCalled = True
-        
-        self.__mouseDownCalled = False
         canvas = self.makeEmptyCanvas()
         circle = addCircle()
+        handlerTester = NodeHandlerTester(self, circle)
         self.start(False,
                 (lambda: self.compareImage("testCircle1"), 
                  changeCircle,
                  lambda: self.compareImage("testCircle2"),
                  textureCircle,
                  lambda: self.compareImage("testCircle3"),
+                 lambda: self.fakeClick(20,20),
+                 lambda: handlerTester.assertState(()),
+                 lambda: self.fakeClick(67, 50),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP)),
+                 lambda: self.fakeClick(77, 50),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_UP)),
                  setFillTex,
                  lambda: self.compareImage("testCircle4"),
                  setFillTexCoords,
                  lambda: self.compareImage("testCircle5"),
-                 lambda: self.fakeClick(32, 32),
-                 lambda: self.assert_(self.__mouseDownCalled == False),
-                 lambda: self.fakeClick(67, 50),
-                 lambda: self.assert_(self.__mouseDownCalled)
                 ))
         
     def testMesh(self):
@@ -657,13 +744,13 @@ class VectorTestCase(AVGTestCase):
             mesh.texcoords = ((100,0),(1,0),(0,1),(1,1),(0.5,0.5), (1.0,1.0))
             
         def setIllegalIndexes():
-            mesh.triangles = ((27,1,1),(1,3,4),(3,2,4),(2,0,4)) 
-        
+            mesh.triangles = ((27,1,1),(1,3,4),(3,2,4),(2,0,4))
+
         canvas = self.makeEmptyCanvas()
         mesh = addMesh()
-        self.assertRaises(RuntimeError, setIllegalVertexes)
-        self.assertRaises(RuntimeError, setIllegalTextures)
-        self.assertRaises(RuntimeError, setIllegalIndexes)
+        handlerTester = NodeHandlerTester(self, mesh);
+        self.assertRaises(avg.Exception, setIllegalTextures)
+        self.assertRaises(avg.Exception, setIllegalIndexes)
         self.start(False,
                 (lambda: self.compareImage("testMesh1"),
                  setVertexCoords,
@@ -679,7 +766,20 @@ class VectorTestCase(AVGTestCase):
                  setBackfaceCullTrue,
                  lambda: self.compareImage("testMesh7"),
                  setBackfaceCullFalse,
-                 lambda: self.compareImage("testMesh8")
+                 lambda: self.compareImage("testMesh8"),
+                 setBackfaceCullTrue,
+                 lambda: self.fakeClick(62, 62),
+                 lambda: handlerTester.assertState(()),
+                 lambda: self.fakeClick(94, 62),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_OVER, avg.Node.CURSOR_UP)),
+                 setBackfaceCullFalse,
+                 lambda: self.fakeClick(62, 62),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_UP)),
+                 lambda: self.fakeClick(94, 62),
+                 lambda: handlerTester.assertState(
+                        (avg.Node.CURSOR_DOWN, avg.Node.CURSOR_UP)),
                 ))
 
     def testInactiveVector(self):
@@ -720,12 +820,16 @@ def vectorTestSuite(tests):
             "testLineOpacity",
             "testTexturedLine",
             "testRect",
+            "testRectEvents",
             "testTexturedRect",
             "testCurve",
+            "testCurveEvents",
             "testTexturedCurve",
             "testPolyLine",
             "testTexturedPolyLine",
             "testPolygon",
+            "testPolygonInDiv",
+            "testPolygonEvents",
             "testTexturedPolygon",
             "testPointInPolygon",
             "testCircle",

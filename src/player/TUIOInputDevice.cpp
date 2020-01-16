@@ -48,10 +48,23 @@ DWORD WINAPI TUIOInputDevice::threadFunc(LPVOID p)
     return 0;
 };
 
+bool TUIOInputDevice::isEnabled()
+{
+    string sEnableTUIO;
+    getEnv("AVG_ENABLE_TUIO", sEnableTUIO);
+    string sDriver;
+    getEnv("AVG_MULTITOUCH_DRIVER", sDriver);
+    if (sDriver != "") {
+        avgDeprecationWarning("1.8", "AVG_MULTITOUCH_DRIVER", "AVG_ENABLE_TUIO");
+    }
+    return (sDriver == "TUIO" || sEnableTUIO != "");
+}
+
 TUIOInputDevice::TUIOInputDevice(const DivNodePtr& pEventReceiverNode, int port)
     : MultitouchInputDevice(pEventReceiverNode),
       m_pSocket(0),
-      m_RemoteIP(0)
+      m_RemoteIP(0),
+      m_bConnected(false)
 {
     if (port != 0) {
         m_Port = port;
@@ -66,18 +79,7 @@ TUIOInputDevice::TUIOInputDevice(const DivNodePtr& pEventReceiverNode, int port)
                     + sPort + "'");
         }
     }
-}
 
-TUIOInputDevice::~TUIOInputDevice()
-{
-    if (m_pSocket) {
-        m_pSocket->Break();
-    }
-}
-
-void TUIOInputDevice::start()
-{
-    MultitouchInputDevice::start();
     try {
         m_pSocket = new UdpListeningReceiveSocket(IpEndpointName(
                 IpEndpointName::ANY_ADDRESS, m_Port), this);
@@ -99,9 +101,27 @@ void TUIOInputDevice::start()
 #endif
 }
 
+TUIOInputDevice::~TUIOInputDevice()
+{
+    if (m_pSocket) {
+        m_pSocket->AsynchronousBreak();
+    }
+#ifndef WIN32
+    pthread_join(m_Thread, 0);
+#else
+    WaitForSingleObject(m_Thread, INFINITE);
+#endif
+    delete m_pSocket;
+}
+
 unsigned TUIOInputDevice::getRemoteIP() const
 {
     return m_RemoteIP;
+}
+
+BitmapPtr TUIOInputDevice::getUserBmp() const
+{
+    return m_pUserBmp;
 }
 
 void TUIOInputDevice::ProcessPacket(const char* pData, int size, 
@@ -144,17 +164,11 @@ void TUIOInputDevice::processMessage(const ReceivedMessage& msg)
         ReceivedMessageArgumentStream args = msg.ArgumentStream();
         const char* cmd;
         args >> cmd;
-
         if (strcmp(msg.AddressPattern(), "/tuio/2Dcur") == 0) {
             if (strcmp(cmd, "set") == 0) { 
                 processTouchSet(args);
             } else if (strcmp(cmd, "alive") == 0) {
                 processAlive(args, Event::TOUCH);
-/*
-            } else if (strcmp(cmd, "fseq") == 0 ) {
-                int32 fseq;
-                args >> fseq;
-*/                
             } 
         } else if (strcmp(msg.AddressPattern(), "/tuio/2Dobj") == 0) {
             if (strcmp(cmd, "set") == 0) { 
@@ -162,6 +176,17 @@ void TUIOInputDevice::processMessage(const ReceivedMessage& msg)
             } else if (strcmp(cmd, "alive") == 0) {
                 processAlive(args, Event::TANGIBLE);
             } 
+        } else if (strcmp(msg.AddressPattern(), "/tuioext/userid") == 0) {
+            if (strcmp(cmd, "set") == 0) { 
+                processUserID(args);
+            } else if (strcmp(cmd, "indexframe") == 0) {
+                processIndexFrame(args);
+            }
+        }
+        if (!m_bConnected && strstr(msg.AddressPattern(), "/tuio") != 0) {
+            m_bConnected = true;
+            AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+                    "Receiving TUIO messages");
         }
     } catch (osc::Exception& e) {
         AVG_LOG_WARNING("Error parsing TUIO message: " << e.what()
@@ -184,12 +209,12 @@ void TUIOInputDevice::processTouchSet(ReceivedMessageArgumentStream& args)
     if (!pTouchStatus) {
         // Down
         pEvent = TouchEventPtr(new TouchEvent(getNextContactID(), Event::CURSOR_DOWN, 
-                screenPos, Event::TOUCH));
+                    screenPos, Event::TOUCH));
         addTouchStatus((long)tuioID, pEvent);
     } else {
         // Move
         pEvent = TouchEventPtr(new TouchEvent(0, Event::CURSOR_MOTION, screenPos, 
-                Event::TOUCH));
+                    Event::TOUCH));
         pTouchStatus->pushEvent(pEvent);
     }
     setEventSpeed(pEvent, speed);
@@ -205,8 +230,8 @@ void TUIOInputDevice::processTangibleSet(ReceivedMessageArgumentStream& args)
     float angleSpeed;
     float accel;
     float angleAccel;
-    args >> tuioID >> classID >> xpos >> ypos >> angle >> xspeed >> yspeed >> angleSpeed >>
-            accel >> angleAccel;
+    args >> tuioID >> classID >> xpos >> ypos >> angle >> xspeed >> yspeed >> angleSpeed
+            >> accel >> angleAccel;
     glm::vec2 pos(xpos, ypos);
     glm::vec2 speed(xspeed, yspeed);
     TouchStatusPtr pTouchStatus = getTouchStatus(tuioID);
@@ -248,6 +273,33 @@ void TUIOInputDevice::processAlive(ReceivedMessageArgumentStream& args,
         pTouchStatus->pushEvent(pUpEvent);
         removeTouchStatus(id);
     }
+}
+
+void TUIOInputDevice::processUserID(ReceivedMessageArgumentStream& args)
+{
+    osc::int32 tuioID;
+    osc::int32 userID;
+    osc::int32 jointID;
+    args >> tuioID >> userID >> jointID;
+    TouchStatusPtr pTouchStatus = getTouchStatus(tuioID);
+    if (!pTouchStatus) {
+        AVG_TRACE(Logger::category::EVENTS, Logger::severity::WARNING,
+                "Received /tuioext/userid, but tuio id " << tuioID <<
+                " doesn't correspond to a contact.");
+        return;
+    }
+    CursorEventPtr pEvent = pTouchStatus->getLastEvent();
+    pEvent->setUserID(userID, jointID);
+}
+
+void TUIOInputDevice::processIndexFrame(osc::ReceivedMessageArgumentStream& args)
+{
+    osc::int32 xsize;
+    osc::int32 ysize;
+    osc::Blob blob;
+    args >> xsize >> ysize >> blob >> osc::EndMessage;
+    m_pUserBmp = BitmapPtr(new Bitmap(IntPoint(xsize,ysize), I8,
+            (unsigned char*)blob.data, xsize, true));
 }
 
 void TUIOInputDevice::setEventSpeed(CursorEventPtr pEvent, glm::vec2 speed)

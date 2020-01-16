@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@
 
 #include "../graphics/GLConfig.h"
 #include "../graphics/GLContext.h"
+#include "../graphics/ShaderRegistry.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,7 +48,7 @@ public:
     {
     }
 
-    void runTests() 
+    void runTests()
     {
         Player player;
         player.loadString(
@@ -65,7 +66,12 @@ public:
             _getcwd(sz, 1024);
             cerr << "Current directory: " << sz << endl;
 #endif
-            player.initPlayback("../graphics/shaders/");
+#ifdef WIN32
+            ShaderRegistry::setShaderPath("../graphics/shaders");
+#else
+            ShaderRegistry::setShaderPath("./../../shaders");
+#endif
+            player.initPlayback();
             player.doFrame(false);
             player.cleanup(false);
         }
@@ -79,9 +85,10 @@ public:
 
 class PlayerTestSuite: public TestSuite {
 public:
-    PlayerTestSuite() 
+    PlayerTestSuite()
         : TestSuite("PlayerTestSuite")
     {
+        Test::setRelSrcDir(".");
         addTest(TestPtr(new PlayerTest));
     }
 };

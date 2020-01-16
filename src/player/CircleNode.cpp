@@ -47,10 +47,13 @@ void CircleNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-CircleNode::CircleNode(const ArgList& args)
-    : FilledVectorNode(args)
+CircleNode::CircleNode(const ArgList& args, const string& sPublisherName)
+    : FilledVectorNode(args, sPublisherName)
 {
     args.setMembers(this);
+    if (m_Radius < 0) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE, "Circle radius must not be negative.");
+    }
     setTranslate(m_Pos);
 }
 
@@ -76,8 +79,8 @@ float CircleNode::getR() const
 
 void CircleNode::setR(float r) 
 {
-    if (int(r) <= 0) {
-        throw Exception(AVG_ERR_OUT_OF_RANGE, "Circle radius must be a positive number.");
+    if (r < 0) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE, "Circle radius must not be negative.");
     }
     m_Radius = r;
     setDrawNeeded();
@@ -103,13 +106,6 @@ void CircleNode::setTexCoord2(float tc)
 {
     m_TC2 = tc;
     setDrawNeeded();
-}
-
-void CircleNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
-{
-    if (glm::length(pos-m_Pos) <= m_Radius && reactsToMouseEvents()) {
-        pElements.push_back(getSharedThis());
-    }
 }
 
 void CircleNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
@@ -244,6 +240,11 @@ void CircleNode::calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 colo
         glm::vec2 curPt = glm::vec2(-it->x, it->y);
         appendFillCirclePoint(pVertexData, curPt, minPt, maxPt, color, curVertex);
     }
+}
+
+bool CircleNode::isInside(const glm::vec2& pos)
+{
+    return (glm::length(pos-m_Pos) <= m_Radius+getStrokeWidth()/2);
 }
 
 void CircleNode::appendCirclePoint(const VertexDataPtr& pVertexData, 

@@ -113,7 +113,13 @@ void AudioSource::fillAudioBuffer(AudioBufferPtr pBuffer)
         m_StatusQ.push(pStatusMsg);
     }
 }
-    
+
+void AudioSource::clearQueue()
+{
+    while (processNextMsg(false)) {
+    }
+}
+
 bool AudioSource::processNextMsg(bool bWait)
 {
     AudioMsgPtr pMsg = m_MsgQ.pop(bWait);

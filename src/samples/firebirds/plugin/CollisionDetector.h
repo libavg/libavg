@@ -3,6 +3,7 @@
 
 #define AVG_PLUGIN
 
+#include "../../../wrapper/WrapHelper.h"
 #include "../../../graphics/Bitmap.h"
 
 

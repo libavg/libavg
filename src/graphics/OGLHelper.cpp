@@ -102,7 +102,7 @@ namespace glproc {
     PFNGLVERTEXATTRIBPOINTERPROC VertexAttribPointer;
     PFNGLENABLEVERTEXATTRIBARRAYPROC EnableVertexAttribArray;
     PFNGLBINDATTRIBLOCATIONPROC BindAttribLocation;
-#if defined(linux) && !defined(AVG_ENABLE_EGL)
+#if defined(__linux__) && !defined(AVG_ENABLE_EGL)
     PFNGLXSWAPINTERVALEXTPROC SwapIntervalEXT;
 #endif
 #ifdef _WIN32
@@ -307,7 +307,7 @@ GLfunction getFuzzyProcAddress(const char * psz)
     return pProc;
 }
 
-#if defined(linux) && !defined(AVG_ENABLE_EGL)
+#if defined(__linux__) && !defined(AVG_ENABLE_EGL)
 GLfunction getglXProcAddress(const char * psz)
 {
     GLfunction pProc = (GLfunction)glXGetProcAddress((const GLubyte *)psz);
@@ -422,7 +422,7 @@ namespace glproc {
                 getFuzzyProcAddress("glEnableVertexAttribArray");
         BindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC)
                 getFuzzyProcAddress("glBindAttribLocation");
-#if defined(linux) && !defined(AVG_ENABLE_EGL)
+#if defined(__linux__) && !defined(AVG_ENABLE_EGL)
         SwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC)
                 getglXProcAddress("glXSwapIntervalEXT");
 #endif

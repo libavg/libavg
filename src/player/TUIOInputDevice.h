@@ -29,6 +29,7 @@
 #include "../oscpack/PacketListener.h"
 #include "../oscpack/OscReceivedElements.h"
 #include "../oscpack/OscPrintReceivedElements.h"
+#include "../graphics/Bitmap.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -41,11 +42,13 @@ namespace avg {
 class AVG_API TUIOInputDevice: public MultitouchInputDevice, PacketListener
 {
 public:
+    static bool isEnabled();
+
     TUIOInputDevice(const DivNodePtr& pEventReceiverNode=DivNodePtr(), int port=0);
     virtual ~TUIOInputDevice();
-    virtual void start();
    
     virtual unsigned getRemoteIP() const;
+    virtual BitmapPtr getUserBmp() const;
 
     virtual void ProcessPacket(const char* pData, int size, 
             const IpEndpointName& remoteEndpoint);
@@ -63,6 +66,8 @@ private:
     void processTangibleSet(osc::ReceivedMessageArgumentStream& args);
     void processAlive(osc::ReceivedMessageArgumentStream& args, 
             Event::Source source);
+    void processUserID(osc::ReceivedMessageArgumentStream& args);
+    void processIndexFrame(osc::ReceivedMessageArgumentStream& args);
     void setEventSpeed(CursorEventPtr pEvent, glm::vec2 speed);
     void getDeadIDs(const std::set<int>& liveIDs, std::set<int>& deadIDs, 
             Event::Source source);
@@ -70,6 +75,8 @@ private:
     UdpListeningReceiveSocket* m_pSocket;
     unsigned m_RemoteIP;
     int m_Port;
+    bool m_bConnected;
+    BitmapPtr m_pUserBmp;
 #ifndef WIN32
     pthread_t m_Thread;
 #else

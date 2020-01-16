@@ -29,6 +29,7 @@
 #include "TypeDefinition.h"
 #include "TypeRegistry.h"
 #include "BoostPython.h"
+#include "NodeChain.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
@@ -36,6 +37,7 @@
 #include "../base/ObjectCounter.h"
 
 #include "../graphics/GLContext.h"
+#include "../graphics/Color.h"
 
 #include <object.h>
 #include <compile.h>
@@ -66,9 +68,9 @@ void AreaNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-AreaNode::AreaNode()
-    : m_RelViewport(0,0,0,0),
-      m_Transform(glm::mat4(0)),
+AreaNode::AreaNode(const string& sPublisherName)
+    : Node(sPublisherName),
+      m_RelViewport(0,0,0,0),
       m_bTransformChanged(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -103,7 +105,9 @@ void AreaNode::connectDisplay()
     } else {
         m_RelViewport.setHeight(float(m_UserSize.y));
     }
-    if (m_UserSize.x == 0.0 || m_UserSize.y == 0) {
+    if ((m_UserSize.x == 0.0 || m_UserSize.y == 0.0) &&
+            m_UserSize != m_RelViewport.size())
+    {
         notifySubscribers("SIZE_CHANGED", m_RelViewport.size());
     }
     m_bTransformChanged = true;
@@ -212,7 +216,7 @@ void AreaNode::setElementOutlineColor(const std::string& sColor)
     if (sColor == "") {
         m_ElementOutlineColor = Pixel32(0,0,0,0);
     } else {
-        m_ElementOutlineColor = colorStringToColor(m_sElementOutlineColor);
+        m_ElementOutlineColor = Color(m_sElementOutlineColor);
     }
 }
 
@@ -228,22 +232,29 @@ glm::vec2 AreaNode::toGlobal(const glm::vec2& localPos) const
     return globalPos+m_RelViewport.tl;
 }
 
-void AreaNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
+void AreaNode::getElementsByPos(const glm::vec2& pos, NodeChainPtr& pElements)
 {
     if (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y &&
             reactsToMouseEvents())
     {
-        pElements.push_back(getSharedThis());
+        pElements->append(getSharedThis());
     }
 }
 
-void AreaNode::maybeRender(const glm::mat4& parentTransform)
+void AreaNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
+        float parentEffectiveOpacity)
+{
+    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
+    if (isVisible()) {
+        calcTransform();
+    }
+}
+
+void AreaNode::maybeRender(GLContext* pContext, const glm::mat4& parentTransform)
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
-        calcTransform();
-        m_Transform = parentTransform*m_LocalTransform;
-        render();
+        render(pContext, parentTransform*m_LocalTransform);
     }
 }
 
@@ -313,11 +324,6 @@ string AreaNode::dump(int indent)
     dumpStr += sz;
 
     return dumpStr; 
-}
-
-const glm::mat4& AreaNode::getTransform() const
-{
-    return m_Transform;
 }
 
 glm::vec2 AreaNode::getUserSize() const

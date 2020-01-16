@@ -29,17 +29,13 @@
 
 namespace avg {
 
-class TangibleEvent;
-typedef boost::shared_ptr<class TangibleEvent> TangibleEventPtr;
-typedef boost::weak_ptr<class TangibleEvent> TangibleEventWeakPtr;
-
 class AVG_API TangibleEvent: public CursorEvent 
 {
     public:
         TangibleEvent(int id, int markerID, Type eventType, const IntPoint& pos, 
                 const glm::vec2& speed, float orientation);
         virtual ~TangibleEvent();
-        virtual CursorEventPtr cloneAs(Type eventType) const;
+        virtual CursorEventPtr copy() const;
 
         int getMarkerID() const;
         float getOrientation() const;
@@ -50,6 +46,9 @@ class AVG_API TangibleEvent: public CursorEvent
         int m_MarkerID;
         float m_Orientation;
 };
+
+typedef boost::shared_ptr<class TangibleEvent> TangibleEventPtr;
+typedef boost::weak_ptr<class TangibleEvent> TangibleEventWeakPtr;
 
 }
 #endif

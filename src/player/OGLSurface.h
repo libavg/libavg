@@ -26,6 +26,7 @@
 
 #include "../base/GLMHelper.h"
 #include "../graphics/PixelFormat.h"
+#include "../graphics/WrapMode.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -33,10 +34,11 @@ namespace avg {
 
 class MCTexture;
 typedef boost::shared_ptr<MCTexture> MCTexturePtr;
+class GLContext;
 
 class AVG_API OGLSurface {
 public:
-    OGLSurface();
+    OGLSurface(const WrapMode& wrapMode);
     virtual ~OGLSurface();
 
     virtual void create(PixelFormat pf, MCTexturePtr pTex0, 
@@ -44,8 +46,7 @@ public:
             MCTexturePtr pTex3 = MCTexturePtr(), bool bPremultipliedAlpha = false);
     void setMask(MCTexturePtr pTex);
     virtual void destroy();
-    void activate(const IntPoint& logicalSize = IntPoint(1,1)) const;
-    MCTexturePtr getTex(int i=0) const;
+    void activate(GLContext* pContext, const IntPoint& logicalSize = IntPoint(1,1)) const;
 
     void setMaskCoords(glm::vec2 maskPos, glm::vec2 maskSize);
 
@@ -60,24 +61,25 @@ public:
     void setAlphaGamma(float gamma);
 
     bool isDirty() const;
+    void setDirty();
     void resetDirty();
 
 private:
     glm::mat4 calcColorspaceMatrix() const;
-    bool colorIsModified() const;
 
-    MCTexturePtr m_pTextures[4];
+    MCTexturePtr m_pMCTextures[4];
     IntPoint m_Size;
     PixelFormat m_pf;
-    MCTexturePtr m_pMaskTexture;
+    MCTexturePtr m_pMaskMCTexture;
     glm::vec2 m_MaskPos;
     glm::vec2 m_MaskSize;
     bool m_bPremultipliedAlpha;
+    WrapMode m_WrapMode;
 
-    glm::vec3 m_Gamma;
+    glm::vec4 m_Gamma;
+    bool m_bColorIsModified;
     glm::vec3 m_Brightness;
     glm::vec3 m_Contrast;
-    float m_AlphaGamma;
 
     bool m_bIsDirty;
 

@@ -23,12 +23,14 @@
 
 #include "../player/KeyEvent.h"
 #include "../player/MouseEvent.h"
+#include "../player/MouseWheelEvent.h"
 #include "../player/TouchEvent.h"
 #include "../player/TangibleEvent.h"
 #include "../player/Contact.h"
-#include "../player/TrackerInputDevice.h"
 #include "../player/Publisher.h"
+#include "../player/InputDevice.h"
 
+#include <SDL2/SDL_events.h>
 #include <boost/shared_ptr.hpp>
 #include <string>
 
@@ -37,41 +39,6 @@ using namespace avg;
 using namespace std;
 
 
-class InputDeviceWrapper : public InputDevice, public wrapper<InputDevice>
-{
-    public:
-        InputDeviceWrapper(const std::string& name,
-                const DivNodePtr& pEventReceiverNode=DivNodePtr())
-            : InputDevice(name, pEventReceiverNode)
-        {
-        }
-
-        InputDeviceWrapper(const InputDevice& inputDevice)
-            : InputDevice(inputDevice)
-        {
-        }
-
-        virtual void start() 
-        {
-            override startMethod = this->get_override("start");
-            if (startMethod) {
-                startMethod();
-            }
-            InputDevice::start();
-        }
-
-        void default_start() 
-        {
-            return this->InputDevice::start();
-        }
-
-        virtual std::vector<EventPtr> pollEvents() 
-        {
-            return this->get_override("pollEvents")();
-        }
-
-};
-
 void export_event()
 {
     boost::python::to_python_converter<vector<TouchEventPtr>, 
@@ -79,29 +46,25 @@ void export_event()
     boost::python::to_python_converter<vector<CursorEventPtr>, 
         to_tuple<vector<CursorEventPtr> > >();
 
-    boost::python::to_python_converter<ContourSeq, to_list<ContourSeq> >();    
-   
-    from_python_sequence<ContourSeq, variable_capacity_policy>();
-    from_python_sequence<vector<EventPtr>, variable_capacity_policy>();
+    from_python_sequence<vector<EventPtr> >();
 
     enum_<int>("KeyModifier")
-        .value("KEYMOD_NONE", key::KEYMOD_NONE)
-        .value("KEYMOD_LSHIFT", key::KEYMOD_LSHIFT)
-        .value("KEYMOD_RSHIFT", key::KEYMOD_RSHIFT)
-        .value("KEYMOD_LCTRL", key::KEYMOD_LCTRL)
-        .value("KEYMOD_RCTRL", key::KEYMOD_RCTRL)
-        .value("KEYMOD_LALT", key::KEYMOD_LALT)
-        .value("KEYMOD_RALT", key::KEYMOD_RALT)
-        .value("KEYMOD_LMETA", key::KEYMOD_LMETA)
-        .value("KEYMOD_RMETA", key::KEYMOD_RMETA)
-        .value("KEYMOD_NUM", key::KEYMOD_NUM)
-        .value("KEYMOD_CAPS", key::KEYMOD_CAPS)
-        .value("KEYMOD_MODE", key::KEYMOD_MODE)
-        .value("KEYMOD_RESERVED", key::KEYMOD_RESERVED)
-        .value("KEYMOD_CTRL", key::KEYMOD_CTRL)
-        .value("KEYMOD_SHIFT", key::KEYMOD_SHIFT)
-        .value("KEYMOD_ALT", key::KEYMOD_ALT)
-        .value("KEYMOD_META", key::KEYMOD_META)
+        .value("KEYMOD_NONE", KMOD_NONE)
+        .value("KEYMOD_LSHIFT", KMOD_LSHIFT)
+        .value("KEYMOD_RSHIFT", KMOD_RSHIFT)
+        .value("KEYMOD_LCTRL", KMOD_LCTRL)
+        .value("KEYMOD_RCTRL", KMOD_RCTRL)
+        .value("KEYMOD_LALT", KMOD_LALT)
+        .value("KEYMOD_RALT", KMOD_RALT)
+        .value("KEYMOD_LGUI", KMOD_RGUI)
+        .value("KEYMOD_RGUI", KMOD_RGUI)
+        .value("KEYMOD_NUM", KMOD_NUM)
+        .value("KEYMOD_CAPS", KMOD_CAPS)
+        .value("KEYMOD_MODE", KMOD_MODE)
+        .value("KEYMOD_CTRL", KMOD_CTRL)
+        .value("KEYMOD_SHIFT", KMOD_SHIFT)
+        .value("KEYMOD_ALT", KMOD_ALT)
+        .value("KEYMOD_GUI", KMOD_GUI)
         .export_values()
     ;
 
@@ -125,6 +88,7 @@ void export_event()
         .value("CURSOR_DOWN", Event::CURSOR_DOWN)
         .value("CURSOR_OVER", Event::CURSOR_OVER)
         .value("CURSOR_OUT", Event::CURSOR_OUT)
+        .value("MOUSE_WHEEL", Event::MOUSE_WHEEL)
         .value("CUSTOM_EVENT", Event::CUSTOM_EVENT)
         .export_values()
     ;
@@ -141,13 +105,14 @@ void export_event()
 
     scope oldScope1(mainScope);
 
-    class_<CursorEvent, boost::shared_ptr<CursorEvent>, bases<Event> >("CursorEvent", 
-            no_init)
+    class_<CursorEvent, bases<Event> >("CursorEvent", no_init)
         .add_property("source", &CursorEvent::getSource)
         .add_property("pos", &CursorEvent::getPos)
         .add_property("x", &CursorEvent::getXPosition)
         .add_property("y", &CursorEvent::getYPosition)
         .add_property("cursorid", &CursorEvent::getCursorID, &CursorEvent::setCursorID)
+        .add_property("userid", &TouchEvent::getUserID)
+        .add_property("jointid", &TouchEvent::getJointID)
         .add_property("node", &CursorEvent::getNode)
         .add_property("speed", make_function(&CursorEvent::getSpeed,
                 return_value_policy<copy_const_reference>()))
@@ -156,10 +121,9 @@ void export_event()
 
     class_<KeyEvent, bases<Event> >("KeyEvent", no_init)
         .add_property("scancode", &KeyEvent::getScanCode)
-        .add_property("keycode", &KeyEvent::getKeyCode)
-        .add_property("keystring", make_function(&KeyEvent::getKeyString, 
+        .add_property("text", &KeyEvent::getText)
+        .add_property("keyname", make_function(&KeyEvent::getName,
                 return_value_policy<copy_const_reference>()))
-        .add_property("unicode", &KeyEvent::getUnicode)
         .add_property("modifiers", &KeyEvent::getModifiers)
     ;    
     
@@ -170,6 +134,12 @@ void export_event()
         .add_property("middlebuttonstate", &MouseEvent::getMiddleButtonState)
         .add_property("rightbuttonstate", &MouseEvent::getRightButtonState)
         .add_property("button", &MouseEvent::getButton)
+    ;
+
+    class_<MouseWheelEvent, bases<CursorEvent> >("MouseWheelEvent",
+            init<const IntPoint&, const glm::vec2&, optional<int> >())
+        .add_property("motion", make_function(&MouseWheelEvent::getMotion,
+                return_value_policy<copy_const_reference>()))
     ;
 
     class_<TouchEvent, bases<CursorEvent> >("TouchEvent", init<int, Event::Type,
@@ -185,7 +155,6 @@ void export_event()
                 return_value_policy<copy_const_reference>()))
         .add_property("handorientation", &TouchEvent::getHandOrientation)
         .def("getRelatedEvents", &TouchEvent::getRelatedEvents)
-        .def("getContour", &TouchEvent::getContour)
         ;
 
     class_<TangibleEvent, bases<CursorEvent> >("TangibleEvent", init<int, int, 
@@ -194,8 +163,7 @@ void export_event()
         .add_property("orientation", &TangibleEvent::getOrientation)
         ;
 
-    object contactClass = class_<Contact, boost::shared_ptr<Contact>, bases<Publisher> >
-            ("Contact", no_init)
+    object contactClass = class_<Contact, bases<Publisher> >("Contact", no_init)
         .add_property("id", &Contact::getID)
         .add_property("age", &Contact::getAge)
         .add_property("distancefromstart", &Contact::getDistanceFromStart)
@@ -205,55 +173,8 @@ void export_event()
         .add_property("events", &Contact::getEvents)
         .def("connectListener", &Contact::connectListener)
         .def("disconnectListener", &Contact::disconnectListener)
+        .def("getRelPos", &Contact::getRelPos)
+        .def("isNodeInTargets", &Contact::isNodeInTargets)
         ;
     exportMessages(contactClass, "Contact");
-
-    enum_<TrackerImageID>("TrackerImageID")
-        .value("IMG_CAMERA", TRACKER_IMG_CAMERA)
-        .value("IMG_DISTORTED", TRACKER_IMG_DISTORTED)
-        .value("IMG_NOHISTORY", TRACKER_IMG_NOHISTORY)
-        .value("IMG_HISTOGRAM", TRACKER_IMG_HISTOGRAM)
-        .value("IMG_FINGERS", TRACKER_IMG_FINGERS)
-        .value("IMG_HIGHPASS", TRACKER_IMG_HIGHPASS)
-        .export_values()
-    ;
-
-    class_<InputDevicePtr>("InputDevice")
-    ;
-
-    class_< InputDeviceWrapper,
-            boost::shared_ptr<InputDeviceWrapper>,
-            boost::noncopyable
-    >("InputDevice", init<const std::string&, optional<const DivNodePtr&> >())
-        .def("start", &InputDevice::start, &InputDeviceWrapper::default_start)
-        .def("pollEvents", pure_virtual(&InputDevice::pollEvents))
-        .add_property("name",
-                      make_function(&InputDevice::getName,
-                                    return_value_policy<copy_const_reference>()))
-        .add_property("eventreceivernode",
-                      make_function(&InputDevice::getEventReceiverNode,
-                                    return_value_policy<copy_const_reference>()))
-    ;
-
-    class_<TrackerInputDevice, boost::noncopyable>("Tracker", no_init)
-        .def("getImage", &TrackerInputDevice::getImage,
-            return_value_policy<manage_new_object>())
-        .def("getDisplayROIPos", &TrackerInputDevice::getDisplayROIPos)
-        .def("getDisplayROISize", &TrackerInputDevice::getDisplayROISize)
-        .def("saveConfig", &TrackerInputDevice::saveConfig)
-        .def("resetHistory", &TrackerInputDevice::resetHistory)
-        .def("setDebugImages", &TrackerInputDevice::setDebugImages)
-        .def("startCalibration", &TrackerInputDevice::startCalibration,
-            return_value_policy<reference_existing_object>())
-        .def("endCalibration", &TrackerInputDevice::endCalibration)
-        .def("abortCalibration", &TrackerInputDevice::abortCalibration)
-        .def("setParam", &TrackerInputDevice::setParam)
-        .def("getParam", &TrackerInputDevice::getParam)
-    ;
-
-    class_<TrackerCalibrator, boost::noncopyable>("TrackerCalibrator", no_init)
-        .def("nextPoint", &TrackerCalibrator::nextPoint)
-        .def("getDisplayPoint", &TrackerCalibrator::getDisplayPoint)
-        .def("setCamPoint", &TrackerCalibrator::setCamPoint)
-    ;
 }

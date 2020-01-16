@@ -35,13 +35,36 @@ namespace avg {
 
 using namespace std;
 
-TexInfo::TexInfo(const IntPoint& size, PixelFormat pf, bool bMipmap,
-        unsigned wrapSMode, unsigned wrapTMode, bool bUsePOT, int potBorderColor)
+TexCompression string2TexCompression(const std::string& s)
+{
+    if (s == "none") {
+        return TEXCOMPRESSION_NONE;
+    } else if (s == "B5G6R5") {
+        return TEXCOMPRESSION_B5G6R5;
+    } else {
+        throw(Exception(AVG_ERR_UNSUPPORTED, "Texture compression "+s+" not supported."));
+    }
+}
+
+std::string texCompression2String(TexCompression compression)
+{
+    switch(compression) {
+        case TEXCOMPRESSION_NONE:
+            return "none";
+        case TEXCOMPRESSION_B5G6R5:
+            return "B5G6R5";
+        default:
+            AVG_ASSERT(false);
+            return 0;
+    }
+}
+
+
+TexInfo::TexInfo(const IntPoint& size, PixelFormat pf, bool bMipmap, bool bUsePOT,
+        int potBorderColor)
     : m_Size(size),
       m_pf(pf),
       m_bMipmap(bMipmap),
-      m_WrapSMode(wrapSMode),
-      m_WrapTMode(wrapTMode),
       m_bUsePOT(bUsePOT),
       m_POTBorderColor(potBorderColor)
 {
@@ -69,12 +92,6 @@ TexInfo::~TexInfo()
 {
 }
 
-void TexInfo::setWrapMode(unsigned wrapSMode, unsigned wrapTMode)
-{
-    m_WrapSMode = wrapSMode;
-    m_WrapTMode = wrapTMode;
-}
-
 const IntPoint& TexInfo::getSize() const
 {
     return m_Size;
@@ -88,6 +105,11 @@ const IntPoint& TexInfo::getGLSize() const
 PixelFormat TexInfo::getPF() const
 {
     return m_pf;
+}
+    
+int TexInfo::getMemNeeded() const
+{
+    return m_GLSize.x*m_GLSize.y*getBytesPerPixel(m_pf);
 }
 
 IntPoint TexInfo::getMipmapSize(int level) const
@@ -121,6 +143,8 @@ int TexInfo::getGLFormat(PixelFormat pf)
             AVG_ASSERT(!GLContext::getCurrent()->isGLES());
             return GL_BGRA;
 #ifndef AVG_ENABLE_EGL
+        case R8:
+            return GL_RED;
         case R32G32B32A32F:
             return GL_BGRA;
 #endif
@@ -138,6 +162,7 @@ int TexInfo::getGLType(PixelFormat pf)
     switch (pf) {
         case I8:
         case A8:
+        case R8:
             return GL_UNSIGNED_BYTE;
         case R8G8B8A8:
         case R8G8B8X8:
@@ -176,6 +201,8 @@ int TexInfo::getGLInternalFormat() const
             AVG_ASSERT(!GLContext::getCurrent()->isGLES());
             return GL_RGBA;
 #ifndef AVG_ENABLE_EGL            
+        case R8:
+            return GL_R8;
         case R32G32B32A32F:
             return GL_RGBA32F_ARB;
         case I32F:
@@ -190,54 +217,13 @@ int TexInfo::getGLInternalFormat() const
     }
 }
 
-const string wrapModeToStr(unsigned wrapMode)
-{
-    string sWrapMode;
-    switch (wrapMode) {
-        case GL_CLAMP_TO_EDGE:
-            sWrapMode = "CLAMP_TO_EDGE";
-            break;
-#ifndef AVG_ENABLE_EGL
-        case GL_CLAMP:
-            sWrapMode = "CLAMP";
-            break;
-        case GL_CLAMP_TO_BORDER:
-            sWrapMode = "CLAMP_TO_BORDER";
-            break;
-#endif
-        case GL_REPEAT:
-            sWrapMode = "REPEAT";
-            break;
-        case GL_MIRRORED_REPEAT:
-            sWrapMode = "MIRRORED_REPEAT";
-            break;
-        default:
-            sWrapMode = "unknown";
-    }
-    return sWrapMode;
-}
-
-void TexInfo::dump(unsigned wrapSMode, unsigned wrapTMode) const
+void TexInfo::dump() const
 {
     cerr << "TexInfo" << endl;
     cerr << "m_Size: " << m_Size << endl;
     cerr << "m_GLSize: " << m_GLSize << endl;
     cerr << "m_pf: " << m_pf << endl;
     cerr << "m_bMipmap: " << m_bMipmap << endl;
-    if (wrapSMode != (unsigned)-1) {
-        cerr << "Wrap modes: " << \
-                wrapModeToStr(wrapSMode) << ", " << wrapModeToStr(wrapTMode) << endl;
-    }
-}
-
-unsigned TexInfo::getWrapSMode() const
-{
-    return m_WrapSMode;
-}
-
-unsigned TexInfo::getWrapTMode() const
-{
-    return m_WrapTMode;
 }
 
 bool TexInfo::getUseMipmap() const

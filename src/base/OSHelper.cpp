@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -34,7 +34,8 @@
 #include <mach/mach.h>
 #include <sys/utsname.h>
 #include <unistd.h>
-#elif defined(__linux)
+#include <sys/sysctl.h>
+#elif defined(__linux__)
 #include <fstream>
 #include <unistd.h>
 #include <string.h>
@@ -44,13 +45,14 @@
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
+#include <dlfcn.h>
 
 using namespace std;
 
 namespace avg {
 
 #ifdef _WIN32
-string getWinErrMsg(unsigned err) 
+string getWinErrMsg(unsigned err)
 {
     LPVOID lpMsgBuf;
     FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
@@ -63,106 +65,6 @@ string getWinErrMsg(unsigned err)
 }
 #endif
 
-#if defined(__linux)
-// Adapted from binreloc
-static char *
-_br_find_exe_for_symbol (const void *symbol)
-{
-    #define SIZE 1024 
-    FILE *f;
-    size_t address_string_len;
-    char *address_string, line[SIZE], *found;
-
-    if (symbol == NULL)
-        return (char *) NULL;
-
-    f = fopen ("/proc/self/maps", "r");
-    if (f == NULL)
-        return (char *) NULL;
-
-    address_string_len = 4;
-    address_string = (char *) malloc(address_string_len);
-    found = (char *) NULL;
-
-
-    while (!feof (f)) {
-        char *start_addr, *end_addr, *end_addr_end, *file;
-        void *start_addr_p, *end_addr_p;
-        size_t len;
-
-        if (fgets (line, SIZE, f) == NULL)
-            break;
-
-        /* Sanity check. */
-        if (strstr (line, " r-xp ") == NULL || strchr (line, '/') == NULL)
-            continue;
-
-        /* Parse line. */
-        start_addr = line;
-        end_addr = strchr (line, '-');
-        file = strchr (line, '/');
-
-        /* More sanity check. */
-        if (!(file > end_addr && end_addr != NULL && end_addr[0] == '-'))
-            continue;
-
-        end_addr[0] = '\0';
-        end_addr++;
-        end_addr_end = strchr (end_addr, ' ');
-        if (end_addr_end == NULL)
-            continue;
-
-        end_addr_end[0] = '\0';
-        len = strlen (file);
-        if (len == 0)
-            continue;
-        if (file[len - 1] == '\n')
-            file[len - 1] = '\0';
-
-        /* Get rid of "(deleted)" from the filename. */
-        len = strlen (file);
-        if (len > 10 && strcmp (file + len - 10, " (deleted)") == 0)
-            file[len - 10] = '\0';
-
-        /* I don't know whether this can happen but better safe than sorry. */
-        len = strlen (start_addr);
-        if (len != strlen (end_addr))
-            continue;
-
-
-        /* Transform the addresses into a string in the form of 0xdeadbeef,
-         * then transform that into a pointer. */
-        if (address_string_len < len + 3) {
-            address_string_len = len + 3;
-            address_string = (char *) realloc (address_string, address_string_len);
-        }
-
-        memcpy (address_string, "0x", 2);
-        memcpy (address_string + 2, start_addr, len);
-        address_string[2 + len] = '\0';
-        sscanf (address_string, "%p", &start_addr_p);
-
-        memcpy (address_string, "0x", 2);
-        memcpy (address_string + 2, end_addr, len);
-        address_string[2 + len] = '\0';
-        sscanf (address_string, "%p", &end_addr_p);
-
-
-        if (symbol >= start_addr_p && symbol < end_addr_p) {
-            found = file;
-            break;
-        }
-    }
-
-    free (address_string);
-    fclose (f);
-
-    if (found == NULL)
-        return (char *) NULL;
-    else
-        return strdup (found);
-}
-#endif
 
 string getAvgLibPath()
 {
@@ -173,7 +75,7 @@ string getAvgLibPath()
     if (ok == 0) {
         AVG_LOG_ERROR("getAvgLibPath(): " << getWinErrMsg(GetLastError()));
         exit(5);
-    } 
+    }
     string sPath=getPath(szFilename);
     return sPath;
 #elif defined(__APPLE__)
@@ -183,8 +85,8 @@ string getAvgLibPath()
     for (uint32_t i=0; i<numImages; i++) {
          const char * pszImageName = _dyld_get_image_name(i);
          string sFilePart=getFilenamePart(pszImageName);
-         if (sFilePart == "avg.so" || sFilePart == "avg.0.so" 
-                 || sFilePart == "avg.0.0.0.so") 
+         if (sFilePart == "avg.so" || sFilePart == "avg.0.so"
+                 || sFilePart == "avg.0.0.0.so")
          {
              return getPath(pszImageName);
          }
@@ -194,9 +96,9 @@ string getAvgLibPath()
     _NSGetExecutablePath(path, &pathLen);
     return getPath(path);
 #else
-    char* pszFilename;
-    pszFilename = _br_find_exe_for_symbol((const void *)"");
-    return pszFilename;
+    Dl_info dl_info;
+    dladdr((void*)"getAvgLibPath", &dl_info);
+    return(dl_info.dli_fname);
 #endif
 }
 
@@ -250,6 +152,31 @@ size_t getMemoryUsage()
 #endif
 }
 
+long long getPhysMemorySize()
+{
+#ifdef _WIN32
+    MEMORYSTATUSEX status;
+    status.dwLength = sizeof(status);
+    GlobalMemoryStatusEx( &status );
+    return (long long)status.ullTotalPhys;
+#else
+#ifdef __linux__
+    long numPages = sysconf(_SC_PHYS_PAGES);
+    long pageSize = sysconf(_SC_PAGE_SIZE);
+    AVG_ASSERT(numPages != -1 && pageSize != -1);
+    return (long long)(numPages) * pageSize;
+#else
+#ifdef __APPLE__
+    size_t physMemSize;
+    size_t len = sizeof(physMemSize);
+    int rc = sysctlbyname("hw.memsize", &physMemSize, &len, 0, 0);
+    AVG_ASSERT(rc != -1);
+    return (long long)physMemSize;
+#endif
+#endif
+#endif
+}
+
 std::string convertUTF8ToFilename(const std::string & sName)
 {
 #ifdef _WIN32
@@ -257,7 +184,7 @@ std::string convertUTF8ToFilename(const std::string & sName)
     // utf-8 long filename -> utf-16 long filename -> utf-16 short filename (8.3)
     // -> utf-8 short filename (= ASCII short filename).
     wchar_t wideString[2048];
-    int err1 = MultiByteToWideChar(CP_UTF8, 0, sName.c_str(), sName.size()+1, 
+    int err1 = MultiByteToWideChar(CP_UTF8, 0, sName.c_str(), sName.size()+1,
             wideString, 2048);
     if (err1 == 0) {
         AVG_LOG_WARNING("Error in unicode conversion (MultiByteToWideChar): " <<
@@ -268,7 +195,7 @@ std::string convertUTF8ToFilename(const std::string & sName)
     DWORD err2 = GetShortPathNameW(wideString, wideShortFName, 1024);
     if (err2 != 0) {
         char pShortName[1024];
-        err1 = WideCharToMultiByte(CP_UTF8, 0, wideShortFName, -1, pShortName, 
+        err1 = WideCharToMultiByte(CP_UTF8, 0, wideShortFName, -1, pShortName,
                 1024, 0, 0);
         if (err1 == 0) {
             AVG_LOG_WARNING("Error in unicode conversion (MultiByteToWideChar): " <<
@@ -297,7 +224,7 @@ int reallyGetOSXMajorVersion()
     int dot;
     char c;
     ss >> major >> c >> minor >> c >> dot;
-    return major;    
+    return major;
 }
 
 int getOSXMajorVersion()

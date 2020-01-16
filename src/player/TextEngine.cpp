@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -52,7 +52,7 @@ text_subst_func_nohint(FcPattern *pattern, gpointer data)
     FcPatternAddBool(pattern, FC_ANTIALIAS, true);
 }
 
-TextEngine& TextEngine::get(bool bHint) 
+TextEngine& TextEngine::get(bool bHint)
 {
     if (bHint) {
         static TextEngine s_Instance(true);
@@ -81,10 +81,10 @@ void TextEngine::init()
     m_pFontMap = PANGO_FT2_FONT_MAP(pango_ft2_font_map_new());
     pango_ft2_font_map_set_resolution(m_pFontMap, 72, 72);
     if (m_bHint) {
-        pango_ft2_font_map_set_default_substitute(m_pFontMap, text_subst_func_hint, 
+        pango_ft2_font_map_set_default_substitute(m_pFontMap, text_subst_func_hint,
                 0, 0);
     } else {
-        pango_ft2_font_map_set_default_substitute(m_pFontMap, text_subst_func_nohint, 
+        pango_ft2_font_map_set_default_substitute(m_pFontMap, text_subst_func_nohint,
                 0, 0);
     }
 #if PANGO_VERSION > PANGO_VERSION_ENCODE(1,22,0)
@@ -102,7 +102,7 @@ void TextEngine::init()
     string sOldLang = "";
     getEnv("LC_CTYPE", sOldLang);
     setEnv("LC_CTYPE", "en-us");
-    pango_font_map_list_families(PANGO_FONT_MAP(m_pFontMap), &m_ppFontFamilies, 
+    pango_font_map_list_families(PANGO_FONT_MAP(m_pFontMap), &m_ppFontFamilies,
             &m_NumFontFamilies);
     setEnv("LC_CTYPE", sOldLang);
     for (int i = 0; i < m_NumFontFamilies; ++i) {
@@ -143,6 +143,7 @@ const vector<string>& TextEngine::getFontVariants(const string& sFontName)
     int numFaces;
     pango_font_family_list_faces (pCurFamily, &ppFaces, &numFaces);
     static vector<string> sVariants;
+    sVariants.clear();
     for (int i = 0; i < numFaces; ++i) {
         sVariants.push_back(pango_font_face_get_face_name(ppFaces[i]));
     }
@@ -150,7 +151,7 @@ const vector<string>& TextEngine::getFontVariants(const string& sFontName)
     return sVariants;
 }
 
-PangoFontDescription * TextEngine::getFontDescription(const string& sFamily, 
+PangoFontDescription * TextEngine::getFontDescription(const string& sFamily,
         const string& sVariant)
 {
     PangoFontDescription* pDescription;
@@ -163,7 +164,7 @@ PangoFontDescription * TextEngine::getFontDescription(const string& sFamily,
             pFamily = getFontFamily(sFamily);
         } catch (Exception&) {
             if (m_sFontsNotFound.find(sFamily) == m_sFontsNotFound.end()) {
-                AVG_LOG_WARNING("Could not find font face " << sFamily << 
+                AVG_LOG_WARNING("Could not find font face " << sFamily <<
                         ". Using sans instead.");
                 m_sFontsNotFound.insert(sFamily);
             }
@@ -189,7 +190,7 @@ PangoFontDescription * TextEngine::getFontDescription(const string& sFamily,
                 pair<string, string> variant(sFamily, sVariant);
                 if (m_VariantsNotFound.find(variant) == m_VariantsNotFound.end()) {
                     m_VariantsNotFound.insert(variant);
-                    AVG_LOG_WARNING("Could not find font variant " 
+                    AVG_LOG_WARNING("Could not find font variant "
                             << sFamily << ":" << sVariant << ". Using " <<
                             pango_font_face_get_face_name(pFace) << " instead.");
                 }
@@ -205,7 +206,7 @@ PangoFontDescription * TextEngine::getFontDescription(const string& sFamily,
     return pango_font_description_copy(pDescription);
 }
 
-void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level, 
+void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level,
         const gchar *message, gpointer unused_data)
 {
 //TODO: Make this use correct AVG_LOG_LEVEL function
@@ -250,6 +251,7 @@ void TextEngine::initFonts()
     fontConfPathPrefixList.push_back("/opt/local/");
 #endif
     fontConfPathPrefixList.push_back(getAvgLibPath());
+    fontConfPathPrefixList.push_back("../../");
 
     std::string sFontConfPath;
     for (size_t i = 0; i < fontConfPathPrefixList.size(); ++i) {
@@ -260,7 +262,7 @@ void TextEngine::initFonts()
     }
 
     FcConfig * pConfig = FcConfigCreate();
-    int ok = (int)FcConfigParseAndLoad(pConfig, 
+    int ok = (int)FcConfigParseAndLoad(pConfig,
             (const FcChar8 *)(sFontConfPath.c_str()), true);
     checkFontError(ok, string("Font error: could not load config file ")+sFontConfPath);
     ok = (int)FcConfigBuildFonts(pConfig);
@@ -270,9 +272,7 @@ void TextEngine::initFonts()
     for(std::vector<std::string>::const_iterator it = m_sFontDirs.begin();
             it != m_sFontDirs.end(); ++it)
     {
-        ok = (int)FcConfigAppFontAddDir(pConfig, (const FcChar8 *)it->c_str());
-        checkFontError(ok, string("Font error: FcConfigAppFontAddDir("
-                    + *it + ") failed."));
+        FcConfigAppFontAddDir(pConfig, (const FcChar8 *)it->c_str());
     }
     /*
        FcStrList * pCacheDirs = FcConfigGetCacheDirs(pConfig);
@@ -297,7 +297,7 @@ PangoFontFamily * TextEngine::getFontFamily(const string& sFamily)
         }
     }
     if (!pFamily) {
-        throw(Exception(AVG_ERR_INVALID_ARGS, 
+        throw(Exception(AVG_ERR_INVALID_ARGS,
                 "getFontFamily: Font family "+sFamily+" not found."));
     }
     return pFamily;

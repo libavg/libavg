@@ -56,7 +56,7 @@ Vector Nodes
 
         Base class for vector nodes which have a filled area and a border. The area can
         be filled either with a solid color (:py:attr:`fillcolor`) or with a texture
-        loaded from a file (:py:attr:`filltexhref`) or taken from a bitmap object 
+        loaded from a file (:py:attr:`filltexhref`), or taken from a bitmap object 
         (:py:meth:`setFillBitmap`).
 
         .. py:attribute:: fillcolor
@@ -184,8 +184,7 @@ Vector Nodes
 
         .. py:attribute:: color
 
-            The color of the strokes in standard html color notation:
-            :samp:`"FF0000"` is red, :samp:`"00FF00"` green, etc.
+            The :py:class:`Color` of the strokes.
 
         .. py:attribute:: strokewidth
 

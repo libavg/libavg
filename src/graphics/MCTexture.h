@@ -27,7 +27,13 @@
 #include "OGLHelper.h"
 
 #include <boost/shared_ptr.hpp>
-#include <map>
+#ifdef _WIN32 
+#include <unordered_map>
+#elif defined __APPLE__
+#include <boost/unordered_map.hpp>
+#else
+#include <tr1/unordered_map>
+#endif
 
 namespace avg {
 
@@ -41,26 +47,25 @@ class AVG_API MCTexture: public TexInfo {
 
 public:
     MCTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
-            unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE, 
             bool bForcePOT=false, int potBorderColor=0);
     virtual ~MCTexture();
 
-    void initForGLContext();
-    void activate(int textureUnit=GL_TEXTURE0);
-    void generateMipmaps();
+    void initForGLContext(GLContext* pContext);
 
-    void moveBmpToTexture(BitmapPtr pBmp);
-    BitmapPtr moveTextureToBmp(int mipmapLevel=0);
+    void moveBmpToTexture(GLContext* pContext, BitmapPtr pBmp);
 
-    GLTexturePtr getCurTex() const;
-    unsigned getID() const;
+    const GLTexturePtr& getTex(GLContext* pContext) const;
 
     void setDirty();
     bool isDirty() const;
     void resetDirty();
 
 private:
-    typedef std::map<GLContext*, GLTexturePtr> TexMap;
+#ifdef __APPLE__
+    typedef boost::unordered_map<GLContext*, GLTexturePtr> TexMap;
+#else
+    typedef std::tr1::unordered_map<GLContext*, GLTexturePtr> TexMap;
+#endif
     TexMap m_pTextures;
 
     bool m_bIsDirty;

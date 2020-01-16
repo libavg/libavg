@@ -57,8 +57,9 @@ void SoundNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-SoundNode::SoundNode(const ArgList& args)
-    : m_Filename(""),
+SoundNode::SoundNode(const ArgList& args, const string& sPublisherName)
+    : AreaNode(sPublisherName),
+      m_Filename(""),
       m_pEOFCallback(0),
       m_SeekBeforeCanRenderTime(0),
       m_pDecoder(0),
@@ -296,7 +297,7 @@ void SoundNode::seek(long long destTime)
 
 void SoundNode::open()
 {
-    m_pDecoder->open(m_Filename, false, true);
+    m_pDecoder->open(m_Filename, true);
     VideoInfo videoInfo = m_pDecoder->getVideoInfo();
     if (!videoInfo.m_bHasAudio) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, 

@@ -166,8 +166,10 @@ void ArgList::setArgValue(const std::string & sName, const py::object& value)
             dynamic_cast<Arg<vector<glm::ivec3> >* >(&*pArg);
     Arg<CollVec2Vector>* pCollVec2VectorArg =
             dynamic_cast<Arg<CollVec2Vector>* >(&*pArg);
+    Arg<vector<string> >* pStrVectorArg = dynamic_cast<Arg<vector<string> >* >(&*pArg);
     Arg<FontStyle>* pFontStyleArg = dynamic_cast<Arg<FontStyle>* >(&*pArg);
     Arg<FontStylePtr>* pFontStylePtrArg = dynamic_cast<Arg<FontStylePtr>* >(&*pArg);
+    Arg<Color>* pColorArg = dynamic_cast<Arg<Color>* >(&*pArg);
     if(pStringArg) {
         avg::setArgValue(pStringArg, sName, value);
     } else if (pUTF8StringArg) {
@@ -194,10 +196,14 @@ void ArgList::setArgValue(const std::string & sName, const py::object& value)
         avg::setArgValue(pIVec3VectorArg, sName, value);
     } else if (pCollVec2VectorArg) {
         avg::setArgValue(pCollVec2VectorArg, sName, value);
+    } else if (pStrVectorArg) {
+        avg::setArgValue(pStrVectorArg, sName, value);
     } else if (pFontStyleArg) {
         avg::setArgValue(pFontStyleArg, sName, value);
     } else if (pFontStylePtrArg) {
         avg::setArgValue(pFontStylePtrArg, sName, value);
+    } else if (pColorArg) {
+        avg::setArgValue(pColorArg, sName, value);
     } else {
         AVG_ASSERT(false);
     }
@@ -222,6 +228,7 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
             dynamic_cast<Arg<vector<glm::ivec3> >* >(&*pArg);
     Arg<CollVec2Vector>* pCollVec2VectorArg =
             dynamic_cast<Arg<CollVec2Vector>* >(&*pArg);
+    Arg<Color>* pColorArg = dynamic_cast<Arg<Color>* >(&*pArg);
     if (pStringArg) {
         pStringArg->setValue(sValue);
     } else if (pUTF8StringArg) {
@@ -258,6 +265,8 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
         CollVec2Vector v;
         fromString(sValue, v);
         pCollVec2VectorArg->setValue(v);
+    } else if (pColorArg) {
+        pColorArg->setValue(sValue);
     } else {
         AVG_ASSERT(false);
     }   

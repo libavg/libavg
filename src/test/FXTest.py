@@ -21,7 +21,7 @@
 #
 
 from libavg import avg, utils, player
-from testcase import *
+from libavg.testcase import *
 
 
 class FXTestCase(AVGTestCase):
@@ -99,7 +99,7 @@ class FXTestCase(AVGTestCase):
         root = self.loadEmptyScene()
         node = avg.WordsNode(parent=root, text="testtext", font="Bitstream Vera Sans")
         node.setEffect(avg.NullFXNode())
-        node = avg.WordsNode(parent=root, text="testtext", pos=(0,20),
+        avg.WordsNode(parent=root, text="testtext", pos=(0,20),
                 font="Bitstream Vera Sans")
         self.start(True,
                 (lambda: self.compareImage("testWordsNullFX"),
@@ -413,13 +413,14 @@ class FXTestCase(AVGTestCase):
             node.href = "colorramp.png"
 
         def addMaskTex():
-            node.maskhref = "mask.png"
+            node.maskhref = "mask4.png"
+            node.masksize = (32,32)
 
         def changeMaskTex():
             node.maskhref = "mask2.png"
 
         def changeMaskPos():
-            node.maskpos = (10, 10)
+            node.maskpos = (32,32)
 
         def changeFX():
             effect.radius = 2

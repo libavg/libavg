@@ -24,8 +24,8 @@
 #include "TypeDefinition.h"
 #include "TypeRegistry.h"
 #include "OGLSurface.h"
-#include "Image.h"
 #include "Shape.h"
+#include "NodeChain.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -38,6 +38,7 @@
 
 #include "../graphics/VertexArray.h"
 #include "../graphics/Filterfliprgb.h"
+#include "../graphics/WrapMode.h"
 
 #include "../glm/gtx/norm.hpp"
 
@@ -52,7 +53,8 @@ namespace avg {
 void VectorNode::registerType()
 {
     TypeDefinition def = TypeDefinition("vectornode", "node")
-        .addArg(Arg<string>("color", "FFFFFF", false, offsetof(VectorNode, m_sColorName)))
+        .addArg(Arg<Color>("color", Color("FFFFFF"), false,
+                offsetof(VectorNode, m_Color)))
         .addArg(Arg<float>("strokewidth", 1, false, offsetof(VectorNode, m_StrokeWidth)))
         .addArg(Arg<UTF8String>("texhref", "", false, offsetof(VectorNode, m_TexHRef)))
         .addArg(Arg<string>("blendmode", "blend", false, 
@@ -61,8 +63,8 @@ void VectorNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-VectorNode::VectorNode(const ArgList& args)
-    : m_Transform(glm::mat4(0)),
+VectorNode::VectorNode(const ArgList& args, const string& sPublisherName)
+    : Node(sPublisherName), 
       m_Translate(glm::vec2(0,0))
 {
     m_pShape = ShapePtr(createDefaultShape());
@@ -70,8 +72,6 @@ VectorNode::VectorNode(const ArgList& args)
     ObjectCounter::get()->incRef(&typeid(*this));
     m_TexHRef = args.getArgVal<UTF8String>("texhref"); 
     setTexHRef(m_TexHRef);
-    m_sColorName = args.getArgVal<string>("color");
-    m_Color = colorStringToColor(m_sColorName);
 }
 
 VectorNode::~VectorNode()
@@ -82,7 +82,6 @@ VectorNode::~VectorNode()
 void VectorNode::connectDisplay()
 {
     setDrawNeeded();
-    m_Color = colorStringToColor(m_sColorName);
     Node::connectDisplay();
     m_pShape->moveToGPU();
     setBlendModeStr(m_sBlendMode);
@@ -106,7 +105,7 @@ void VectorNode::disconnect(bool bKill)
 
 void VectorNode::checkReload()
 {
-    Node::checkReload(m_TexHRef, m_pShape->getImage());
+    Node::checkReload(m_TexHRef, m_pShape->getGPUImage());
     if (getState() == Node::NS_CANRENDER) {
         m_pShape->moveToGPU();
         setDrawNeeded();
@@ -151,53 +150,55 @@ void VectorNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
     Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     {
         ScopeTimer timer(PrerenderProfilingZone);
-        VertexDataPtr pShapeVD = m_pShape->getVertexData();
-        if (m_bDrawNeeded) {
-            pShapeVD->reset();
-            Pixel32 color = getColorVal();
-            calcVertexes(pShapeVD, color);
-            m_bDrawNeeded = false;
-        }
+        checkRedraw();
         if (isVisible()) {
             m_pShape->setVertexArray(pVA);
         }
     }
 }
 
-void VectorNode::maybeRender(const glm::mat4& parentTransform)
+void VectorNode::maybeRender(GLContext* pContext, const glm::mat4& parentTransform)
 {
     AVG_ASSERT(getState() == NS_CANRENDER);
     if (isVisible()) {
         glm::vec3 trans(m_Translate.x, m_Translate.y, 0);
-        m_Transform = glm::translate(parentTransform, trans);
-        GLContext::getCurrent()->setBlendMode(m_BlendMode);
-        render();
+        glm::mat4 transform = glm::translate(parentTransform, trans);
+        pContext->setBlendMode(m_BlendMode);
+        render(pContext, transform);
     }
 }
 
 static ProfilingZoneID RenderProfilingZone("VectorNode::render");
 
-void VectorNode::render()
+void VectorNode::render(GLContext* pContext, const glm::mat4& transform)
 {
     ScopeTimer timer(RenderProfilingZone);
     float curOpacity = getEffectiveOpacity();
     if (curOpacity > 0.01) {
-        m_pShape->draw(m_Transform, curOpacity);
+        m_pShape->draw(pContext, transform, curOpacity);
     }
 }
 
-void VectorNode::setColor(const string& sColor)
+void VectorNode::getElementsByPos(const glm::vec2& pos, NodeChainPtr& pElements)
 {
-    if (m_sColorName != sColor) {
-        m_sColorName = sColor;
-        m_Color = colorStringToColor(m_sColorName);
+    checkRedraw();
+    if (reactsToMouseEvents() && isInside(pos)) {
+        pElements->append(getSharedThis());
+    }
+}
+
+
+void VectorNode::setColor(const Color& color)
+{
+    if (m_Color != color) {
+        m_Color = color;
         m_bDrawNeeded = true;
     }
 }
 
-const string& VectorNode::getColor() const
+const Color& VectorNode::getColor() const
 {
-    return m_sColorName;
+    return m_Color;
 }
 
 void VectorNode::setStrokeWidth(float width)
@@ -211,11 +212,6 @@ void VectorNode::setStrokeWidth(float width)
 float VectorNode::getStrokeWidth() const
 {
     return m_StrokeWidth;
-}
-
-Pixel32 VectorNode::getColorVal() const
-{
-    return m_Color;
 }
 
 GLContext::BlendMode VectorNode::getBlendMode() const
@@ -246,6 +242,12 @@ string VectorNode::lineJoin2String(LineJoin lineJoin)
             AVG_ASSERT(false);
             return 0;
     }
+}
+
+string VectorNode::dump(int indent)
+{
+    string dumpStr = Node::dump(indent) + "\n";
+    return dumpStr;
 }
 
 void VectorNode::setDrawNeeded()
@@ -499,6 +501,13 @@ void VectorNode::calcBevelTC(const WideLine& line1, const WideLine& line2,
 int VectorNode::getNumDifferentPts(const vector<glm::vec2>& pts)
 {
     int numPts = pts.size();
+
+    if (numPts < 2) {
+        return numPts;
+    }
+    if (glm::distance2(pts[0], pts[numPts-1])<0.1) {
+        numPts--;
+    }
     for (unsigned i=1; i<pts.size(); ++i) {
         if (glm::distance2(pts[i], pts[i-1])<0.1) {
             numPts--;
@@ -507,19 +516,32 @@ int VectorNode::getNumDifferentPts(const vector<glm::vec2>& pts)
     return numPts;
 }
 
-const glm::mat4& VectorNode::getTransform() const
-{
-    return m_Transform;
-}
-
 void VectorNode::setTranslate(const glm::vec2& trans)
 {
     m_Translate = trans;
 }
 
+bool VectorNode::isInside(const glm::vec2& pos)
+{
+    glm::vec2 globalPos = toGlobal(pos);
+    return m_pShape->isPtInside(globalPos);
+
+}
+
+void VectorNode::checkRedraw()
+{
+    if (m_bDrawNeeded) {
+        VertexDataPtr pShapeVD(new VertexData());
+        pShapeVD->reset();
+        calcVertexes(pShapeVD, m_Color);
+        m_bDrawNeeded = false;
+        m_pShape->setVertexData(pShapeVD);
+    }
+}
+
 Shape* VectorNode::createDefaultShape() const
 {
-    return new Shape(MaterialInfo(GL_REPEAT, GL_CLAMP_TO_EDGE, false));
+    return new Shape(WrapMode(GL_REPEAT, GL_CLAMP_TO_EDGE), false);
 }
 
 }

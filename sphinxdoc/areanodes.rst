@@ -50,10 +50,11 @@ Area Nodes
 
         .. py:attribute:: size
 
-            The size that the node takes on the canvas. Node types usually have sensible
-            defaults for the size. For media nodes, this is generally the size of the
-            media (so :samp:`size == getMediaSize()`). For DivNodes, the default size is
-            infinite.
+            The size that the node takes on the canvas. The default value for
+            :py:attr:`size` is :samp:`(0,0)`, which causes the node to be rendered at
+            media size. DivNodes with :samp:`size=(0,0)` effectively have infinite
+            size. Note that setting the size to :samp:`(0,0)` also causes this
+            behaviour.
 
         .. py:attribute:: pivot
 
@@ -132,9 +133,7 @@ Area Nodes
 
     .. autoclass:: CameraNode([driver='firewire', device="", unit=-1, fw800=False, framerate=15, capturewidth=640, captureheight=480, pixelformat="RGB", brightness, exposure, sharpness, saturation, camgamma, shutter, gain, strobeduration])
 
-        A node that displays the image of a camera. The attributes correspond to the 
-        camera properties in .avgtrackerrc and are explained under
-        http://www.libavg.de/wiki/ProgrammersGuide/Tracker. An easy way to find the 
+        A node that displays the image of a camera. An easy way to find the 
         appropriate parameters for your camera is to use :command:`avg_showcamera.py`.
 
         CameraNodes open the camera device on construction and set the chosen camera 
@@ -273,7 +272,7 @@ Area Nodes
 
         .. py:method:: removeChild(i)
 
-            Removes the child at index :py:attr:`i` from the div. Note that as long a`
+            Removes the child at index :py:attr:`i` from the div. Note that as long as
             other references to the node exist, the node is not deleted.
 
         .. py:method:: reorderChild(oldIndex, newIndex)
@@ -296,12 +295,17 @@ Area Nodes
             Returns the node's effective mediadir by traversing the node
             hierarchy up to the root node.
 
+        .. py:method:: dumpNodeTree([indent=0]) -> string
+
+            Returns a dump of the node hierarchy tree (for debugging purposes).
+
     .. autoclass:: ImageNode([href, compression])
 
         A static raster image on the screen. The content of an ImageNode can be loaded
         from a file. It can also come from a :py:class:`Bitmap` object or from an 
         :py:class:`OffscreenCanvas`. Alpha channels of the image files are used as
-        transparency information.
+        transparency information. Images loaded from a file are cached using the
+        :py:class:`ImageCache`.
 
         .. py:attribute:: compression
 
@@ -385,20 +389,20 @@ Area Nodes
 
         .. py:attribute:: maskpos
 
-            An offset for the mask image. For images, the offset is given in pixels of the
-            main bitmap, for videos, in video pixels, and for words nodes, the
-            offset is given in screen pixels. If portions of the node extend
-            outside the mask, the border pixels of the mask are taken. Note that the
-            maskpos is an offset from the top left of the node, even for 
+            An offset for the mask image. The offset is given in local node
+            coordinates. Unless :py:attr:`size` is set, these will correspond to screen
+            pixels. If portions of the node extend outside the mask, the border pixels of
+            the mask are taken. :py:attr:`maskpos` is an offset from the reference point
+            of the node. Usually, this will be the top left corner, but for 
             :py:class:`WordsNode` objects that have :py:attr:`alignment`
-            :py:const:`Center` or :py:const:`Right`.
-
+            :py:const:`Center` or :py:const:`Right`, the reference point is top center or
+            right, respectively.
 
         .. py:attribute:: masksize
 
-            The size of the mask image. For images, the offset is given in pixels of the
-            main bitmap, for videos, in video pixels, and for words nodes, the
-            offset is given in screen pixels. If portions of the node extend
+            The size of the mask image. The offset is given in local node
+            coordinates. Unless :py:attr:`size` is set, these will correspond to screen
+            pixels. If portions of the node extend
             outside the mask, the border pixels of the mask are taken.
 
         .. py:attribute:: maxtileheight
@@ -426,6 +430,10 @@ Area Nodes
         .. py:method:: getWarpedVertexCoords() -> list
 
             Returns the current coordinate of all vertices as a list of lists.
+
+        .. py:method:: setMaskBitmap(bitmap)
+
+            Sets a bitmap to use as alpha channel mask. Sets maskhref to an empty string.
 
         .. py:method:: setEffect(FXNode)
 
@@ -521,7 +529,7 @@ Area Nodes
 
             Stops audio playback. Closes the object and 'rewinds' the playback cursor.
 
-    .. autoclass:: VideoNode([href, loop=False, threaded=True, fps, queuelength=8, volume=1.0, accelerated=True, enablesound=True])
+    .. autoclass:: VideoNode([href, loop=False, threaded=True, fps, queuelength=8, volume=1.0, enablesound=True])
 
         Video nodes display a video file. Video formats and codecs supported
         are all formats that ffmpeg/libavcodec supports. Usage is described thoroughly
@@ -534,12 +542,6 @@ Area Nodes
             .. py:method:: Node.END_OF_FILE()
             
                 Emitted when the end of the video stream has been reached.
-
-        .. py:attribute:: accelerated
-
-            On construction, set to :py:const:`True` if hardware acceleration should be 
-            used to decode this video. Later queries of the attribute return 
-            :py:const:`True` if acceleration is actually being used. Read-only.
 
         .. py:attribute:: enablesound
 
@@ -644,6 +646,12 @@ Area Nodes
             Returns :py:const:`True` if the video contains an audio stream. Throws an
             exception if the video has not been opened yet.
 
+        .. py:method:: isSeeking() -> bool
+
+            Returns :py:const:`True` if a seek is currently pending, i.e. if
+            :py:meth:`seekToFrame()` or :py:meth:`seekToTime()` has been called and the
+            destination frame has not been displayed.
+
         .. py:method:: pause()
 
             Stops video playback but doesn't close the object. The playback
@@ -672,12 +680,6 @@ Area Nodes
 
             Stops video playback. Closes the file, 'rewinds' the playback
             cursor and clears the decoder queues.
-
-        .. py:classmethod:: getVideoAccelConfig() -> enum
-
-            Returns either :py:const:`NO_ACCELERATION` if the current configuration does
-            not support hardware-accelerated video decoding or :py:const:`VDPAU` if VDPAU
-            can be used to decode videos.
 
     .. autoclass:: WordsNode([fontstyle=None, font="sans", variant="", text="", color="FFFFFF", fontsize=15, indent=0, linespacing=-1, alignment="left", wrapmode="word", justify=False, rawtextmode=False, letterspacing=0, aagamma=1, hint=True])
 
@@ -709,8 +711,7 @@ Area Nodes
 
         .. py:attribute:: color
 
-            The color of the text in standard html color notation: FF0000 is red, 
-            00FF00 green, etc.
+            The :py:class:`Color` of the text.
 
         .. py:attribute:: font 
 

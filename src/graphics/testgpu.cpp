@@ -35,11 +35,15 @@
 #include "ShaderRegistry.h"
 #include "BmpTextureMover.h"
 #include "PBO.h"
+#include "ImageCache.h"
+#include "CachedImage.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
 #include "../base/Test.h"
 #include "../base/StringHelper.h"
+#include "../base/FileHelper.h"
+#include "../base/OSHelper.h"
 
 #include <math.h>
 #include <iostream>
@@ -305,8 +309,9 @@ public:
         MCTexturePtr pTex = pCM->createTextureFromBmp(pOrigBmp);
         pCM->uploadData();
         GPURGB2YUVFilter f(pOrigBmp->getSize());
-        f.apply(pTex->getCurTex());
-        BitmapPtr pResultBmp = f.getResults();
+        GLContext* pContext = GLContext::getCurrent();
+        f.apply(pContext, pTex->getTex(pContext));
+        BitmapPtr pResultBmp = f.getResults(pContext);
         pResultBmp = convertYUVX444ToRGB(pResultBmp);
         testEqual(*pResultBmp, *pOrigBmp, "RGB2YUV", 1, 2);
     }
@@ -376,10 +381,10 @@ private:
         BitmapPtr pOrigBmp = loadTestBmp(sFName);
         {
             GLContextManager* pCM = GLContextManager::get();
-            MCTexturePtr pTex = pCM->createTextureFromBmp(pOrigBmp, false,
-                    GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, bPOT, 0);
+            MCTexturePtr pMCTex = pCM->createTextureFromBmp(pOrigBmp, false, bPOT, 0);
             pCM->uploadData();
-            BitmapPtr pDestBmp = pTex->moveTextureToBmp();
+            BitmapPtr pDestBmp = pMCTex->getTex(GLContext::getCurrent())->
+                    moveTextureToBmp();
             testEqual(*pDestBmp, *pOrigBmp, sResultFName+"-move", 0.01, 0.1);
         }
     }
@@ -390,8 +395,9 @@ private:
                 oglMemoryMode2String(memoryMode) << endl;
         BitmapPtr pOrigBmp = loadTestBmp(sFName);
         GLContextManager* pCM = GLContextManager::get();
-        MCTexturePtr pTex = pCM->createTextureFromBmp(pOrigBmp, true);
+        MCTexturePtr pMCTex = pCM->createTextureFromBmp(pOrigBmp, true);
         pCM->uploadData();
+        GLTexturePtr pTex = pMCTex->getTex(GLContext::getCurrent());
         pTex->generateMipmaps();
 
         if (GLContext::getCurrent()->isGLES()) {
@@ -421,10 +427,80 @@ private:
         BitmapPtr pOrigBmp(new Bitmap(pFileBmp->getSize(), B5G6R5));
         pOrigBmp->copyPixels(*pFileBmp);
         GLContextManager* pCM = GLContextManager::get();
-        MCTexturePtr pTex = pCM->createTextureFromBmp(pOrigBmp);
+        MCTexturePtr pMCTex = pCM->createTextureFromBmp(pOrigBmp);
         pCM->uploadData();
 
-        BitmapPtr pDestBmp = pTex->moveTextureToBmp();
+        BitmapPtr pDestBmp = pMCTex->getTex(GLContext::getCurrent())->moveTextureToBmp();
+    }
+};
+
+
+class ImageCacheTest: public GraphicsTest {
+public:
+    ImageCacheTest()
+        : GraphicsTest("ImageCacheTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        ImageCache* pCache = ImageCache::get();
+        cerr << "    Testing no cache" << endl;
+        pCache->setCapacity(0, 0);
+        loadImages();
+        TEST(pCache->getNumCPUImages() == 0);
+        TEST(pCache->getNumGPUImages() == 0);
+        cerr << "    Testing CPU cache" << endl;
+        pCache->setCapacity(20000, 0);
+        loadImages();
+        TEST(pCache->getNumCPUImages() == 1);
+        TEST(pCache->getNumGPUImages() == 0);
+        cerr << "    Testing GPU cache" << endl;
+        if (GLContext::getCurrent()->isGLES()) {
+            // GLES size is larger because of POT textures.
+            pCache->setCapacity(20000, 80000);
+        } else {
+            pCache->setCapacity(20000, 20000);
+        }
+        loadImages();
+        TEST(pCache->getNumCPUImages() == 1);
+        TEST(pCache->getNumGPUImages() == 1);
+        pCache->setCapacity(0, 0);
+        TEST(pCache->getNumCPUImages() == 0);
+        TEST(pCache->getNumGPUImages() == 0);
+    }
+
+private:
+    void loadImages()
+    {
+        GLContextManager* pCM = GLContextManager::get();
+        ImageCache* pCache = ImageCache::get();
+        CachedImagePtr pImage1a = pCache->getImage(getTestBmpName("rgb24-65x65"),
+                TEXCOMPRESSION_NONE);
+        TEST(pCache->getNumCPUImages() == 1);
+        CachedImagePtr pImage1b = pCache->getImage(getTestBmpName("rgb24-65x65"),
+                TEXCOMPRESSION_NONE);
+        TEST(pCache->getNumCPUImages() == 1);
+        BitmapPtr pFileBmp = loadTestBmp("rgb24-65x65");
+        BitmapPtr pBmp = pImage1b->getBmp();
+        testEqual(*pBmp, *pFileBmp, "rgb24-65x65");
+        CachedImagePtr pImage2a = pCache->getImage(getTestBmpName("rgb24-64x64"),
+                TEXCOMPRESSION_B5G6R5);
+        TEST(pCache->getNumCPUImages() == 2);
+        CachedImagePtr pImage2b = pCache->getImage(getTestBmpName("rgb24-64x64"),
+                TEXCOMPRESSION_NONE);
+
+        pImage2b->decBmpRef();
+        pImage2a->decBmpRef();
+
+        pImage1a->incTexRef(false);
+        pImage1a->incTexRef(true);
+        pCM->uploadData();
+        pImage1b->decTexRef();
+        pImage1b->decBmpRef();
+        pImage1a->decTexRef();
+        pImage1a->decBmpRef();
+        pCM->uploadData();
     }
 };
 
@@ -435,6 +511,7 @@ public:
         : TestSuite("GPUTestSuite ("+sVariant+")")
     {
         addTest(TestPtr(new TextureMoverTest));
+        addTest(TestPtr(new ImageCacheTest));
         addTest(TestPtr(new BrightnessFilterTest));
         addTest(TestPtr(new HueSatFilterTest));
         addTest(TestPtr(new InvertFilterTest));
@@ -452,6 +529,12 @@ public:
 
 bool runTests(bool bGLES, GLConfig::ShaderUsage su)
 {
+#ifdef WIN32
+    ShaderRegistry::setShaderPath("./shaders");
+#else
+    ShaderRegistry::setShaderPath("./../../shaders");
+#endif
+
     GLContextManager cm;
     GLContext* pContext = cm.createContext(GLConfig(bGLES, false, true, 1, su, true));
     string sVariant = string("GLES: ") + toString(bGLES) + ", ShaderUsage: " +
@@ -462,7 +545,6 @@ bool runTests(bool bGLES, GLConfig::ShaderUsage su)
     pContext->enableErrorChecks(true);
     glDisable(GL_BLEND);
     GLContext::checkError("glDisable(GL_BLEND)");
-    ShaderRegistry::get()->setShaderPath("./shaders");
     try {
         GPUTestSuite suite(sVariant);
         suite.runTests();

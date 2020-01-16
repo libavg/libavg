@@ -25,7 +25,6 @@
 #include "../api.h"
 #include "RasterNode.h"
 #include "FontStyle.h"
-#include "../graphics/Pixel32.h"
 #include "../base/UTF8String.h"
 
 #include <pango/pango.h>
@@ -40,7 +39,7 @@ class AVG_API WordsNode : public RasterNode
     public:
         static void registerType();
         
-        WordsNode(const ArgList& args);
+        WordsNode(const ArgList& args, const std::string& sPublisherName="Node");
         virtual ~WordsNode();
         
         virtual void connectDisplay();
@@ -48,15 +47,10 @@ class AVG_API WordsNode : public RasterNode
         virtual void disconnect(bool bKill);
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);
-        virtual void render();
+        virtual void render(GLContext* pContext, const glm::mat4& transform);
 
-        virtual float getWidth() const;
         virtual void setWidth(float width);
-
-        virtual float getHeight() const;
         virtual void setHeight(float width);
-
-        virtual glm::vec2 getSize() const;
         virtual void setSize(const glm::vec2& pt);
 
         glm::vec2 toLocal(const glm::vec2& globalPos) const;
@@ -67,17 +61,17 @@ class AVG_API WordsNode : public RasterNode
         const FontStyle& getFontStyle() const;
         void setFontStyle(const FontStyle& fontStyle);
 
-        const std::string& getFont() const;
-        void setFont(const std::string& sName);
+        const UTF8String& getFont() const;
+        void setFont(const UTF8String& sName);
 
-        const std::string& getFontVariant() const;
-        void setFontVariant(const std::string& sVariant);
+        const UTF8String& getFontVariant() const;
+        void setFontVariant(const UTF8String& sVariant);
 
         const UTF8String& getText() const; 
         void setText(const UTF8String& sText);
         
-        const std::string& getColor() const;
-        void setColor(const std::string& sColor);
+        const Color& getColor() const;
+        void setColor(const Color& color);
         
         virtual float getAAGamma() const;
         virtual void setAAGamma(float gamma);
@@ -94,11 +88,11 @@ class AVG_API WordsNode : public RasterNode
         bool getRawTextMode() const;
         void setRawTextMode(bool rawTextMode);
         
-        std::string getAlignment() const;
-        void setAlignment(const std::string& sAlignment);
+        UTF8String getAlignment() const;
+        void setAlignment(const UTF8String& sAlignment);
  
-        std::string getWrapMode() const;
-        void setWrapMode(const std::string& sWrapMode);
+        UTF8String getWrapMode() const;
+        void setWrapMode(const UTF8String& sWrapMode);
 
         bool getJustify() const;
         void setJustify(bool bJustify);

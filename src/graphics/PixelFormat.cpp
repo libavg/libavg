@@ -70,6 +70,8 @@ string getPixelFormatString(PixelFormat pf)
             return "I16";
         case A8:
             return "A8";
+        case R8:
+            return "R8";
         case YCbCr411:
             return "YCbCr411";
         case YCbCr422:
@@ -96,6 +98,8 @@ string getPixelFormatString(PixelFormat pf)
             return "R32G32B32A32F";
         case I32F:
             return "I32F";
+        case JPEG:
+            return "JPEG";
         case NO_PIXELFORMAT:
             return "NO_PIXELFORMAT";
         default:
@@ -150,6 +154,9 @@ PixelFormat stringToPixelFormat(const string& s)
     if (s == "A8") {
         return A8;
     }
+    if (s == "R8") {
+        return R8;
+    }
     if (s == "YCbCr411") {
         return YCbCr411;
     }
@@ -188,6 +195,9 @@ PixelFormat stringToPixelFormat(const string& s)
     }
     if (s == "I32F") {
         return I32F;
+    }
+    if (s == "JPEG") {
+        return JPEG;
     }
     return NO_PIXELFORMAT;
 }
@@ -261,6 +271,7 @@ unsigned getBytesPerPixel(PixelFormat pf)
             return 4;
         case R8G8B8:
         case B8G8R8:
+        case JPEG:
             return 3;
         case B5G6R5:
         case R5G6B5:
@@ -268,6 +279,7 @@ unsigned getBytesPerPixel(PixelFormat pf)
             return 2;
         case I8:
         case A8:
+        case R8:
         case BAYER8:
         case BAYER8_RGGB:
         case BAYER8_GBRG:

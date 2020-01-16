@@ -38,14 +38,13 @@ class AVG_API GLTexture: public TexInfo {
 public:
     // Try to avoid constructing GLTextures directly - use 
     // GLContextManager::createTexture()
-    GLTexture(const TexInfo& texInfo);
-    GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap=false,
-            unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE, 
-            bool bForcePOT=false, int potBorderColor=0);
+    GLTexture(GLContext* pContext, const TexInfo& texInfo);
+    GLTexture(GLContext* pContext, const IntPoint& size, PixelFormat pf,
+            bool bMipmap=false, bool bForcePOT=false, int potBorderColor=0);
     virtual ~GLTexture();
     void init();
 
-    void activate(int textureUnit=GL_TEXTURE0);
+    void activate(const WrapMode& wrapMode, int textureUnit=GL_TEXTURE0);
     void generateMipmaps();
 
     void moveBmpToTexture(BitmapPtr pBmp);
@@ -54,8 +53,9 @@ public:
     unsigned getID() const;
 
 private:
-    bool m_bDeleteTex;
+    GLContext* m_pContext;
 
+    WrapMode m_WrapMode;
     static unsigned s_LastTexID;
     unsigned m_TexID;
 };

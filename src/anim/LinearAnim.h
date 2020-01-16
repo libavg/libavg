@@ -39,18 +39,19 @@ public:
             const boost::python::object& stopCallback=boost::python::object());
     virtual ~LinearAnim();
     
+    static AnimPtr fadeIn(const boost::python::object& node, long long duration,
+            float max=1.0f,
+            const boost::python::object& stopCallback=boost::python::object());
+
+    static AnimPtr fadeOut(const boost::python::object& node, long long duration,
+            const boost::python::object& stopCallback=boost::python::object());
+
 protected:
     virtual float interpolate(float t);
     
 private:
     float getStartPart(float start, float end, float cur);
 };
-
-AnimPtr fadeIn(const boost::python::object& node, long long duration, float max=1.0f,
-        const boost::python::object& stopCallback=boost::python::object());
-
-AnimPtr fadeOut(const boost::python::object& node, long long duration, 
-        const boost::python::object& stopCallback=boost::python::object());
 
 }
 

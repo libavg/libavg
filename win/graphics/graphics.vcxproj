@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
@@ -16,10 +12,6 @@
     <RootNamespace>graphics</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -27,28 +19,12 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\libavg.props" />
-  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\libavg.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PrecompiledHeader>
@@ -72,6 +48,7 @@
     <ClInclude Include="..\..\src\graphics\Bitmap.h" />
     <ClInclude Include="..\..\src\graphics\BitmapLoader.h" />
     <ClInclude Include="..\..\src\graphics\BmpTextureMover.h" />
+    <ClInclude Include="..\..\src\graphics\CachedImage.h" />
     <ClInclude Include="..\..\src\graphics\ContribDefs.h" />
     <ClInclude Include="..\..\src\graphics\Display.h" />
     <ClInclude Include="..\..\src\graphics\FBO.h" />
@@ -84,7 +61,6 @@
     <ClInclude Include="..\..\src\graphics\FilterConvol.h" />
     <ClInclude Include="..\..\src\graphics\FilterDilation.h" />
     <ClInclude Include="..\..\src\graphics\FilterErosion.h" />
-    <ClInclude Include="..\..\src\graphics\FilterFastBandpass.h" />
     <ClInclude Include="..\..\src\graphics\FilterFastDownscale.h" />
     <ClInclude Include="..\..\src\graphics\Filterfill.h" />
     <ClInclude Include="..\..\src\graphics\Filterfillrect.h" />
@@ -123,7 +99,7 @@
     <ClInclude Include="..\..\src\graphics\GPURGB2YUVFilter.h" />
     <ClInclude Include="..\..\src\graphics\GPUShadowFilter.h" />
     <ClInclude Include="..\..\src\graphics\GraphicsTest.h" />
-    <ClInclude Include="..\..\src\graphics\HistoryPreProcessor.h" />
+    <ClInclude Include="..\..\src\graphics\ImageCache.h" />
     <ClInclude Include="..\..\src\graphics\ImagingProjection.h" />
     <ClInclude Include="..\..\src\graphics\MCFBO.h" />
     <ClInclude Include="..\..\src\graphics\MCShaderParam.h" />
@@ -147,11 +123,14 @@
     <ClInclude Include="..\..\src\graphics\VertexData.h" />
     <ClInclude Include="..\..\src\graphics\WGLContext.h" />
     <ClInclude Include="..\..\src\graphics\WinDisplay.h" />
+    <ClInclude Include="..\..\src\graphics\WrapMode.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\graphics\Bitmap.cpp" />
     <ClCompile Include="..\..\src\graphics\BitmapLoader.cpp" />
     <ClCompile Include="..\..\src\graphics\BmpTextureMover.cpp" />
+    <ClCompile Include="..\..\src\graphics\CachedImage.cpp" />
+    <ClCompile Include="..\..\src\graphics\Color.cpp" />
     <ClCompile Include="..\..\src\graphics\Display.cpp" />
     <ClCompile Include="..\..\src\graphics\FBO.cpp" />
     <ClCompile Include="..\..\src\graphics\FBOInfo.cpp" />
@@ -162,7 +141,6 @@
     <ClCompile Include="..\..\src\graphics\Filtercolorize.cpp" />
     <ClCompile Include="..\..\src\graphics\FilterDilation.cpp" />
     <ClCompile Include="..\..\src\graphics\FilterErosion.cpp" />
-    <ClCompile Include="..\..\src\graphics\FilterFastBandpass.cpp" />
     <ClCompile Include="..\..\src\graphics\FilterFastDownscale.cpp" />
     <ClCompile Include="..\..\src\graphics\Filterflip.cpp" />
     <ClCompile Include="..\..\src\graphics\Filterfliprgb.cpp" />
@@ -197,7 +175,7 @@
     <ClCompile Include="..\..\src\graphics\GPURGB2YUVFilter.cpp" />
     <ClCompile Include="..\..\src\graphics\GPUShadowFilter.cpp" />
     <ClCompile Include="..\..\src\graphics\GraphicsTest.cpp" />
-    <ClCompile Include="..\..\src\graphics\HistoryPreProcessor.cpp" />
+    <ClCompile Include="..\..\src\graphics\ImageCache.cpp" />
     <ClCompile Include="..\..\src\graphics\ImagingProjection.cpp" />
     <ClCompile Include="..\..\src\graphics\MCFBO.cpp" />
     <ClCompile Include="..\..\src\graphics\MCShaderParam.cpp" />
@@ -216,6 +194,7 @@
     <ClCompile Include="..\..\src\graphics\VertexData.cpp" />
     <ClCompile Include="..\..\src\graphics\WGLContext.cpp" />
     <ClCompile Include="..\..\src\graphics\WinDisplay.cpp" />
+    <ClCompile Include="..\..\src\graphics\WrapMode.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

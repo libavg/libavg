@@ -24,11 +24,11 @@
 
 #include "../api.h"
 #include "AreaNode.h"
-#include "MaterialInfo.h"
 
 #include "../avgconfigwrapper.h"
 #include "../base/GLMHelper.h"
 #include "../base/UTF8String.h"
+
 #include "../graphics/GLContext.h"
 
 #include <string>
@@ -43,6 +43,8 @@ class MCFBO;
 typedef boost::shared_ptr<MCFBO> MCFBOPtr;
 class FXNode;
 typedef boost::shared_ptr<FXNode> FXNodePtr;
+class Bitmap;
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
 
 typedef std::vector<std::vector<glm::vec2> > VertexGrid;
 
@@ -78,13 +80,15 @@ class AVG_API RasterNode: public AreaNode
         const UTF8String& getMaskHRef() const;
         void setMaskHRef(const UTF8String& sHref);
 
+        void setMaskBitmap(BitmapPtr pBmp);
+
         const glm::vec2& getMaskPos() const;
         void setMaskPos(const glm::vec2& pos);
 
         const glm::vec2& getMaskSize() const;
         void setMaskSize(const glm::vec2& size);
 
-        void getElementsByPos(const glm::vec2& pos, std::vector<NodePtr>& pElements);
+        void getElementsByPos(const glm::vec2& pos, NodeChainPtr& pElements);
 
         glm::vec3 getGamma() const;
         void setGamma(const glm::vec3& gamma);
@@ -94,20 +98,21 @@ class AVG_API RasterNode: public AreaNode
         void setContrast(const glm::vec3& contrast);
 
         void setEffect(FXNodePtr pFXNode);
-        virtual void renderFX();
+        virtual void renderFX(GLContext* pContext);
         void resetFXDirty();
 
     protected:
-        RasterNode();
+        RasterNode(const std::string& sPublisherName);
         
         void scheduleFXRender();
         void calcVertexArray(const VertexArrayPtr& pVA);
-        void blt32();
-        void blta8(const glm::mat4& transform, const glm::vec2& destSize);
+        void blt32(GLContext* pContext, const glm::mat4& transform);
+        void blt(GLContext* pContext, const glm::mat4& transform,
+                const glm::vec2& destSize);
 
         virtual OGLSurface * getSurface();
-        const MaterialInfo& getMaterial() const;
         bool hasMask() const;
+        const BitmapPtr getMaskBmp() const;
         void setMaskCoords();
         void setRenderColor(const Pixel32& color);
 
@@ -118,7 +123,6 @@ class AVG_API RasterNode: public AreaNode
         void downloadMask();
         virtual void calcMaskCoords();
         void checkDisplayAvailable(std::string sMsg);
-        void blt(const glm::mat4& transform, const glm::vec2& destSize);
 
         IntPoint getNumTiles();
         void calcVertexGrid(VertexGrid& grid);
@@ -130,7 +134,7 @@ class AVG_API RasterNode: public AreaNode
         IntPoint m_MaxTileSize;
         std::string m_sBlendMode;
         GLContext::BlendMode m_BlendMode;
-        MaterialInfo m_Material;
+        bool m_bMipmap;
 
         UTF8String m_sMaskHref;
         std::string m_sMaskFilename;

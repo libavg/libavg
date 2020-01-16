@@ -43,13 +43,6 @@ void VideoMsg::setFrame(const std::vector<BitmapPtr>& pBmps, float frameTime)
     m_FrameTime = frameTime;
 }
 
-void VideoMsg::setVDPAUFrame(vdpau_render_state* pRenderState, float frameTime)
-{
-    setType(VDPAU_FRAME);
-    m_pRenderState = pRenderState;
-    m_FrameTime = frameTime;
-}
-    
 void VideoMsg::setPacket(AVPacket* pPacket)
 {
     setType(PACKET);
@@ -80,14 +73,8 @@ BitmapPtr VideoMsg::getFrameBitmap(int i)
 
 float VideoMsg::getFrameTime()
 {
-    AVG_ASSERT(getType() == FRAME || getType() == VDPAU_FRAME);
+    AVG_ASSERT(getType() == FRAME);
     return m_FrameTime;
-}
-
-vdpau_render_state* VideoMsg::getRenderState()
-{
-    AVG_ASSERT(getType() == VDPAU_FRAME);
-    return m_pRenderState;
 }
 
 }

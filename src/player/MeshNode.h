@@ -38,7 +38,7 @@ class AVG_API MeshNode : public VectorNode
     public:
         static void registerType();
         
-        MeshNode(const ArgList& args);
+        MeshNode(const ArgList& args, const std::string& sPublisherName="Node");
         virtual ~MeshNode();
         
         void isValid(const std::vector<glm::vec2>& coords);
@@ -57,7 +57,10 @@ class AVG_API MeshNode : public VectorNode
 
         virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color);
         
-        virtual void render();
+        virtual void render(GLContext* pContext, const glm::mat4& transform);
+
+    protected:
+        virtual bool isInside(const glm::vec2& pos);
 
     private:
         std::vector<glm::vec2> m_TexCoords;

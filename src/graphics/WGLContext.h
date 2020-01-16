@@ -38,8 +38,7 @@ public:
     virtual ~WGLContext();
 
     void activate();
-
-    bool initVBlank(int rate);
+    void swapBuffers();
 
 private:
     bool queryWGLExtension(const char* extName);

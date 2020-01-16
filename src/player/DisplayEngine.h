@@ -39,8 +39,6 @@ class MouseEvent;
 typedef boost::shared_ptr<class MouseEvent> MouseEventPtr;
 class Window;
 typedef boost::shared_ptr<class Window> WindowPtr;
-class SDLWindow;
-typedef boost::shared_ptr<class SDLWindow> SDLWindowPtr;
 class Bitmap;
 typedef boost::shared_ptr<class Bitmap> BitmapPtr;
 class GLContext;
@@ -66,12 +64,11 @@ class AVG_API DisplayEngine: public InputDevice
         void setGamma(float Red, float Green, float Blue);
         void setMousePos(const IntPoint& pos);
         int getKeyModifierState() const;
-        void setWindowTitle(const std::string& sTitle);
     
         unsigned getNumWindows() const;
         const WindowPtr getWindow(unsigned i) const;
-        SDLWindowPtr getSDLWindow() const;
 
+        void endFrame();
         void frameWait();
         void swapBuffers();
         void checkJitter();
@@ -88,13 +85,10 @@ class AVG_API DisplayEngine: public InputDevice
         // From InputDevice
         std::vector<EventPtr> pollEvents();
 
-    protected:
-        
     private:
-        bool internalSetGamma(float red, float green, float blue);
-        
         std::vector<WindowPtr> m_pWindows;
         IntPoint m_Size;
+        std::string m_sWindowTitle;
 
         float m_Gamma[3];
         int m_NumFrames;

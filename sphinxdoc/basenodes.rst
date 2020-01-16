@@ -119,6 +119,10 @@ This section describes the base classes for all node classes that libavg provide
             
                 Emitted whenever a mouse or a touch leaves the :py:class:`Node`'s area.
 
+            .. py:method:: MOUSE_WHEEL(mousewheelevent)
+            
+                Emitted whenever a mouse wheel is moved.
+
             .. py:method:: HOVER_DOWN(cursorevent)
             
                 Emitted whenever a new hover cursor is registered.
@@ -138,6 +142,46 @@ This section describes the base classes for all node classes that libavg provide
             .. py:method:: HOVER_OUT(cursorevent)
             
                 Emitted whenever a hover cursor leaves the :py:class:`Node`'s area.
+
+            .. py:method:: TANGIBLE_DOWN(cursorevent)
+            
+                Emitted whenever a tangible is placed on the surface.
+
+            .. py:method:: TANGIBLE_MOTION(cursorevent)
+            
+                Emitted whenever a tangible is moved.
+
+            .. py:method:: TANGIBLE_UP(cursorevent)
+            
+                Emitted whenever a tangible leaves the surface.
+
+            .. py:method:: TANGIBLE_OVER(cursorevent)
+            
+                Emitted whenever a tangible enters the :py:class:`Node`'s area.
+
+            .. py:method:: TANGIBLE_OUT(cursorevent)
+            
+                Emitted whenever a tangible leaves the :py:class:`Node`'s area.
+
+            .. py:method:: PEN_DOWN(cursorevent)
+            
+                Emitted whenever a pen is placed on the surface.
+
+            .. py:method:: PEN_MOTION(cursorevent)
+            
+                Emitted whenever a pen is moved.
+
+            .. py:method:: PEN_UP(cursorevent)
+            
+                Emitted whenever a pen leaves the surface.
+
+            .. py:method:: PEN_OVER(cursorevent)
+            
+                Emitted whenever a pen enters the :py:class:`Node`'s area.
+
+            .. py:method:: PEN_OUT(cursorevent)
+            
+                Emitted whenever a pen leaves the :py:class:`Node`'s area.
 
             .. py:method:: KILLED()
 
@@ -264,7 +308,8 @@ This section describes the base classes for all node classes that libavg provide
         .. py:method:: getAbsPos(relpos) -> Point2D
 
             Transforms a position in coordinates relative to the node to a
-            position in window coordinates.
+            position in window (or canvas, if the node is in an
+            :py:class:`OffscreenCanvas`) coordinates.
 
         .. py:method:: getElementByPos(pos) -> Node
 
@@ -283,13 +328,16 @@ This section describes the base classes for all node classes that libavg provide
 
         .. py:method:: getRelPos(abspos) -> Point2D
 
-            Transforms a position in window coordinates to a position
-            in coordinates relative to the node.
+            Transforms a position in absolute coordinates to a position
+            in coordinates relative to the node. More precisely, absolute coordinates
+            are in canvas coordinates. Thus, for nodes in the main canvas,
+            :py:attr:`abspos` is a window coordinate.
 
         .. py:method:: registerInstance(self, parent)
 
             Needs to be called when deriving from a Node class in python in the derived
-            classes :py:meth:`__init__` method.
+            classes :py:meth:`__init__` method (and *only* there, see `Programmer's
+            Guide <https://www.libavg.de/site/projects/libavg/wiki/Subclassing>`_).
 
         .. py:method:: releaseEventCapture([cursorid])
 

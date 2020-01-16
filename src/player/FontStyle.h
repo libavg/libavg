@@ -26,7 +26,9 @@
 
 #include "ExportedObject.h"
 
-#include "../graphics/Pixel32.h"
+#include "../graphics/Color.h"
+
+#include "../base/UTF8String.h"
 
 #include <pango/pango.h>
 #include <boost/shared_ptr.hpp>
@@ -49,14 +51,14 @@ class AVG_API FontStyle: public ExportedObject
 
         void setDefaultedArgs(const ArgList& args);
 
-        const std::string& getFont() const;
-        void setFont(const std::string& sName);
+        const UTF8String& getFont() const;
+        void setFont(const UTF8String& sName);
 
-        const std::string& getFontVariant() const;
-        void setFontVariant(const std::string& sVariant);
+        const UTF8String& getFontVariant() const;
+        void setFontVariant(const UTF8String& sVariant);
         
-        const std::string& getColor() const;
-        void setColor(const std::string& sColor);
+        const Color& getColor() const;
+        void setColor(const Color& color);
         
         virtual float getAAGamma() const;
         virtual void setAAGamma(float gamma);
@@ -70,11 +72,11 @@ class AVG_API FontStyle: public ExportedObject
         float getLineSpacing() const;
         void setLineSpacing(float lineSpacing);
         
-        std::string getAlignment() const;
-        void setAlignment(const std::string& sAlignment);
+        UTF8String getAlignment() const;
+        void setAlignment(const UTF8String& sAlignment);
  
-        std::string getWrapMode() const;
-        void setWrapMode(const std::string& sWrapMode);
+        UTF8String getWrapMode() const;
+        void setWrapMode(const UTF8String& sWrapMode);
 
         bool getJustify() const;
         void setJustify(bool bJustify);
@@ -87,15 +89,13 @@ class AVG_API FontStyle: public ExportedObject
 
         PangoAlignment getAlignmentVal() const;
         PangoWrapMode getWrapModeVal() const;
-        Pixel32 getColorVal() const;
 
     private:
         void applyBaseStyle(const FontStyle& baseStyle, const ArgList& args);
 
-        std::string m_sName;
-        std::string m_sVariant;
-        std::string m_sColorName;
-        Pixel32 m_Color;
+        UTF8String m_sName;
+        UTF8String m_sVariant;
+        Color m_Color;
         float m_AAGamma;
         float m_Size;
         int m_Indent;

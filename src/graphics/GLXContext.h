@@ -25,7 +25,10 @@
 #include "GLContext.h"
 
 #include "../base/Exception.h"
+#include "../base/Rect.h"
 
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #include <boost/shared_ptr.hpp>
 
 struct SDL_SysWMinfo;
@@ -35,38 +38,42 @@ namespace avg {
 class AVG_API GLXContext: public GLContext
 {
 public:
-    GLXContext(const IntPoint& windowSize=IntPoint(0,0));
+    GLXContext(const GLConfig& glConfig, const IntPoint& windowSize=IntPoint(0,0), 
+            const SDL_SysWMinfo* pSDLWMInfo=0);
+    GLXContext(const GLConfig& glConfig, const std::string& sDisplay,
+            const IntRect& windowDimensions, bool bHasWindowFrame);
     virtual ~GLXContext();
 
     void activate();
-    bool initVBlank(int rate);
     bool useDepthBuffer() const;
     void swapBuffers();
 
     static bool haveARBCreateContext();
     static bool isGLESSupported();
 
-protected:
+private:
+    void createGLXContext(GLConfig& glConfig, const IntPoint& windowSize, 
+            const SDL_SysWMinfo* pSDLWMInfo);
+    void createContextAndWindow(GLConfig& glConfig, const std::string& sDisplay,
+        const IntRect& windowDimensions, bool bHasWindowFrame);
     XVisualInfo* createDetachedContext(::Display* pDisplay, GLConfig& glConfig);
     void setX11ErrorHandler();
     void resetX11ErrorHandler();
     void throwOnXError(int code=AVG_ERR_VIDEO_GENERAL);
-    void initDrawable();
 
-    ::GLXContext getGLXContext() const;
     ::Display* getDisplay() const;
     Colormap getColormap() const;
 
-private:
-    GLXFBConfig getFBConfig(::Display* pDisplay, GLConfig& glConfig);
+    GLXFBConfig getFBConfig(GLConfig& glConfig);
     static int X11ErrorHandler(::Display * pDisplay, XErrorEvent * pErrEvent);
-    void createGLXContext(GLConfig& glConfig, const IntPoint& windowSize, 
-            const SDL_SysWMinfo* pSDLWMInfo);
 
     Colormap m_Colormap;
     ::Display* m_pDisplay;
+    bool m_bOwnsDisplay;
     ::GLXContext m_Context;
     GLXDrawable m_Drawable;
+
+    ::Window m_Window; // Only used if window not created by libSDL.
 
     bool m_bVBlankActive;
 };

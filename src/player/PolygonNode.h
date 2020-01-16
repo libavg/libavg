@@ -39,7 +39,7 @@ class AVG_API PolygonNode : public FilledVectorNode
     public:
         static void registerType();
         
-        PolygonNode(const ArgList& args);
+        PolygonNode(const ArgList& args, const std::string& sPublisherName="Node");
         virtual ~PolygonNode();
 
         const std::vector<glm::vec2>& getPos() const;
@@ -48,24 +48,28 @@ class AVG_API PolygonNode : public FilledVectorNode
         const std::vector<float>& getTexCoords() const;
         void setTexCoords(const std::vector<float>& coords);
 
-        const VectorVec2Vector& getHoles() const;
-        void setHoles(const VectorVec2Vector& holes);
-
         std::string getLineJoin() const;
         void setLineJoin(const std::string& s);
-
-        void getElementsByPos(const glm::vec2& pos, std::vector<NodePtr>& pElements);
 
         virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color);
         virtual void calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 color);
 
+    protected:
+        virtual bool isInside(const glm::vec2& pos);
+
     private:
-        std::vector<glm::vec2> m_Pts;
+        void triangulate();
+
+        Vec2Vector m_Pts;
+        Vec2Vector m_TriPts;
+        std::vector<int> m_TriIndexes;
+
         std::vector<float> m_CumulDist;
         std::vector<float> m_TexCoords;
         std::vector<float> m_EffTexCoords;
-        VectorVec2Vector m_Holes;
         LineJoin m_LineJoin;
+
+        bool m_bPtsChanged;
 };
 
 }

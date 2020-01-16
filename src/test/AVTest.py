@@ -23,7 +23,7 @@
 from __future__ import print_function
 
 from libavg import avg, player
-from testcase import *
+from libavg.testcase import *
 
 class AVTestCase(AVGTestCase):
     def __init__(self, testFuncName):
@@ -58,7 +58,7 @@ class AVTestCase(AVGTestCase):
             self.assertEqual(node.getContainerFormat(), "avi")
             self.assertEqual(node.getCurFrame(), 0)
             self.assertEqual(node.getCurTime(), 0)
-            self.assertEqual(node.getDuration(), 1000)
+            self.assertEqual(node.duration, 1000)
             self.assertEqual(node.getBitrate(), 224064)
             self.assertEqual(node.getVideoCodec(), "mpeg4")
             self.assertEqual(node.getStreamPixelFormat(), "yuv420p")
@@ -74,24 +74,23 @@ class AVTestCase(AVGTestCase):
                     enablesound=False, parent=root)
             node.pause()
             self.assertEqual(node.getVideoCodec(), "mpeg4")
-            self.assertRaises(RuntimeError, node.getAudioCodec)
+            self.assertRaises(avg.Exception, node.getAudioCodec)
 
         def checkExceptions():
             node = avg.VideoNode(href="mpeg1-48x48.mov", threaded=isThreaded)
-            self.assertRaises(RuntimeError, node.getDuration)
-            self.assertRaises(RuntimeError, node.getBitrate)
-            self.assertRaises(RuntimeError, node.getVideoCodec)
-            self.assertRaises(RuntimeError, node.getStreamPixelFormat)
+            self.assertRaises(avg.Exception, node.getBitrate)
+            self.assertRaises(avg.Exception, node.getVideoCodec)
+            self.assertRaises(avg.Exception, node.getStreamPixelFormat)
             node.pause()
-            self.assertRaises(RuntimeError, node.getAudioCodec)
-            self.assertRaises(RuntimeError, node.getAudioSampleRate)
-            self.assertRaises(RuntimeError, node.getNumAudioChannels)
+            self.assertRaises(avg.Exception, node.getAudioCodec)
+            self.assertRaises(avg.Exception, node.getAudioSampleRate)
+            self.assertRaises(avg.Exception, node.getNumAudioChannels)
             root.appendChild(node)
 
         def checkAudioFile():
             node = avg.VideoNode(href="44.1kHz_16bit_stereo.wav", threaded=isThreaded,
                     parent=root)
-            self.assertRaises(RuntimeError, node.pause)
+            self.assertRaises(avg.Exception, node.pause)
 
         sys.stderr.write("\n")
         for isThreaded in (False, True):
@@ -121,7 +120,7 @@ class AVTestCase(AVGTestCase):
                 self.assertAlmostEqual(node.volume, volume)
 
             def checkImage(filename):
-                if not(isThreaded):
+                if not isThreaded:
                     self.compareImage("testVideo-"+filename+"1")
 
             def testInfo():
@@ -138,7 +137,7 @@ class AVTestCase(AVGTestCase):
             self.assertEqual(node.threaded, isThreaded)
             setVolume(0.6)
             root.appendChild(node)
-            self.assertRaises(RuntimeError, node.hasAudio)
+            self.assertRaises(avg.Exception, node.hasAudio)
             self.start(False,
                     (lambda: setVolume(0.5),
                      lambda: testGetVolume(0.5),
@@ -171,27 +170,26 @@ class AVTestCase(AVGTestCase):
                 )) 
 
     def testVideoState(self):
-        for accelerated in [True, False]:
-            root = self.loadEmptyScene()
-            node = avg.VideoNode(href="mpeg1-48x48.mov", size=(96,96), threaded=False,
-                    accelerated=accelerated, parent=root)
-            player.setFakeFPS(25)
-            self.start(False,
-                    (lambda: node.play(),
-                     lambda: self.compareImage("testVideoState1"),
-                     lambda: node.pause(),
-                     lambda: self.compareImage("testVideoState2"),
-                     lambda: self.compareImage("testVideoState2"),
-                     lambda: node.play(),
-                     lambda: self.compareImage("testVideoState3"),
-                     lambda: node.stop(),
-                     lambda: self.compareImage("testVideoState4"),
-                     lambda: node.pause(),
-                     lambda: self.compareImage("testVideoState5"),
-                     lambda: self.compareImage("testVideoState5"),
-                     lambda: node.stop(),
-                     lambda: self.compareImage("testVideoState4"),
-                    ))
+        root = self.loadEmptyScene()
+        node = avg.VideoNode(href="mpeg1-48x48.mov", size=(96,96), threaded=False,
+                parent=root)
+        player.setFakeFPS(25)
+        self.start(False,
+                (lambda: node.play(),
+                 lambda: self.compareImage("testVideoState1"),
+                 lambda: node.pause(),
+                 lambda: self.compareImage("testVideoState2"),
+                 lambda: self.compareImage("testVideoState2"),
+                 lambda: node.play(),
+                 lambda: self.compareImage("testVideoState3"),
+                 lambda: node.stop(),
+                 lambda: self.compareImage("testVideoState4"),
+                 lambda: node.pause(),
+                 lambda: self.compareImage("testVideoState5"),
+                 lambda: self.compareImage("testVideoState5"),
+                 lambda: node.stop(),
+                 lambda: self.compareImage("testVideoState4"),
+                ))
 
     def testVideoActive(self):
         def deactivate():
@@ -229,11 +227,11 @@ class AVTestCase(AVGTestCase):
             node = avg.VideoNode(href="MissingFile.mov")
             node.href = "SecondMissingFile.mov"
             # Now libavg notices the missing file.
-            self.assertRaises(RuntimeError, node.play)
+            self.assertRaises(avg.Exception, node.play)
 
         def testVideoBroken():
-            node = avg.VideoNode(href="rgb24-64x64.png")
-            self.assertRaises(RuntimeError, node.play)
+            node = avg.VideoNode(href="SimpleSkin.xml")
+            self.assertRaises(avg.Exception, node.play)
 
         root = self.loadEmptyScene()
         node = avg.VideoNode(href="mpeg1-48x48.mov", threaded=False, parent=root)
@@ -279,9 +277,11 @@ class AVTestCase(AVGTestCase):
     def testVideoSeek(self):
         def seek(frame):
             videoNode.seekToFrame(frame)
+            self.assert_(videoNode.isSeeking())
 
         def checkCurFrame():
             self.assertEqual(videoNode.getCurFrame(), 26)
+            self.assert_(not(videoNode.isSeeking())),
 
         player.setFakeFPS(25)
         for useCustomFPS in [False, True]:
@@ -294,7 +294,7 @@ class AVTestCase(AVGTestCase):
                         threaded=False, href="mjpeg-48x48.avi")
 
             videoNode.play()
-            seek(26)
+            videoNode.seekToFrame(26)
             self.start(False,
                     (checkCurFrame,
                      lambda: self.compareImage("testVideoSeek0"),
@@ -309,10 +309,6 @@ class AVTestCase(AVGTestCase):
                      lambda: self.compareImage("testVideoSeek3")
                     ))
 
-        def checkSeek():
-            seek(26)
-            self.assertNotEqual(videoNode.getCurFrame(), 0)
-
     def testVideoFPS(self):
         player.setFakeFPS(25)
         root = self.loadEmptyScene()
@@ -325,24 +321,31 @@ class AVTestCase(AVGTestCase):
                  lambda: self.compareImage("testVideoFPS")
                 ))
 
-    def testVideoLoop(self):
+    def testLoop(self):
         def onEOF():
             self.eof = True
 
         def onFrame():
             if self.eof:
-                if not(threaded):
+                if not threaded:
                     self.compareImage("testVideoLoop")
                 player.stop()
 
-        for threaded in [False, True]:
+        for audio, threaded in [(False, False), (False, True), (True, True)]:
             self.eof = False
-            player.setFakeFPS(25)
+            if audio:
+                player.setFakeFPS(-1)
+            else:
+                player.setFakeFPS(25)
             root = self.loadEmptyScene()
-            videoNode = avg.VideoNode(parent=root, loop=True, fps=25, size=(96,96),
+            if audio:
+                node = avg.SoundNode(parent=root, loop=True,
+                        href="48kHz_16bit_mono.wav")
+            else:
+                node = avg.VideoNode(parent=root, loop=True, fps=25, size=(96,96),
                     threaded=threaded, href="mpeg1-48x48.mov")
-            videoNode.subscribe(avg.Node.END_OF_FILE, onEOF)
-            videoNode.play()
+            node.subscribe(avg.Node.END_OF_FILE, onEOF)
+            node.play()
             player.subscribe(player.ON_FRAME, onFrame)
             player.play()
 
@@ -350,9 +353,13 @@ class AVTestCase(AVGTestCase):
         def testWithFile(filename, testImgName):
             def setMask(href):
                 video.maskhref = href
+                video.masksize = (32,32)
 
             def setOpacity():
                 video.opacity = 0.5
+
+            def setMaskBitmap():
+                video.setMaskBitmap(avg.Bitmap("media/mask4.png"))
 
             print("  ", filename)
             player.setFakeFPS(25)
@@ -361,7 +368,7 @@ class AVTestCase(AVGTestCase):
                     parent=root)
             video.play()
             self.start(False,
-                    (lambda: setMask("mask.png"),
+                    (lambda: setMask("mask4.png"),
                      lambda: self.compareImage(testImgName+"1"),
                      lambda: video.seekToFrame(10),
                      lambda: setMask(""),
@@ -370,12 +377,14 @@ class AVTestCase(AVGTestCase):
                      lambda: self.compareImage(testImgName+"3"),
                      setOpacity,
                      lambda: self.compareImage(testImgName+"4"),
+                     setMaskBitmap,
+                     lambda: self.compareImage(testImgName+"5"),
                     ))
-        
+
         print(
             testWithFile("mpeg1-48x48.mov", "testVideoMaskYUV"),
             testWithFile("mjpeg-48x48.avi", "testVideoMaskYUVJ"),
-            testWithFile("rgba-48x48.mov", "testVideoMaskRGBA"),
+            testWithFile("rgba-48x48.mov", "testVideoMaskRGBA")
         )
 
     def testException(self):
@@ -490,16 +499,18 @@ class AVTestCase(AVGTestCase):
             self.assertEqual(node.getAudioCodec(), "pcm_s16le")
             self.assertEqual(node.getAudioSampleRate(), 44100)
             self.assertEqual(node.getNumAudioChannels(), 2)
+            self.assertEqual(node.getCurTime(), 0)
+            self.assertEqual(node.duration, 2000)
 
         def checkExceptions():
             node = avg.SoundNode(href="44.1kHz_16bit_stereo.wav")
-            self.assertRaises(RuntimeError, node.getAudioCodec)
-            self.assertRaises(RuntimeError, node.getAudioSampleRate)
-            self.assertRaises(RuntimeError, node.getNumAudioChannels)
+            self.assertRaises(avg.Exception, node.getAudioCodec)
+            self.assertRaises(avg.Exception, node.getAudioSampleRate)
+            self.assertRaises(avg.Exception, node.getNumAudioChannels)
 
         def checkVideoFile():
             node = avg.SoundNode(href="mpeg1-48x48.mov", parent=root)
-            self.assertRaises(RuntimeError, node.pause)
+            self.assertRaises(avg.Exception, node.pause)
 
         root = self.loadEmptyScene()
         node = avg.SoundNode(href="44.1kHz_16bit_stereo.wav", parent=root)
@@ -527,7 +538,7 @@ class AVTestCase(AVGTestCase):
     def testBrokenSound(self):
         def openSound():
             node = avg.SoundNode(href="44.1kHz_16bit_6Chan.ogg", parent=root)
-            self.assertRaises(RuntimeError, node.play)
+            self.assertRaises(avg.Exception, node.play)
 
         root = self.loadEmptyScene()
         self.start(False, [openSound])
@@ -571,7 +582,7 @@ class AVTestCase(AVGTestCase):
             self.assertEqual(savedVideoNode.getStreamPixelFormat(), "yuvj420p")
 
         def testCreateException():
-            self.assertRaises(RuntimeError,
+            self.assertRaises(avg.Exception,
                     lambda: avg.VideoWriter(player.getMainCanvas(), 
                             "nonexistentdir/test.mov", 30))
 
@@ -582,7 +593,7 @@ class AVTestCase(AVGTestCase):
             self.skip("VideoWriter not supported under GLES.")
             return
 
-        self.assertRaises(RuntimeError, lambda:
+        self.assertRaises(avg.Exception, lambda:
                 avg.VideoWriter(player.getMainCanvas(), "test.mov", 30, 3, 5, False))
 
         for useCanvas in (False, True):
@@ -641,15 +652,6 @@ class AVTestCase(AVGTestCase):
         self.start(False,
                 [lambda: self.compareImage("test2VideosAtOnce1"),])
 
-    def testVideoAccel(self):
-        accelConfig = avg.VideoNode.getVideoAccelConfig()
-        video = avg.VideoNode(accelerated=False, href="media/mpeg1-48x48.mov")
-        video.play()
-        self.assertEqual(video.accelerated, False)
-        video = avg.VideoNode(accelerated=True, href="media/mpeg1-48x48.mov")
-        video.play()
-        self.assertEqual(video.accelerated, (accelConfig != avg.NO_ACCELERATION))
-
 
 def AVTestSuite(tests):
     availableTests = [
@@ -667,14 +669,13 @@ def AVTestSuite(tests):
             "testVideoOpacity",
             "testVideoSeek",
             "testVideoFPS",
-            "testVideoLoop",
+            "testLoop",
             "testVideoMask",
             "testVideoEOF",
             "testVideoSeekAfterEOF",
             "testException",
             "testVideoWriter",
             "test2VideosAtOnce",
-            "testVideoAccel",
             ]
     return createAVGTestSuite(availableTests, AVTestCase, tests)
 

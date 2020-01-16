@@ -29,6 +29,7 @@
 
 #include "../graphics/GLContext.h"
 #include "../graphics/MCTexture.h"
+#include "../graphics/GLTexture.h"
 #include "../graphics/StandardShader.h"
 
 #include <iostream>
@@ -46,12 +47,12 @@ static glm::mat4 yuvCoeff(
 
 namespace avg {
 
-OGLSurface::OGLSurface()
+OGLSurface::OGLSurface(const WrapMode& wrapMode)
     : m_Size(-1,-1),
-      m_Gamma(1,1,1),
+      m_WrapMode(wrapMode),
+      m_Gamma(1,1,1,1),
       m_Brightness(1,1,1),
       m_Contrast(1,1,1),
-      m_AlphaGamma(1),
       m_bIsDirty(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -67,43 +68,43 @@ void OGLSurface::create(PixelFormat pf, MCTexturePtr pTex0, MCTexturePtr pTex1,
 {
     m_pf = pf;
     m_Size = pTex0->getSize();
-    m_pTextures[0] = pTex0;
-    m_pTextures[1] = pTex1;
-    m_pTextures[2] = pTex2;
-    m_pTextures[3] = pTex3;
+    m_pMCTextures[0] = pTex0;
+    m_pMCTextures[1] = pTex1;
+    m_pMCTextures[2] = pTex2;
+    m_pMCTextures[3] = pTex3;
     m_bIsDirty = true;
     m_bPremultipliedAlpha = bPremultipliedAlpha;
 
     // Make sure pixel format and number of textures line up.
     if (pixelFormatIsPlanar(pf)) {
-        AVG_ASSERT(m_pTextures[2]);
+        AVG_ASSERT(m_pMCTextures[2]);
         if (pixelFormatHasAlpha(m_pf)) {
-            AVG_ASSERT(m_pTextures[3]);
+            AVG_ASSERT(m_pMCTextures[3]);
         } else {
-            AVG_ASSERT(!m_pTextures[3]);
+            AVG_ASSERT(!m_pMCTextures[3]);
         }
     } else {
-        AVG_ASSERT(!m_pTextures[1]);
+        AVG_ASSERT(!m_pMCTextures[1]);
     }
 }
 
 void OGLSurface::setMask(MCTexturePtr pTex)
 {
-    m_pMaskTexture = pTex;
+    m_pMaskMCTexture = pTex;
     m_bIsDirty = true;
 }
 
 void OGLSurface::destroy()
 {
-    m_pTextures[0] = MCTexturePtr();
-    m_pTextures[1] = MCTexturePtr();
-    m_pTextures[2] = MCTexturePtr();
-    m_pTextures[3] = MCTexturePtr();
+    m_pMCTextures[0] = MCTexturePtr();
+    m_pMCTextures[1] = MCTexturePtr();
+    m_pMCTextures[2] = MCTexturePtr();
+    m_pMCTextures[3] = MCTexturePtr();
 }
 
-void OGLSurface::activate(const IntPoint& logicalSize) const
+void OGLSurface::activate(GLContext* pContext, const IntPoint& logicalSize) const
 {
-    StandardShaderPtr pShader = StandardShader::get();
+    StandardShader* pShader = pContext->getStandardShader();
 
     GLContext::checkError("OGLSurface::activate()");
     switch (m_pf) {
@@ -121,74 +122,58 @@ void OGLSurface::activate(const IntPoint& logicalSize) const
             pShader->setColorModel(0);
     }
 
-    m_pTextures[0]->activate(GL_TEXTURE0);
+    m_pMCTextures[0]->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE0);
 
     if (pixelFormatIsPlanar(m_pf)) {
-        m_pTextures[1]->activate(GL_TEXTURE1);
-        m_pTextures[2]->activate(GL_TEXTURE2);
+        m_pMCTextures[1]->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE1);
+        m_pMCTextures[2]->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE2);
         if (m_pf == YCbCrA420p) {
-            m_pTextures[3]->activate(GL_TEXTURE3);
+            m_pMCTextures[3]->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE3);
         }
     }
-    if (pixelFormatIsPlanar(m_pf) || colorIsModified()) {
+    if (pixelFormatIsPlanar(m_pf) || m_bColorIsModified) {
         glm::mat4 mat = calcColorspaceMatrix();
         pShader->setColorspaceMatrix(mat);
     } else {
         pShader->disableColorspaceMatrix();
     }
-    pShader->setGamma(glm::vec4(1/m_Gamma.x, 1/m_Gamma.y, 1/m_Gamma.z, 
-                1./m_AlphaGamma));
+    pShader->setGamma(m_Gamma);
 
     pShader->setPremultipliedAlpha(m_bPremultipliedAlpha);
-    if (m_pMaskTexture) {
-        m_pMaskTexture->activate(GL_TEXTURE4);
+    if (m_pMaskMCTexture) {
+        m_pMaskMCTexture->getTex(pContext)->activate(m_WrapMode, GL_TEXTURE4);
         // The shader maskpos param takes the position in texture coordinates (0..1) of 
         // the main texture.
+        glm::vec2 maskPos = m_MaskPos;
+        glm::vec2 maskSize = m_MaskSize;
 
         // Special case for pot textures: 
         //   The tex coords in the vertex array are scaled to fit the image texture. We 
-        //   need to undo this and fit to the mask texture. In the npot case, everything
-        //   evaluates to (1,1);
-        glm::vec2 texSize = glm::vec2(m_pTextures[0]->getGLSize());
-        glm::vec2 imgSize = glm::vec2(m_pTextures[0]->getSize());
-        glm::vec2 maskTexSize = glm::vec2(m_pMaskTexture->getGLSize());
-        glm::vec2 maskImgSize = glm::vec2(m_pMaskTexture->getSize());
+        //   need to a) undo this and b) adjust for pot mask textures. In the npot case,
+        //   everything evaluates to (1,1);
+        glm::vec2 texSize = m_pMCTextures[0]->getGLSize();
+        glm::vec2 imgSize = m_pMCTextures[0]->getSize();
+        glm::vec2 imgScale = glm::vec2(texSize.x/imgSize.x, texSize.y/imgSize.y);
+        maskPos = maskPos/imgScale;
+        maskSize = maskSize/imgScale;
+
+        glm::vec2 maskTexSize = m_pMaskMCTexture->getGLSize();
+        glm::vec2 maskImgSize = m_pMaskMCTexture->getSize();
         glm::vec2 maskScale = glm::vec2(maskTexSize.x/maskImgSize.x, 
                 maskTexSize.y/maskImgSize.y);
-        glm::vec2 imgScale = glm::vec2(texSize.x/imgSize.x, texSize.y/imgSize.y);
-        glm::vec2 maskPos = m_MaskPos/maskScale;
+        maskPos = maskPos*maskScale;
+        maskSize = maskSize*maskScale;
 
-        // Correct for Aspect Ratio differences between main and mask texture.
-        float surfaceAspect = texSize.x/texSize.y;
-        float maskAspect = maskTexSize.x/maskTexSize.y;
-        glm::vec2 aspectCorr;
-        if (maskAspect > surfaceAspect) {
-            aspectCorr = glm::vec2(1, maskAspect/surfaceAspect);
-        } else {
-            aspectCorr = glm::vec2(surfaceAspect/maskAspect, 1);
-        }
-        maskPos *= aspectCorr;
-
-        // Special case for words nodes.
-        if (logicalSize != IntPoint(0,0)) {
-            maskScale *= glm::vec2((float)logicalSize.x/m_Size.x, 
-                    (float)logicalSize.y/m_Size.y);
-        }
-        pShader->setMask(true, maskPos, m_MaskSize*maskScale/imgScale);
+        pShader->setMask(true, maskPos, maskSize);
     } else {
         pShader->setMask(false);
     }
-    pShader->activate();
     GLContext::checkError("OGLSurface::activate");
-}
-
-MCTexturePtr OGLSurface::getTex(int i) const
-{
-    return m_pTextures[i];
 }
 
 void OGLSurface::setMaskCoords(glm::vec2 maskPos, glm::vec2 maskSize)
 {
+    // Mask coords are normalized to 0..1 over the main image size.
     m_MaskPos = maskPos;
     m_MaskSize = maskSize;
     m_bIsDirty = true;
@@ -206,12 +191,12 @@ IntPoint OGLSurface::getSize()
 
 IntPoint OGLSurface::getTextureSize()
 {
-    return m_pTextures[0]->getGLSize();
+    return m_pMCTextures[0]->getGLSize();
 }
 
 bool OGLSurface::isCreated() const
 {
-    return m_pTextures[0];
+    return (m_pMCTextures[0] != MCTexturePtr());
 }
 
 bool OGLSurface::isPremultipliedAlpha() const
@@ -222,15 +207,19 @@ bool OGLSurface::isPremultipliedAlpha() const
 void OGLSurface::setColorParams(const glm::vec3& gamma, const glm::vec3& brightness,
             const glm::vec3& contrast)
 {
-    m_Gamma = gamma;
+    m_Gamma = glm::vec4(1.f/gamma.x, 1.f/gamma.y, 1.f/gamma.z, m_Gamma.w);
     m_Brightness = brightness;
     m_Contrast = contrast;
+    m_bColorIsModified = (fabs(m_Brightness.x-1.0) > 0.00001 ||
+            fabs(m_Brightness.y-1.0) > 0.00001 || fabs(m_Brightness.z-1.0) > 0.00001 ||
+            fabs(m_Contrast.x-1.0) > 0.00001 || fabs(m_Contrast.y-1.0) > 0.00001 ||
+            fabs(m_Contrast.z-1.0) > 0.00001);
     m_bIsDirty = true;
 }
 
 void OGLSurface::setAlphaGamma(float gamma)
 {
-    m_AlphaGamma = gamma;
+    m_Gamma.w = 1.f/gamma;
     m_bIsDirty = true;
 }
 
@@ -238,25 +227,30 @@ bool OGLSurface::isDirty() const
 {
     bool bIsDirty = m_bIsDirty;
     for (unsigned i=0; i<getNumPixelFormatPlanes(m_pf); ++i) {
-        if (m_pTextures[i]->isDirty()) {
+        if (m_pMCTextures[i]->isDirty()) {
             bIsDirty = true;
         }
     }
     return bIsDirty;
 }
 
+void OGLSurface::setDirty()
+{
+    m_bIsDirty = true;
+}
+
 void OGLSurface::resetDirty()
 {
     m_bIsDirty = false;
     for (unsigned i=0; i<getNumPixelFormatPlanes(m_pf); ++i) {
-        m_pTextures[i]->resetDirty();
+        m_pMCTextures[i]->resetDirty();
     }
 }
 
 glm::mat4 OGLSurface::calcColorspaceMatrix() const
 {
     glm::mat4 mat;
-    if (colorIsModified()) {
+    if (m_bColorIsModified) {
         mat = glm::scale(mat, m_Brightness);
         glm::vec3 contrast = glm::vec3(0.5f, 0.5f, 0.5f) - m_Contrast/2.f;
         mat = glm::translate(mat, contrast);
@@ -272,13 +266,6 @@ glm::mat4 OGLSurface::calcColorspaceMatrix() const
         }
     }
     return mat;
-}
-
-bool OGLSurface::colorIsModified() const
-{
-    return (fabs(m_Brightness.x-1.0) > 0.00001 || fabs(m_Brightness.y-1.0) > 0.00001 ||
-           fabs(m_Brightness.z-1.0) > 0.00001 || fabs(m_Contrast.x-1.0) > 0.00001 ||
-           fabs(m_Contrast.y-1.0) > 0.00001 || fabs(m_Contrast.z-1.0) > 0.00001);
 }
 
 }

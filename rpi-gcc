@@ -1,0 +1,2 @@
+#!/bin/sh
+exec arm-linux-gnueabihf-gcc --sysroot=$AVG_RPI_ROOT/root "$@"

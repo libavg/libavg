@@ -148,6 +148,7 @@ void EventDispatcher::testAddContact(EventPtr pEvent)
                     }
                 }
                 break;
+            case Event::MOUSE_WHEEL:
             case Event::CUSTOM_EVENT:
                 break;
             default:

@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
@@ -16,10 +12,6 @@
     <RootNamespace>base</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -27,10 +19,6 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\libavg.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -42,19 +30,6 @@
     <CustomBuildBeforeTargets>
     </CustomBuildBeforeTargets>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -78,7 +53,7 @@
       </Outputs>
     </CustomBuildStep>
     <PreBuildEvent>
-      <Command>python.exe ..\..\CreateVersionFile.py ..\..\src</Command>
+      <Command>%PYTHON_ROOT%\python.exe ..\..\CreateVersionFile.py ..\..\src</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>Generating version.h</Message>
@@ -108,6 +83,7 @@
     <ClInclude Include="..\..\src\base\MathHelper.h" />
     <ClInclude Include="..\..\src\base\ObjectCounter.h" />
     <ClInclude Include="..\..\src\base\OSHelper.h" />
+    <ClInclude Include="..\..\src\base\Polygon.h" />
     <ClInclude Include="..\..\src\base\ProfilingZone.h" />
     <ClInclude Include="..\..\src\base\ProfilingZoneID.h" />
     <ClInclude Include="..\..\src\base\Queue.h" />
@@ -121,11 +97,6 @@
     <ClInclude Include="..\..\src\base\ThreadProfiler.h" />
     <ClInclude Include="..\..\src\base\TimeSource.h" />
     <ClInclude Include="..\..\src\base\Triangle.h" />
-    <ClInclude Include="..\..\src\base\triangulate\AdvancingFront.h" />
-    <ClInclude Include="..\..\src\base\triangulate\Shapes.h" />
-    <ClInclude Include="..\..\src\base\triangulate\Sweep.h" />
-    <ClInclude Include="..\..\src\base\triangulate\SweepContext.h" />
-    <ClInclude Include="..\..\src\base\triangulate\Triangulate.h" />
     <ClInclude Include="..\..\src\base\triangulate\Utils.h" />
     <ClInclude Include="..\..\src\base\UTF8String.h" />
     <ClInclude Include="..\..\src\base\WideLine.h" />
@@ -150,6 +121,7 @@
     <ClCompile Include="..\..\src\base\MathHelper.cpp" />
     <ClCompile Include="..\..\src\base\ObjectCounter.cpp" />
     <ClCompile Include="..\..\src\base\OSHelper.cpp" />
+    <ClCompile Include="..\..\src\base\Polygon.cpp" />
     <ClCompile Include="..\..\src\base\ProfilingZone.cpp" />
     <ClCompile Include="..\..\src\base\ProfilingZoneID.cpp" />
     <ClCompile Include="..\..\src\base\ScopeTimer.cpp" />
@@ -160,11 +132,6 @@
     <ClCompile Include="..\..\src\base\ThreadProfiler.cpp" />
     <ClCompile Include="..\..\src\base\TimeSource.cpp" />
     <ClCompile Include="..\..\src\base\Triangle.cpp" />
-    <ClCompile Include="..\..\src\base\triangulate\AdvancingFront.cpp" />
-    <ClCompile Include="..\..\src\base\triangulate\Shapes.cpp" />
-    <ClCompile Include="..\..\src\base\triangulate\Sweep.cpp" />
-    <ClCompile Include="..\..\src\base\triangulate\SweepContext.cpp" />
-    <ClCompile Include="..\..\src\base\triangulate\Triangulate.cpp" />
     <ClCompile Include="..\..\src\base\UTF8String.cpp" />
     <ClCompile Include="..\..\src\base\WideLine.cpp" />
     <ClCompile Include="..\..\src\base\ThreadHelper.cpp" />

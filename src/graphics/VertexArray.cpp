@@ -49,9 +49,8 @@ VertexArray::VertexArray(int reserveVerts, int reserveIndexes)
     m_bUseMapBuffer = (!pContext->isGLES());
 }
 
-void VertexArray::initForGLContext()
+void VertexArray::initForGLContext(GLContext* pContext)
 {
-    GLContext* pContext = GLContext::getCurrent();
     unsigned vertexBufferID;
     unsigned indexBufferID;
     AVG_ASSERT(m_VertexBufferIDMap.count(pContext) == 0);
@@ -68,11 +67,10 @@ VertexArray::~VertexArray()
     GLContextManager::get()->deleteBuffers(m_IndexBufferIDMap);
 }
 
-void VertexArray::update()
+void VertexArray::update(GLContext* pContext)
 {
     AVG_ASSERT(!m_VertexBufferIDMap.empty());
     if (hasDataChanged()) {
-        GLContext* pContext = GLContext::getCurrent();
         unsigned vertexBufferID = m_VertexBufferIDMap[pContext];
         transferBuffer(GL_ARRAY_BUFFER, vertexBufferID, 
                 getReserveVerts()*sizeof(Vertex), 
@@ -91,10 +89,9 @@ void VertexArray::update()
     }
 }
 
-void VertexArray::activate()
+void VertexArray::activate(GLContext* pContext)
 {
     AVG_ASSERT(!m_VertexBufferIDMap.empty());
-    GLContext* pContext = GLContext::getCurrent();
     unsigned vertexBufferID = m_VertexBufferIDMap[pContext];
     unsigned indexBufferID = m_IndexBufferIDMap[pContext];
     glproc::BindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
@@ -111,10 +108,10 @@ void VertexArray::activate()
     GLContext::checkError("VertexArray::activate()");
 }
 
-void VertexArray::draw()
+void VertexArray::draw(GLContext* pContext)
 {
-    update();
-    activate();
+    update(pContext);
+    activate(pContext);
 #ifdef AVG_ENABLE_EGL        
     glDrawElements(GL_TRIANGLES, getNumIndexes(), GL_UNSIGNED_SHORT, 0);
 #else

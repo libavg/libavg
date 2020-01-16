@@ -36,7 +36,7 @@ public:
     GPUInvertFilter(const IntPoint& size, bool bUseAlpha, bool bStandalone=true);
     virtual ~GPUInvertFilter();
 
-    virtual void applyOnGPU(GLTexturePtr pSrcTex);
+    virtual void applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex);
     void initShader();
 
 private:

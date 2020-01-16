@@ -34,7 +34,7 @@ class AVG_API CircleNode : public FilledVectorNode
     public:
         static void registerType();
         
-        CircleNode(const ArgList& args);
+        CircleNode(const ArgList& args, const std::string& sPublisherName="Node");
         virtual ~CircleNode();
 
         const glm::vec2& getPos() const;
@@ -49,9 +49,11 @@ class AVG_API CircleNode : public FilledVectorNode
         float getTexCoord2() const;
         void setTexCoord2(float tc);
 
-        void getElementsByPos(const glm::vec2& pos, std::vector<NodePtr>& pElements);
         virtual void calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color);
         virtual void calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 color);
+
+    protected:
+        virtual bool isInside(const glm::vec2& pos);
 
     private:
         void appendCirclePoint(const VertexDataPtr& pVertexData, const glm::vec2& iPt, 

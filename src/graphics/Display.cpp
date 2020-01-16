@@ -21,7 +21,11 @@
 
 #include "Display.h"
 #ifdef __linux__
-#include "X11Display.h"
+    #ifdef AVG_ENABLE_RPI
+    #include "BCMDisplay.h"
+    #else
+    #include "X11Display.h"
+    #endif
 #endif
 #ifdef __APPLE__
 #include "AppleDisplay.h"
@@ -32,9 +36,6 @@
 #include "Bitmap.h"
 
 #include "../base/Logger.h"
-
-#include <SDL/SDL.h>
-#include <SDL/SDL_syswm.h>
 
 #include <iostream>
 
@@ -48,7 +49,11 @@ DisplayPtr Display::get()
 {
     if (!s_pInstance) {
 #ifdef __linux__
+    #ifdef AVG_ENABLE_RPI
+        s_pInstance = DisplayPtr(new BCMDisplay());
+    #else
         s_pInstance = DisplayPtr(new X11Display());
+    #endif
 #elif defined __APPLE__
         s_pInstance = DisplayPtr(new AppleDisplay());
 #elif defined _WIN32
@@ -63,12 +68,12 @@ DisplayPtr Display::get()
 
 bool Display::isInitialized()
 {
-    return s_pInstance;
+    return (s_pInstance != DisplayPtr());
 }
 
 Display::Display()
     : m_bAutoPPMM(true),
-      m_RefreshRate(0.0f)
+      m_RefreshRate(0)
 {
 }
 
@@ -78,13 +83,13 @@ Display::~Display()
 
 void Display::init()
 {
-    m_ScreenResolution = queryScreenResolution();
+    queryScreenResolution();
     m_PPMM = queryPPMM();
 }
 
 void Display::rereadScreenResolution()
 {
-    m_ScreenResolution = queryScreenResolution();
+    queryScreenResolution();
     if (m_bAutoPPMM) {
         m_PPMM = queryPPMM();
     }
@@ -92,7 +97,7 @@ void Display::rereadScreenResolution()
 
 IntPoint Display::getScreenResolution()
 {
-    return m_ScreenResolution;
+    return IntPoint(m_DisplayMode.w, m_DisplayMode.h);
 }
 
 float Display::getPixelsPerMM()
@@ -117,20 +122,27 @@ glm::vec2 Display::getPhysicalScreenDimensions()
     return size;
 }
 
-IntPoint Display::queryScreenResolution()
-{
-    const SDL_VideoInfo* pInfo = SDL_GetVideoInfo();
-    return IntPoint(pInfo->current_w, pInfo->current_h);
-}
-
 float Display::getRefreshRate()
 {
-    if (m_RefreshRate == 0.0) {
-        m_RefreshRate = queryRefreshRate();
-        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
-                "Vertical Refresh Rate: " << m_RefreshRate);
+    if (m_RefreshRate == 0) {
+        queryScreenResolution();
+        m_RefreshRate = m_DisplayMode.refresh_rate;
+        if (m_RefreshRate == 0) {
+            AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+                    "Could not get current refresh rate. Defaulting to 60 Hz");
+            m_RefreshRate = 60;
+        } else {
+            AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
+                    "Vertical Refresh Rate: " << m_RefreshRate);
+        }
     }
-    return m_RefreshRate;
+    return (float)m_RefreshRate;
+}
+
+void Display::queryScreenResolution()
+{
+    int err = SDL_GetCurrentDisplayMode(0, &m_DisplayMode);
+    AVG_ASSERT(err == 0);
 }
 
 }

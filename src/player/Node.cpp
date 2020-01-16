@@ -29,6 +29,8 @@
 #include "Player.h"
 #include "CursorEvent.h"
 #include "PublisherDefinition.h"
+#include "GPUImage.h"
+#include "NodeChain.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -51,6 +53,7 @@ void Node::registerType()
     pPubDef->addMessage("CURSOR_UP");
     pPubDef->addMessage("CURSOR_OVER");
     pPubDef->addMessage("CURSOR_OUT");
+    pPubDef->addMessage("MOUSE_WHEEL");
     pPubDef->addMessage("HOVER_DOWN");
     pPubDef->addMessage("HOVER_MOTION");
     pPubDef->addMessage("HOVER_UP");
@@ -78,7 +81,7 @@ void Node::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-Node::Node(const std::string& sPublisherName)
+Node::Node(const string& sPublisherName)
     : Publisher(sPublisherName),
       m_pParent(0),
       m_pCanvas(),
@@ -138,15 +141,15 @@ DivNodePtr Node::getParent() const
     }
 }
 
-vector<NodePtr> Node::getParentChain()
+NodeChainPtr Node::getParentChain()
 {
-    vector<NodePtr> pNodes;
+    NodeChainPtr pChain(new NodeChain);
     NodePtr pCurNode = getSharedThis();
     while (pCurNode) {
-        pNodes.push_back(pCurNode);
+        pChain->append(pCurNode);
         pCurNode = pCurNode->getParent();
     }
-    return pNodes;
+    return pChain;
 }
 
 void Node::connectDisplay()
@@ -356,16 +359,12 @@ glm::vec2 Node::toGlobal(const glm::vec2& localPos) const
 
 NodePtr Node::getElementByPos(const glm::vec2& pos)
 {
-    vector<NodePtr> elements;
-    getElementsByPos(pos, elements);
-    if (elements.empty()) {
-        return NodePtr();
-    } else {
-        return elements[0];
-    }
+    NodeChainPtr pElements(new NodeChain);
+    getElementsByPos(pos, pElements);
+    return pElements->getLeaf();
 }
 
-void Node::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
+void Node::getElementsByPos(const glm::vec2& pos, NodeChainPtr& pElements)
 {
 }
 
@@ -418,7 +417,7 @@ float Node::getEffectiveOpacity() const
 string Node::dump(int indent)
 {
     string dumpStr = string(indent, ' ') + getTypeStr() + ": m_ID=" + getID() +
-            "m_Opacity=" + toString(m_Opacity);
+            ", m_Opacity=" + toString(m_Opacity);
     return dumpStr; 
 }
 
@@ -468,22 +467,22 @@ void Node::initFilename(string& sFilename)
     }
 }
 
-bool Node::checkReload(const std::string& sHRef, const ImagePtr& pImage,
-        Image::TextureCompression comp)
+bool Node::checkReload(const std::string& sHRef, const GPUImagePtr& pGPUImage,
+        TexCompression comp)
 {
-    string sLastFilename = pImage->getFilename();
+    string sLastFilename = pGPUImage->getFilename();
     string sFilename = sHRef;
     initFilename(sFilename);
     if (sLastFilename != sFilename) {
         try {
             sFilename = convertUTF8ToFilename(sFilename);
             if (sHRef == "") {
-                pImage->setEmpty();
+                pGPUImage->setEmpty();
             } else {
-                pImage->setFilename(sFilename, comp);
+                pGPUImage->setFilename(sFilename, comp);
             }
         } catch (Exception& ex) {
-            pImage->setEmpty();
+            pGPUImage->setEmpty();
             logFileNotFoundWarning(ex.getStr());
         }
         return true;
@@ -568,6 +567,8 @@ string Node::getEventMessageID(const EventPtr& pEvent)
                     return "CURSOR_OVER";
                 case Event::CURSOR_OUT:
                     return "CURSOR_OUT";
+                case Event::MOUSE_WHEEL:
+                    return "MOUSE_WHEEL";
                 default:
                     break;
             }

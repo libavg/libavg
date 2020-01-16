@@ -27,7 +27,7 @@
 
 #include "../graphics/GPUHueSatFilter.h"
 
-#include<sstream>
+#include <sstream>
 
 using namespace std;
 

@@ -23,7 +23,7 @@
 import platform
 
 from libavg import player
-from testcase import *
+from libavg.testcase import *
 
 class PluginTestCase(AVGTestCase):
     def __init__(self, testFuncName):
@@ -32,7 +32,9 @@ class PluginTestCase(AVGTestCase):
     def testColorNodePlugin(self):
         def loadPlugin():
             if platform.system() != 'Windows':
-                if not(os.getenv('srcdir') in ('.', None)):
+                if os.getenv('srcdir') in ('.', None):
+                    player.pluginPath += ":../.."
+                else:
                     # make distcheck
                     player.pluginPath += ":../../_build/src/test/plugin/.libs"
             player.loadPlugin("colorplugin")

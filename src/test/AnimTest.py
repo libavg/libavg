@@ -20,8 +20,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-from libavg import avg, player
-from testcase import *
+from libavg.testcase import *
 
 class AnimTestCase(AVGTestCase):
     def __init__(self, testFuncName):
@@ -59,21 +58,21 @@ class AnimTestCase(AVGTestCase):
                  lambda: self.compareImage(imgBaseName+"3"),
                  lambda: self.assert_(self.__onStopCalled),
                  lambda: self.assert_(not(self.__anim.isRunning())),
-                 lambda: self.assertEqual(avg.getNumRunningAnims(), 0),
+                 lambda: self.assertEqual(avg.Anim.getNumRunningAnims(), 0),
                  lambda: self.compareImage(imgBaseName+"4"),
                  lambda: self.assertEqual(self.__node.x, 100),
                  startAnim,
                  lambda: self.compareImage(imgBaseName+"1"),
-                 lambda: self.assertEqual(avg.getNumRunningAnims(), 1),
+                 lambda: self.assertEqual(avg.Anim.getNumRunningAnims(), 1),
                  abortAnim,
-                 lambda: self.assertEqual(avg.getNumRunningAnims(), 0),
+                 lambda: self.assertEqual(avg.Anim.getNumRunningAnims(), 0),
                  lambda: self.compareImage(imgBaseName+"5"),
                  lambda: self.assert_(not(self.__anim.isRunning())),
                  None,
                  lambda: self.assert_(self.__onStopCalled),
                  startKeepAttr,
                  lambda: self.compareImage(imgBaseName+"6"),
-                 lambda: self.assertEqual(avg.getNumRunningAnims(), 1)
+                 lambda: self.assertEqual(avg.Anim.getNumRunningAnims(), 1)
                 ))
         self.__anim = None
 
@@ -99,10 +98,10 @@ class AnimTestCase(AVGTestCase):
         self.__onStopBeforeOnStart = False
         self.start(False,
                 (lambda: anim1.start(),
-                 lambda: self.assert_(not(self.__onStopCalled)),
+                 lambda: self.assert_(not self.__onStopCalled),
                  lambda: anim2.start(),
                  lambda: self.assert_(self.__onStopBeforeOnStart),
-                 lambda: self.assertEqual(avg.getNumRunningAnims(), 1)
+                 lambda: self.assertEqual(avg.Anim.getNumRunningAnims(), 1)
                 ))
         anim1 = None
         anim2 = None
@@ -115,12 +114,12 @@ class AnimTestCase(AVGTestCase):
         self.__node.opacity=0.5
         self.__onStopCalled = False
         self.start(False,
-                (lambda: avg.fadeIn(self.__node, 200, 1, onStop),
+                (lambda: avg.Anim.fadeIn(self.__node, 200, 1, onStop),
                  lambda: self.compareImage("testFadeIn1"),
                  lambda: self.compareImage("testFadeIn2"),
                  lambda: self.compareImage("testFadeIn3"),
                  lambda: self.assert_(self.__onStopCalled),
-                 lambda: self.assertEqual(avg.getNumRunningAnims(), 0)
+                 lambda: self.assertEqual(avg.Anim.getNumRunningAnims(), 0)
                 ))
         self.__anim = None
 
@@ -132,12 +131,12 @@ class AnimTestCase(AVGTestCase):
         self.__node.opacity=0.5
         self.__onStopCalled = False
         self.start(False,
-                (lambda: avg.fadeOut(self.__node, 200, onStop),
+                (lambda: avg.Anim.fadeOut(self.__node, 200, onStop),
                  lambda: self.compareImage("testFadeOut1"),
                  lambda: self.compareImage("testFadeOut2"),
                  lambda: self.compareImage("testFadeOut3"),
                  lambda: self.assert_(self.__onStopCalled),
-                 lambda: self.assertEqual(avg.getNumRunningAnims(), 0)
+                 lambda: self.assertEqual(avg.Anim.getNumRunningAnims(), 0)
                 ))
         self.__anim = None
 
@@ -161,7 +160,7 @@ class AnimTestCase(AVGTestCase):
         self.start(False,
                 (startAnim,
                  lambda: self.compareImage("testLinearAnimZeroDurationC1"),
-                 lambda: self.assertEqual(avg.getNumRunningAnims(), 0),
+                 lambda: self.assertEqual(avg.Anim.getNumRunningAnims(), 0),
                  lambda: self.assert_(self.__onStopCalled),
                  lambda: self.assert_(not(self.__anim.isRunning()))
                 ))
@@ -210,6 +209,21 @@ class AnimTestCase(AVGTestCase):
                 startPosImgSrc="testYPosPointAnim1",
                 endPosImgSrc="testYPosPointAnim2",
                 keepAttrPosImgSrc="testYPosPointAnim3")
+
+    def testColorAnim(self):
+        root = self.loadEmptyScene()
+        self.__node = avg.RectNode(pos=(30,30), size=(60,60), fillopacity=1.0,
+                fillcolor="FF0000", strokewidth=0, parent=root)
+        self.__anim = avg.LinearAnim(self.__node, "fillcolor", 1000, "FF0000", "0000FF")
+        player.setFakeFPS(10)
+        self.start(False,
+                (lambda: self.compareImage("testColorAnim1"),
+                 self.__anim.start,
+                 lambda: self.delay(400),
+                 lambda: self.compareImage("testColorAnim2"),
+                 lambda: self.delay(500),
+                 lambda: self.compareImage("testColorAnim3"),
+                ))
 
     def testIntAnim(self):
         self.initScene()
@@ -311,9 +325,6 @@ class AnimTestCase(AVGTestCase):
         def abortAnim():
             self.anim.abort()
 
-        def deleteAnim():
-            self.anim = None
-
         root = self.loadEmptyScene()
         self.nodes = []
         for i in range(3):
@@ -324,26 +335,26 @@ class AnimTestCase(AVGTestCase):
         self.__endCalled = False
         self.start(False,
                 (startFireForgetAnim,
-                 lambda: self.assertEqual(avg.getNumRunningAnims(), 2),
+                 lambda: self.assertEqual(avg.Anim.getNumRunningAnims(), 2),
                  None,
                  startAnim,
-                 lambda: self.assertEqual(avg.getNumRunningAnims(), 3),
+                 lambda: self.assertEqual(avg.Anim.getNumRunningAnims(), 3),
                  lambda: self.compareImage("testParallelAnimC1"),
                  lambda: self.assert_(self.anim.isRunning()),
                  lambda: self.delay(200),
                  lambda: self.assert_(not(self.anim.isRunning())),
                  lambda: self.compareImage("testParallelAnimC2"),
                  lambda: self.assert_(self.__endCalled),
-                 lambda: self.assertEqual(avg.getNumRunningAnims(), 0),
+                 lambda: self.assertEqual(avg.Anim.getNumRunningAnims(), 0),
                  startAnim,
                  abortAnim,
                  lambda: self.compareImage("testParallelAnimC3"),
                  lambda: self.assert_(self.__endCalled),
-                 lambda: self.assertEqual(avg.getNumRunningAnims(), 0),
+                 lambda: self.assertEqual(avg.Anim.getNumRunningAnims(), 0),
                  startTimedAnim,
                  lambda: self.delay(200),
                  lambda: self.assert_(self.__endCalled),
-                 lambda: self.assertEqual(avg.getNumRunningAnims(), 0),
+                 lambda: self.assertEqual(avg.Anim.getNumRunningAnims(), 0),
                  startAnim
                 ))
         self.nodes = []
@@ -364,6 +375,13 @@ class AnimTestCase(AVGTestCase):
                 ))
 
     def testStateAnim(self):
+        def startBeforePlayback():
+            stateAnim = avg.StateAnim(
+                    [avg.AnimState("STATE1", avg.LinearAnim(self.__node, "x", 200,
+                            0, 100, False))
+                    ])
+            self.assertRaises(Exception, lambda: stateAnim.setState("STATE1"))
+
         def state1StopCallback():
             self.__state1StopCallbackCalled = True
 
@@ -396,6 +414,7 @@ class AnimTestCase(AVGTestCase):
             stateAnim.setState("STATE1")
 
         self.initScene()
+        startBeforePlayback()
         self.__state1StopCallbackCalled = False
         self.__state2StartCallbackCalled = False
         self.__stop1Start2CallbackOrder = False
@@ -413,14 +432,26 @@ class AnimTestCase(AVGTestCase):
                  lambda: self.assertEqual(self.anim.getState(), "STATE3"),
                  lambda: self.compareImage("testStateAnimC4"),
                  lambda: self.anim.setState("STATE1"),
-                 lambda: self.assertEqual(avg.getNumRunningAnims(), 1),
+                 lambda: self.assertEqual(avg.Anim.getNumRunningAnims(), 1),
                  lambda: self.compareImage("testStateAnimC5"),
                  killAnim,
                  startFireForgetAnim,
                  lambda: self.delay(200),
                  lambda: self.compareImage("testStateAnimC6"),
                  lambda: self.delay(200),
-#                 lambda: player.getTestHelper().dumpObjects()
+                ))
+
+    def testStateAnimRegistry(self):
+        def startLinearAnim():
+            avg.LinearAnim(self.__node, "x", 300, 100, 0).start()
+
+        self.initScene()
+        stateAnim = avg.StateAnim(
+            [avg.AnimState("S1", avg.LinearAnim(self.__node, "x", 500, 0, 100, False)),
+            ])
+        self.start(False,
+                (lambda: stateAnim.setState("S1"),
+                 startLinearAnim,
                 ))
 
     def testNonNodeAttrAnim(self):
@@ -451,21 +482,21 @@ class AnimTestCase(AVGTestCase):
         self.start(False,
                 (lambda: anim1.start(),
                  lambda: self.assert_(anim1.isRunning()),
-                 lambda: self.assert_(not(self.__onStopCalled)),
+                 lambda: self.assert_(not self.__onStopCalled),
                  lambda: anim2.start(),
                  lambda: self.assert_(self.__onStopBeforeOnStart),
-                 lambda: self.assert_(not(anim1.isRunning())),
+                 lambda: self.assert_(not anim1.isRunning()),
                  lambda: self.assert_(anim2.isRunning()),
-                 lambda: self.assertEqual(avg.getNumRunningAnims(), 1),
+                 lambda: self.assertEqual(avg.Anim.getNumRunningAnims(), 1),
                  lambda: anim3.start(),
                  lambda: self.assert_(anim2.isRunning()),
                  lambda: self.assert_(anim3.isRunning()),
-                 lambda: self.assertEqual(avg.getNumRunningAnims(), 2),
+                 lambda: self.assertEqual(avg.Anim.getNumRunningAnims(), 2),
                  lambda: anim4.start(),
                  lambda: self.assert_(anim4.isRunning()),
-                 lambda: self.assertEqual(avg.getNumRunningAnims(), 3),
+                 lambda: self.assertEqual(avg.Anim.getNumRunningAnims(), 3),
                  lambda: self.delay(200),
-                 lambda: self.assertEqual(avg.getNumRunningAnims(), 0),
+                 lambda: self.assertEqual(avg.Anim.getNumRunningAnims(), 0),
                  lambda: self.assert_(genericObject1.numberValue == 200),
                  lambda: self.assert_(genericObject2.pointValue == (100, 200)),
                  lambda: self.assert_(genericObject3.numberValue == 42)
@@ -515,12 +546,14 @@ def animTestSuite(tests):
         "testXPosPointAnim",
         "testYPosPointAnim",
         "testEaseInOutAnim",
+        "testColorAnim",
         "testIntAnim",
         "testContinuousAnim",
         "testWaitAnim",
         "testParallelAnim",
         "testParallelAnimRegistry",
         "testStateAnim",
+        "testStateAnimRegistry",
         "testNonNodeAttrAnim"
         )
     return createAVGTestSuite(availableTests, AnimTestCase, tests)

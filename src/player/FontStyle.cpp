@@ -36,15 +36,16 @@ void FontStyle::registerType()
 {
     TypeDefinition def = TypeDefinition("fontstyle", "",
             ExportedObject::buildObject<FontStyle>)
-        .addArg(Arg<string>("font", "sans", false, offsetof(FontStyle, m_sName)))
-        .addArg(Arg<string>("variant", "", false, offsetof(FontStyle, m_sVariant)))
-        .addArg(Arg<string>("color", "FFFFFF", false, offsetof(FontStyle, m_sColorName)))
+        .addArg(Arg<UTF8String>("font", "sans", false, offsetof(FontStyle, m_sName)))
+        .addArg(Arg<UTF8String>("variant", "", false, offsetof(FontStyle, m_sVariant)))
+        .addArg(Arg<Color>("color", Color("FFFFFF"), false,
+                offsetof(FontStyle, m_Color)))
         .addArg(Arg<float>("aagamma", 1.0f, false, offsetof(FontStyle, m_AAGamma)))
         .addArg(Arg<float>("fontsize", 15, false, offsetof(FontStyle, m_Size)))
         .addArg(Arg<int>("indent", 0, false, offsetof(FontStyle, m_Indent)))
         .addArg(Arg<float>("linespacing", 0, false, offsetof(FontStyle, m_LineSpacing)))
-        .addArg(Arg<string>("alignment", "left"))
-        .addArg(Arg<string>("wrapmode", "word"))
+        .addArg(Arg<UTF8String>("alignment", "left"))
+        .addArg(Arg<UTF8String>("wrapmode", "word"))
         .addArg(Arg<bool>("justify", false, false, offsetof(FontStyle, m_bJustify)))
         .addArg(Arg<float>("letterspacing", 0, false,
                 offsetof(FontStyle, m_LetterSpacing)))
@@ -57,9 +58,8 @@ void FontStyle::registerType()
 FontStyle::FontStyle(const ArgList& args)
 {
     args.setMembers(this);
-    setAlignment(args.getArgVal<string>("alignment"));
-    setWrapMode(args.getArgVal<string>("wrapmode"));
-    m_Color = colorStringToColor(m_sColorName);
+    setAlignment(args.getArgVal<UTF8String>("alignment"));
+    setWrapMode(args.getArgVal<UTF8String>("wrapmode"));
     if (args.getArgVal<FontStylePtr>("basestyle") != 0) {
         applyBaseStyle(*(args.getArgVal<FontStylePtr>("basestyle")), args);
     }
@@ -69,9 +69,8 @@ FontStyle::FontStyle()
 {
     const ArgList& args = TypeRegistry::get()->getTypeDef("fontstyle").getDefaultArgs();
     args.setMembers(this);
-    setAlignment(args.getArgVal<string>("alignment"));
-    setWrapMode(args.getArgVal<string>("wrapmode"));
-    m_Color = colorStringToColor(m_sColorName);
+    setAlignment(args.getArgVal<UTF8String>("alignment"));
+    setWrapMode(args.getArgVal<UTF8String>("wrapmode"));
 }
 
 FontStyle::~FontStyle()
@@ -91,8 +90,7 @@ void FontStyle::applyBaseStyle(const FontStyle& baseStyle, const ArgList& args)
 {
     setDefaultedAttr(m_sName, "font", args, baseStyle.getFont());
     setDefaultedAttr(m_sVariant, "variant", args, baseStyle.getFontVariant());
-    setDefaultedAttr(m_sColorName, "color", args, baseStyle.getColor());
-    m_Color = colorStringToColor(m_sColorName);
+    setDefaultedAttr(m_Color, "color", args, baseStyle.getColor());
     setDefaultedAttr(m_AAGamma, "aagamma", args, baseStyle.getAAGamma());
     setDefaultedAttr(m_Size, "fontsize", args, baseStyle.getFontSize());
     setDefaultedAttr(m_Indent, "indent", args, baseStyle.getIndent());
@@ -119,13 +117,12 @@ void FontStyle::setDefaultedArgs(const ArgList& args)
     // so the member offsets are wrong.
     setDefaultedArg(m_sName, "font", args);
     setDefaultedArg(m_sVariant, "variant", args);
-    setDefaultedArg(m_sColorName, "color", args);
-    setColor(m_sColorName);
+    setDefaultedArg(m_Color, "color", args);
     setDefaultedArg(m_AAGamma, "aagamma", args);
     setDefaultedArg(m_Size, "fontsize", args);
     setDefaultedArg(m_Indent, "indent", args);
     setDefaultedArg(m_LineSpacing, "linespacing", args);
-    string s = getAlignment();
+    UTF8String s = getAlignment();
     setDefaultedArg(s, "alignment", args);
     setAlignment(s);
     s = getWrapMode();
@@ -136,35 +133,34 @@ void FontStyle::setDefaultedArgs(const ArgList& args)
     setDefaultedArg(m_bHint, "hint", args);
 }
 
-const std::string& FontStyle::getFont() const
+const UTF8String& FontStyle::getFont() const
 {
     return m_sName;
 }
 
-void FontStyle::setFont(const string& sName)
+void FontStyle::setFont(const UTF8String& sName)
 {
     m_sName = sName;
 }
 
-const std::string& FontStyle::getFontVariant() const
+const UTF8String& FontStyle::getFontVariant() const
 {
     return m_sVariant;
 }
 
-void FontStyle::setFontVariant(const std::string& sVariant)
+void FontStyle::setFontVariant(const UTF8String& sVariant)
 {
     m_sVariant = sVariant;
 }
 
-const std::string& FontStyle::getColor() const
+const Color& FontStyle::getColor() const
 {
-    return m_sColorName;
+    return m_Color;
 }
 
-void FontStyle::setColor(const string& sColor)
+void FontStyle::setColor(const Color& color)
 {
-    m_sColorName = sColor;
-    m_Color = colorStringToColor(m_sColorName);
+    m_Color = color;
 }
 
 float FontStyle::getAAGamma() const
@@ -210,7 +206,7 @@ void FontStyle::setLineSpacing(float lineSpacing)
     m_LineSpacing = lineSpacing;
 }
 
-string FontStyle::getAlignment() const
+UTF8String FontStyle::getAlignment() const
 {
     switch(m_Alignment) {
         case PANGO_ALIGN_LEFT:
@@ -225,7 +221,7 @@ string FontStyle::getAlignment() const
     }
 }
 
-void FontStyle::setAlignment(const string& sAlign)
+void FontStyle::setAlignment(const UTF8String& sAlign)
 {
     if (sAlign == "left") {
         m_Alignment = PANGO_ALIGN_LEFT;
@@ -239,7 +235,7 @@ void FontStyle::setAlignment(const string& sAlign)
     }
 }
 
-void FontStyle::setWrapMode(const string& sWrapMode)
+void FontStyle::setWrapMode(const UTF8String& sWrapMode)
 {
     if (sWrapMode == "word") {
         m_WrapMode = PANGO_WRAP_WORD;
@@ -253,7 +249,7 @@ void FontStyle::setWrapMode(const string& sWrapMode)
     }
 }
 
-string FontStyle::getWrapMode() const
+UTF8String FontStyle::getWrapMode() const
 {
     switch(m_WrapMode) {
         case PANGO_WRAP_WORD:
@@ -306,11 +302,6 @@ PangoAlignment FontStyle::getAlignmentVal() const
 PangoWrapMode FontStyle::getWrapModeVal() const
 {
     return m_WrapMode;
-}
-
-Pixel32 FontStyle::getColorVal() const
-{
-    return m_Color;
 }
 
 }

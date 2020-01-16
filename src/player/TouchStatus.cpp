@@ -22,7 +22,6 @@
 #include "TouchStatus.h"
 
 #include "CursorEvent.h"
-#include "BoostPython.h"
 #include "Player.h"
 
 #include "../base/Exception.h"

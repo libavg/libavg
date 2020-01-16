@@ -38,7 +38,7 @@ class AVG_API SoundNode : public AreaNode, IFrameEndListener
     public:
         static void registerType();
 
-        SoundNode(const ArgList& args);
+        SoundNode(const ArgList& args, const std::string& sPublisherName="Node");
         virtual ~SoundNode();
 
         virtual void connectDisplay();

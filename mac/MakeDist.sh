@@ -46,26 +46,15 @@ makeOneDist()
     cp ../../libavg/src/avgrc avg
     mkdir etc
     cp -R /etc/fonts etc/
-    cd $LIBAVGDIR/src/test
-    cp -Rv *.py *.avg *.svg ${AVG_PATH}/dist/libavg/avg/test
-    mkdir ${AVG_PATH}/dist/libavg/avg/test/baseline
-    cp -v baseline/* ${AVG_PATH}/dist/libavg/avg/test/baseline
-    mkdir ${AVG_PATH}/dist/libavg/avg/test/media
-    cp -Rv media/* ${AVG_PATH}/dist/libavg/avg/test/media
-    mkdir ${AVG_PATH}/dist/libavg/avg/test/testmediadir
-    cp -v testmediadir/* ${AVG_PATH}/dist/libavg/avg/test/testmediadir
-    mkdir ${AVG_PATH}/dist/libavg/avg/test/fonts
-    cp -v fonts/* ${AVG_PATH}/dist/libavg/avg/test/fonts
-    mkdir ${AVG_PATH}/dist/libavg/avg/test/plugin
-    cp -v plugin/.libs/colorplugin.so ${AVG_PATH}/dist/libavg/avg/test/plugin
-    cp -v plugin/.libs/colorplugin.0.so ${AVG_PATH}/dist/libavg/avg/test/plugin
-    mkdir ${AVG_PATH}/dist/libavg/avg/test/extrafonts
-    cp -v extrafonts/testaddfontdir.ttf ${AVG_PATH}/dist/libavg/avg/test/extrafonts
 
-    
     cd $LIBAVGDIR/../bindist
     rm -rf *
     cp /usr/local/bin/avg_* .
+
+    cd $LIBAVGDIR/../sharedist
+    rm -rf *
+    cp -Rv /usr/local/share/python-libavg/* .
+
 }
 
 if [[ x"${PKG_CONFIG_PATH}" == "x" ]]

@@ -24,6 +24,9 @@
 #include "TypeDefinition.h"
 #include "TypeRegistry.h"
 #include "Canvas.h"
+#include "NodeChain.h"
+
+#include "../graphics/GLContext.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -57,7 +60,8 @@ void DivNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-DivNode::DivNode(const ArgList& args)
+DivNode::DivNode(const ArgList& args, const string& sPublisherName)
+    : AreaNode(sPublisherName)
 {
     args.setMembers(this);
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -230,6 +234,10 @@ void DivNode::removeChild(unsigned i)
 
 void DivNode::removeChild(NodePtr pChild, bool bKill)
 {
+    if (!pChild) {
+        throw Exception(AVG_ERR_NO_NODE,
+          getID()+"::removeChild called without a node.");
+    }
     pChild->removeParent();
     if (pChild->getState() != NS_UNCONNECTED) {
         pChild->disconnect(bKill);
@@ -270,7 +278,7 @@ void DivNode::setMediaDir(const UTF8String& sMediaDir)
     checkReload();
 }
 
-void DivNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
+void DivNode::getElementsByPos(const glm::vec2& pos, NodeChainPtr& pElements)
 {
     if (reactsToMouseEvents() &&
             ((getSize() == glm::vec2(0,0) ||
@@ -280,15 +288,15 @@ void DivNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
             NodePtr pCurChild = getChild(i);
             glm::vec2 relPos = pCurChild->toLocal(pos);
             pCurChild->getElementsByPos(relPos, pElements);
-            if (!pElements.empty()) {
-                pElements.push_back(getSharedThis());
+            if (!pElements->empty()) {
+                pElements->append(getSharedThis());
                 return;
             }
         }
         // pos isn't in any of the children.
         if (getSize() != glm::vec2(0,0)) {
             // Explicit width/height given for div - div reacts on its own.
-            pElements.push_back(getSharedThis());
+            pElements->append(getSharedThis());
         }
     }
 }
@@ -296,32 +304,33 @@ void DivNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
 void DivNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
         float parentEffectiveOpacity)
 {
-    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
-    if (getCrop() && getSize() != glm::vec2(0,0)) {
-        pVA->startSubVA(m_ClipVA);
-        glm::vec2 viewport = getSize();
-        m_ClipVA.appendPos(glm::vec2(0,0), glm::vec2(0,0), Pixel32(0,0,0,0));
-        m_ClipVA.appendPos(glm::vec2(0,viewport.y), glm::vec2(0,0), Pixel32(0,0,0,0));
-        m_ClipVA.appendPos(glm::vec2(viewport.x,0), glm::vec2(0,0), Pixel32(0,0,0,0));
-        m_ClipVA.appendPos(viewport, glm::vec2(0,0), Pixel32(0,0,0,0));
-        m_ClipVA.appendQuadIndexes(0, 1, 2, 3);
-    }
-    for (unsigned i = 0; i < getNumChildren(); i++) {
-        getChild(i)->preRender(pVA, bIsParentActive, getEffectiveOpacity());
+    AreaNode::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
+    if (getActive()) {
+        if (getCrop() && getSize() != glm::vec2(0,0)) {
+            pVA->startSubVA(m_ClipVA);
+            glm::vec2 viewport = getSize();
+            m_ClipVA.appendPos(glm::vec2(0,0), glm::vec2(0,0), Pixel32(0,0,0,0));
+            m_ClipVA.appendPos(glm::vec2(0,viewport.y), glm::vec2(0,0), Pixel32(0,0,0,0));
+            m_ClipVA.appendPos(glm::vec2(viewport.x,0), glm::vec2(0,0), Pixel32(0,0,0,0));
+            m_ClipVA.appendPos(viewport, glm::vec2(0,0), Pixel32(0,0,0,0));
+            m_ClipVA.appendQuadIndexes(0, 1, 2, 3);
+        }
+        for (unsigned i = 0; i < getNumChildren(); i++) {
+            m_Children[i]->preRender(pVA, bIsParentActive, getEffectiveOpacity());
+        }
     }
 }
 
-void DivNode::render()
+void DivNode::render(GLContext* pContext, const glm::mat4& transform)
 {
-    const glm::mat4& transform = getTransform();
     if (getCrop() && getSize() != glm::vec2(0,0)) {
-        getCanvas()->pushClipRect(transform, m_ClipVA);
+        getCanvas()->pushClipRect(pContext, transform, m_ClipVA);
     }
     for (unsigned i = 0; i < getNumChildren(); i++) {
-        getChild(i)->maybeRender(transform);
+        getChild(i)->maybeRender(pContext, transform);
     }
     if (getCrop() && getSize() != glm::vec2(0,0)) {
-        getCanvas()->popClipRect(transform, m_ClipVA);
+        getCanvas()->popClipRect(pContext, transform, m_ClipVA);
     }
 }
 
@@ -372,10 +381,9 @@ void DivNode::checkReload()
 
 string DivNode::dump(int indent)
 {
-    string dumpStr = AreaNode::dump () + "\n";
-    vector<NodePtr>::iterator it;
+    string dumpStr = AreaNode::dump(indent);
     for(unsigned i = 0; i < getNumChildren(); ++i) {
-        getChild(i)->dump(indent+2)+"\n";
+        dumpStr += getChild(i)->dump(indent+2);
     }
     return dumpStr;
 }

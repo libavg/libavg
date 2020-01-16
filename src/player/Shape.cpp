@@ -23,6 +23,8 @@
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
+#include "../base/Triangle.h"
+#include "../base/Rect.h"
 
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/GLContext.h"
@@ -31,7 +33,7 @@
 #include "../graphics/Bitmap.h"
 
 #include "OGLSurface.h"
-#include "Image.h"
+#include "GPUImage.h"
 
 #include <iostream>
 #include <sstream>
@@ -40,10 +42,10 @@ using namespace std;
 
 namespace avg {
 
-Shape::Shape(const MaterialInfo& material)
+Shape::Shape(const WrapMode& wrapMode, bool bUseMipmaps)
 {
-    m_pSurface = new OGLSurface();
-    m_pImage = ImagePtr(new Image(m_pSurface, material));
+    m_pSurface = new OGLSurface(wrapMode);
+    m_pGPUImage = GPUImagePtr(new GPUImage(m_pSurface, bUseMipmaps));
     m_pVertexData = VertexDataPtr(new VertexData());
 }
 
@@ -55,30 +57,31 @@ Shape::~Shape()
 void Shape::setBitmap(BitmapPtr pBmp)
 {
     if (pBmp) {
-        m_pImage->setBitmap(pBmp);
+        m_pGPUImage->setBitmap(pBmp);
     } else {
-        m_pImage->setEmpty();
+        m_pGPUImage->setEmpty();
     }
 }
 
 void Shape::moveToGPU()
 {
-    m_pImage->moveToGPU();
+    m_pGPUImage->moveToGPU();
 }
 
 void Shape::moveToCPU()
 {
-    m_pImage->moveToCPU();
+    m_pGPUImage->moveToCPU();
 }
 
-ImagePtr Shape::getImage()
+GPUImagePtr Shape::getGPUImage()
 {
-    return m_pImage;
+    return m_pGPUImage;
 }
 
-VertexDataPtr Shape::getVertexData()
+void Shape::setVertexData(VertexDataPtr pVertexData)
 {
-    return m_pVertexData;
+    m_pVertexData = pVertexData;
+    m_Bounds = m_pVertexData->calcBoundingRect();
 }
 
 void Shape::setVertexArray(const VertexArrayPtr& pVA)
@@ -94,15 +97,15 @@ void Shape::setVertexArray(const VertexArrayPtr& pVA)
 */
 }
 
-void Shape::draw(const glm::mat4& transform, float opacity)
+void Shape::draw(GLContext* pContext, const glm::mat4& transform, float opacity)
 {
-    bool bIsTextured = (m_pImage->getSource() != Image::NONE);
-    GLContext* pContext = GLContext::getCurrent();
-    StandardShaderPtr pShader = pContext->getStandardShader();
+    bool bIsTextured = (m_pGPUImage->getSource() != GPUImage::NONE);
+    StandardShader* pShader = pContext->getStandardShader();
     pShader->setTransform(transform);
     pShader->setAlpha(opacity);
     if (bIsTextured) {
-        m_pSurface->activate();
+        m_pSurface->activate(pContext);
+        pShader->activate();
     } else {
         pShader->setUntextured();
         pShader->activate();
@@ -110,10 +113,30 @@ void Shape::draw(const glm::mat4& transform, float opacity)
     m_SubVA.draw();
 }
 
+bool Shape::isPtInside(const glm::vec2& pos)
+{
+    if (!m_Bounds.contains(pos)) {
+        return false;
+    }
+    const Vertex* pVertexes = m_pVertexData->getVertexPointer();
+    const GL_INDEX_TYPE* pIndexes = m_pVertexData->getIndexPointer();
+    for (int i=0; i<m_pVertexData->getNumIndexes(); i+=3) {
+        const GLfloat* pPos0 = pVertexes[pIndexes[i]].m_Pos;
+        const GLfloat* pPos1 = pVertexes[pIndexes[i+1]].m_Pos;
+        const GLfloat* pPos2 = pVertexes[pIndexes[i+2]].m_Pos;
+        Triangle tri(glm::vec2(pPos0[0], pPos0[1]), glm::vec2(pPos1[0], pPos1[1]),
+                glm::vec2(pPos2[0], pPos2[1]));
+        if (tri.isInside(pos)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void Shape::discard()
 {
     m_pVertexData->reset();
-    m_pImage->discard();
+    m_pGPUImage->setEmpty();
 }
 
 }

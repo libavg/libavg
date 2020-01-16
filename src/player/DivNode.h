@@ -33,12 +33,14 @@
 
 namespace avg {
 
+class GLContext;
+
 class AVG_API DivNode : public AreaNode
 {
     public:
         static void registerType();
         
-        DivNode(const ArgList& args);
+        DivNode(const ArgList& args, const std::string& sPublisherName="Node");
         virtual ~DivNode();
         virtual void connectDisplay();
         virtual void connect(CanvasPtr pCanvas);
@@ -66,10 +68,10 @@ class AVG_API DivNode : public AreaNode
         const UTF8String& getMediaDir() const;
         void setMediaDir(const UTF8String& mediaDir);
 
-        void getElementsByPos(const glm::vec2& pos, std::vector<NodePtr>& pElements);
+        void getElementsByPos(const glm::vec2& pos, NodeChainPtr& pElements);
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);
-        virtual void render();
+        virtual void render(GLContext* pContext, const glm::mat4& transform);
         virtual void renderOutlines(const VertexArrayPtr& pVA, Pixel32 color);
 
         virtual std::string getEffectiveMediaDir();

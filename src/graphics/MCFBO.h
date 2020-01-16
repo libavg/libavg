@@ -28,6 +28,7 @@
 
 #include "../base/GLMHelper.h"
 #include "OGLHelper.h"
+#include "WrapMode.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -49,18 +50,17 @@ class AVG_API MCFBO: public FBOInfo
 public:
     MCFBO(const IntPoint& size, PixelFormat pf, unsigned numTextures=1, 
             unsigned multisampleSamples=1, bool bUsePackedDepthStencil=false,
-            bool bUseStencil=false, bool bMipmap=false,
-            unsigned wrapSMode=GL_CLAMP_TO_EDGE, unsigned wrapTMode=GL_CLAMP_TO_EDGE);
+            bool bUseStencil=false, bool bMipmap=false);
     virtual ~MCFBO();
     void initForGLContext();
 
-    void activate() const;
-    FBOPtr getCurFBO() const;
+    void activate(GLContext* pContext) const;
+    FBOPtr getCurFBO(GLContext* pContext) const;
 
-    void copyToDestTexture() const;
-    BitmapPtr getImage(int i=0) const;
-    void moveToPBO(int i=0) const;
-    BitmapPtr getImageFromPBO() const;
+    void copyToDestTexture(GLContext* pContext) const;
+    BitmapPtr getImage(GLContext* pContext, int i=0) const;
+    void moveToPBO(GLContext* pContext, int i=0) const;
+    BitmapPtr getImageFromPBO(GLContext* pContext) const;
     MCTexturePtr getTex(int i=0) const;
 
 private:

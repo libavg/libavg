@@ -33,6 +33,7 @@ typedef enum {
     R5G6B5, R8G8B8, R8G8B8A8, R8G8B8X8, A8R8G8B8, X8R8G8B8,
     I8, I16,
     A8,
+    R8,
     YCbCr411,  
     YCbCr422,  
     YUYV422,   
@@ -46,6 +47,7 @@ typedef enum {
     BAYER8_BGGR,
     R32G32B32A32F, // 32bit per channel float rgba
     I32F,
+    JPEG,
     NO_PIXELFORMAT
 } PixelFormat;
 

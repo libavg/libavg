@@ -30,7 +30,6 @@
     #undef ERROR
     #undef WARNING
     #include <GL/gl.h>
-    #include <GL/glu.h>
     #include "GL/glext.h"
     #include "GL/wglext.h"
 #else
@@ -41,11 +40,10 @@
         #include <GLES2/gl2ext.h>
     #else
         #include "GL/gl.h"
-        #include "GL/glu.h"
         #include "GL/glext.h"
     #endif
 #endif
-#if defined(linux) && !defined(AVG_ENABLE_EGL)
+#if defined(__linux__) && !defined(AVG_ENABLE_EGL)
         #define GLX_GLXEXT_PROTOTYPES
         #ifndef __GLXextFuncPtr
             typedef void (*__GLXextFuncPtr)(void);
@@ -53,7 +51,7 @@
         #include "GL/glx.h"
 #endif
 
-#ifdef linux
+#ifdef __linux__
     #ifndef GLX_CONTEXT_ES2_PROFILE_BIT_EXT
         #define GLX_CONTEXT_ES2_PROFILE_BIT_EXT 0x00000004
     #endif
@@ -91,7 +89,7 @@ void AVG_API clearGLBuffers(GLbitfield mask, bool bOpaque);
 
 typedef void (*GLfunction)();
 GLfunction AVG_API getFuzzyProcAddress(const char * psz);
-#ifdef linux
+#ifdef __linux__
 GLfunction getglXProcAddress(const char * psz);
 #endif
 
@@ -234,7 +232,7 @@ namespace glproc {
     extern AVG_API PFNGLVERTEXATTRIBPOINTERPROC VertexAttribPointer;
     extern AVG_API PFNGLENABLEVERTEXATTRIBARRAYPROC EnableVertexAttribArray;
     extern AVG_API PFNGLBINDATTRIBLOCATIONPROC BindAttribLocation;
-#if defined(linux) && !defined(AVG_ENABLE_EGL)
+#if defined(__linux__) && !defined(AVG_ENABLE_EGL)
     extern PFNGLXSWAPINTERVALEXTPROC SwapIntervalEXT;
 #endif
 #ifdef _WIN32

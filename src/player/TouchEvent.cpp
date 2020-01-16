@@ -33,37 +33,6 @@ using namespace std;
 
 namespace avg {
 
-TouchEvent::TouchEvent(int id, Type eventType, BlobPtr pBlob, const IntPoint& pos, 
-        Source source, const glm::vec2& speed)
-    : CursorEvent(id, eventType, pos, source),
-      m_pBlob(pBlob),
-      m_bHasHandOrientation(false)
-{
-    setSpeed(speed);
-    if (pBlob) {
-        m_Orientation = pBlob->getOrientation();
-        m_Area = pBlob->getArea();
-        m_Center = pBlob->getCenter();
-        m_Eccentricity = pBlob->getEccentricity();
-        const glm::vec2& axis0 = m_pBlob->getScaledBasis(0);
-        const glm::vec2& axis1 = m_pBlob->getScaledBasis(1);
-        if (glm::length(axis0) > glm::length(axis1)) {
-            m_MajorAxis = axis0;
-            m_MinorAxis = axis1;
-        } else {
-            m_MajorAxis = axis1;
-            m_MinorAxis = axis0;
-        }
-    } else {
-        m_Orientation = 0;
-        m_Area = 20;
-        m_Center = glm::vec2(0, 0);
-        m_Eccentricity = 0;
-        m_MajorAxis = glm::vec2(5, 0);
-        m_MinorAxis = glm::vec2(0, 5);
-    }
-}
-
 TouchEvent::TouchEvent(int id, Type eventType, const IntPoint& pos, Source source, 
         const glm::vec2& speed, float orientation, float area, float eccentricity, 
         glm::vec2 majorAxis, glm::vec2 minorAxis)
@@ -93,11 +62,9 @@ TouchEvent::~TouchEvent()
 {
 }
 
-CursorEventPtr TouchEvent::cloneAs(Type eventType) const
+CursorEventPtr TouchEvent::copy() const
 {
-    TouchEventPtr pClone(new TouchEvent(*this));
-    pClone->m_Type = eventType;
-    return pClone;
+    return TouchEventPtr(new TouchEvent(*this));
 }
 
 float TouchEvent::getOrientation() const 
@@ -128,21 +95,6 @@ const glm::vec2 & TouchEvent::getMajorAxis() const
 const glm::vec2 & TouchEvent::getMinorAxis() const
 {
     return m_MinorAxis;
-}
-
-const BlobPtr TouchEvent::getBlob() const
-{
-    return m_pBlob;
-}
-
-ContourSeq TouchEvent::getContour()
-{
-    if (m_pBlob) {
-        return m_pBlob->getContour();
-    } else {
-        throw Exception(AVG_ERR_UNSUPPORTED, 
-                "TouchEvent::getContour: No contour available.");
-    }
 }
 
 float TouchEvent::getHandOrientation() const
@@ -178,11 +130,6 @@ vector<TouchEventPtr> TouchEvent::getRelatedEvents() const
         pRelatedEvents.push_back((*it).lock());
     }
     return pRelatedEvents;
-}
-
-void TouchEvent::removeBlob()
-{
-    m_pBlob = BlobPtr();
 }
 
 void TouchEvent::trace()

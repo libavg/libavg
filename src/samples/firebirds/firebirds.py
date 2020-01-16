@@ -136,7 +136,7 @@ class _Aircraft(avg.DivNode):
 
 
 class PlayerAircraft(_Aircraft):
-    ACTION_KEYS = ('left', 'right', 'up', 'down', 'space')
+    ACTION_KEYS = ('Left', 'Right', 'Up', 'Down', 'Space')
     __BULLET_OFFSET_L = avg.Point2D( 52, 16)
     __BULLET_OFFSET_R = avg.Point2D(140, 16)
 
@@ -161,21 +161,21 @@ class PlayerAircraft(_Aircraft):
     def update(self, dt, keyStates):
         d = _Aircraft._SPEED * dt
         dx = 0
-        if keyStates['left']:
+        if keyStates['Left']:
             dx = -d
-        if keyStates['right']:
+        if keyStates['Right']:
             dx += d
         dy = 0
-        if keyStates['up']:
+        if keyStates['Up']:
             dy = -d
-        if keyStates['down']:
+        if keyStates['Down']:
             dy += d
         pos = (max(min(self.x + dx, self.__maxX), 0),
                max(min(self.y + dy, self.__maxY), 0))
         if pos != self.pos:
             self._move(pos)
 
-        if keyStates['space'] and self.__gunCtrl.shoot():
+        if keyStates['Space'] and self.__gunCtrl.shoot():
             # fire bullets
             bulletLeft = None
             bulletRight = None
@@ -277,12 +277,12 @@ class LifeCounter(avg.DivNode):
     def reset(self):
         self.__numLives = 3
         for img in self.__images:
-            avg.fadeIn(img, 250)
+            avg.Anim.fadeIn(img, 250)
 
     def dec(self):
         assert(self.__numLives)
         self.__numLives -= 1
-        avg.fadeOut(self.__images[self.__numLives], 250)
+        avg.Anim.fadeOut(self.__images[self.__numLives], 250)
         return not self.__numLives
 
 
@@ -392,16 +392,16 @@ class FireBirds(app.MainDiv):
 
     def __onKeyDown(self, event):
         if self.__player.alive:
-            if event.keystring in PlayerAircraft.ACTION_KEYS:
-                self.__keyStates[event.keystring] = True
+            if event.keyname in PlayerAircraft.ACTION_KEYS:
+                self.__keyStates[event.keyname] = True
         elif not self.__frameHandlerId: # game stopped
-            if event.keystring == 'space':
+            if event.keyname == 'Space':
                 self.__start()
         # else: wait for bullets and enemies to leave the screen
 
     def __onKeyUp(self, event):
-        if event.keystring in PlayerAircraft.ACTION_KEYS:
-            self.__keyStates[event.keystring] = False
+        if event.keyname in PlayerAircraft.ACTION_KEYS:
+            self.__keyStates[event.keyname] = False
 
     def __start(self):
         assert(not self.__frameHandlerId and not self.__spawnTimeoutId)

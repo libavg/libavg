@@ -27,6 +27,8 @@
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
+#include "../base/GeomHelper.h"
+#include "../base/Triangle.h"
 #include "../graphics/VertexData.h"
 
 #include <cstdlib>
@@ -57,8 +59,8 @@ void MeshNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-MeshNode::MeshNode(const ArgList& args)
-    : VectorNode(args)
+MeshNode::MeshNode(const ArgList& args, const string& sPublisherName)
+    : VectorNode(args, sPublisherName)
 {
     args.setMembers(this);
     isValid(m_TexCoords);
@@ -83,7 +85,6 @@ const vector<glm::vec2>& MeshNode::getVertexCoords() const
 
 void MeshNode::setVertexCoords(const vector<glm::vec2>& coords)
 {
-    isValid(coords);
     m_VertexCoords = coords;
     setDrawNeeded();
 }
@@ -150,17 +151,36 @@ void MeshNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
     }
 }
 
-void MeshNode::render()
+void MeshNode::render(GLContext* pContext, const glm::mat4& transform)
 {
     if (m_bBackfaceCull) {
         glEnable(GL_CULL_FACE);
     }
     
-    VectorNode::render();
+    VectorNode::render(pContext, transform);
     
     if (m_bBackfaceCull) {
         glDisable(GL_CULL_FACE);
     }
+}
+
+bool MeshNode::isInside(const glm::vec2& pos)
+{
+    for (unsigned int i = 0; i < m_Triangles.size(); i++) {
+        Triangle tri(
+                m_VertexCoords[m_Triangles[i].x],
+                m_VertexCoords[m_Triangles[i].y],
+                m_VertexCoords[m_Triangles[i].z]);
+
+        if (m_bBackfaceCull && (!tri.isClockwise())) {
+            continue;
+        }
+
+        if (tri.isInside(pos)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 }

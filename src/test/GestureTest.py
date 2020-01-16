@@ -22,7 +22,7 @@
 from libavg import avg, gesture, player
 
 import math
-from testcase import *
+from libavg.testcase import *
 
 class GestureTestCase(AVGTestCase):
 
@@ -501,7 +501,7 @@ class GestureTestCase(AVGTestCase):
                     gesture.Recognizer.DETECTED, gesture.Recognizer.FAILED,
                     gesture.Recognizer.END], 
                     self)
-            return (dragRecognizer, messageTester)
+            return dragRecognizer, messageTester
 
         player.setFakeFPS(100)
         sys.stderr.write("\n")
@@ -707,12 +707,19 @@ class GestureTestCase(AVGTestCase):
                      lambda: self._sendMouseEvent(avg.Event.CURSOR_MOTION, 70, 70),
                     ))
         player.setFakeFPS(-1)
-        assert(self.__onDragCalled)
+        self.assert_(self.__onDragCalled)
 
 
     def testDragRecognizerInitialEvent(self):
 
+        def createIllegalCoordSysNode():
+            gesture.DragRecognizer(self.err_image, 
+                    detectedHandler=onDragStart, moveHandler=onDrag, 
+                    initialEvent=player.getCurrentEvent())
+
         def onMotion(offset):
+            self.assertRaises(avg.Exception, createIllegalCoordSysNode)
+
             gesture.DragRecognizer(self.image, 
                     detectedHandler=onDragStart, moveHandler=onDrag, 
                     initialEvent=player.getCurrentEvent())
@@ -725,6 +732,8 @@ class GestureTestCase(AVGTestCase):
             self.assertEqual(offset, (10,0))
 
         self.__initImageScene()
+        self.err_image = avg.ImageNode(href="rgb24-64x64.png", pos=(200,200), 
+                parent=self.root)
         self.image.subscribe(avg.Node.CURSOR_MOTION, onMotion)
         self.__dragStartCalled = False
         self.start(False,
@@ -732,7 +741,7 @@ class GestureTestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_MOTION, 40, 30),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_MOTION, 50, 30),
                 ))
-        assert(self.__dragStartCalled)
+        self.assert_(self.__dragStartCalled)
 
 
     def testDragRecognizerCoordSysNode(self):
@@ -751,7 +760,7 @@ class GestureTestCase(AVGTestCase):
                 (lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 30, 30),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_MOTION, 70, 70),
                 ))
-        assert(self.__dragRecognizerCalled)
+        self.assert_(self.__dragRecognizerCalled)
 
 
     def testDragRecognizerCoordSysNodeParentUnlink(self):
@@ -759,9 +768,6 @@ class GestureTestCase(AVGTestCase):
         def onDrag(offset):
             self.assertEqual(offset, (40,40))
             self.__dragRecognizerCalled = True
-
-        def onUp(offset):
-            self.__upRecognizerCalled = True
 
         root = self.loadEmptyScene()
         div = avg.DivNode(pos=(64,64), angle=math.pi, parent=root)
@@ -776,8 +782,8 @@ class GestureTestCase(AVGTestCase):
                  lambda: div.unlink(False),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 70, 70),
                 ))
-        assert(self.__dragRecognizerCalled)
-        assert(not self.__upRecognizerCalled)
+        self.assert_(self.__dragRecognizerCalled)
+        self.assert_(not self.__upRecognizerCalled)
 
 
     def testDragRecognizerMinDist(self):
@@ -1109,8 +1115,8 @@ class GestureTestCase(AVGTestCase):
                 ))
 
     def __initImageScene(self):
-        root = self.loadEmptyScene()
-        self.image = avg.ImageNode(parent=root, href="rgb24-64x64.png")
+        self.root = self.loadEmptyScene()
+        self.image = avg.ImageNode(parent=self.root, href="rgb24-64x64.png")
 
     def __killImageNode(self):
         self.image.unlink(True)

@@ -84,10 +84,11 @@ class AVG_API AreaNode: public Node
         virtual glm::vec2 toLocal(const glm::vec2& globalPos) const;
         virtual glm::vec2 toGlobal(const glm::vec2& localPos) const;
         
-        virtual void getElementsByPos(const glm::vec2& pos, 
-                std::vector<NodePtr>& pElements);
+        virtual void getElementsByPos(const glm::vec2& pos, NodeChainPtr& pElements);
 
-        virtual void maybeRender(const glm::mat4& parentTransform);
+        virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
+                float parentEffectiveOpacity);
+        virtual void maybeRender(GLContext* pContext, const glm::mat4& parentTransform);
         virtual void renderOutlines(const VertexArrayPtr& pVA, Pixel32 parentColor);
         virtual void setViewport(float x, float y, float width, float height);
         virtual const FRect& getRelViewport() const;
@@ -98,10 +99,9 @@ class AVG_API AreaNode: public Node
 
         virtual IntPoint getMediaSize() 
             { return IntPoint(0,0); };
-        const glm::mat4& getTransform() const;
 
     protected:
-        AreaNode();
+        AreaNode(const std::string& sPublisherName);
         glm::vec2 getUserSize() const;
         Pixel32 getEffectiveOutlineColor(Pixel32 parentColor) const;
 
@@ -116,7 +116,6 @@ class AVG_API AreaNode: public Node
         Pixel32 m_ElementOutlineColor;
         
         glm::vec2 m_UserSize;
-        glm::mat4 m_Transform;
         glm::mat4 m_LocalTransform;
         bool m_bTransformChanged;
 };

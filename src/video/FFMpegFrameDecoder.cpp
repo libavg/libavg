@@ -22,9 +22,6 @@
 #include "FFMpegFrameDecoder.h"
 #include "FFMpegDemuxer.h"
 #include "VideoInfo.h"
-#ifdef AVG_ENABLE_VDPAU
-#include "VDPAUDecoder.h"
-#endif
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -120,29 +117,29 @@ void FFMpegFrameDecoder::convertFrameToBmp(AVFrame* pFrame, BitmapPtr pBmp)
     switch (pBmp->getPixelFormat()) {
         case R8G8B8X8:
         case R8G8B8A8:
-            destFmt = PIX_FMT_RGBA;
+            destFmt = AV_PIX_FMT_RGBA;
             break;
         case B8G8R8X8:
         case B8G8R8A8:
-            destFmt = PIX_FMT_BGRA;
+            destFmt = AV_PIX_FMT_BGRA;
             break;
         case R8G8B8:
-            destFmt = PIX_FMT_RGB24;
+            destFmt = AV_PIX_FMT_RGB24;
             break;
         case B8G8R8:
-            destFmt = PIX_FMT_BGR24;
+            destFmt = AV_PIX_FMT_BGR24;
             break;
         case YCbCr422:
-            destFmt = PIX_FMT_YUYV422;
+            destFmt = AV_PIX_FMT_YUYV422;
             break;
         default:
             AVG_ASSERT_MSG(false, (string("FFMpegFrameDecoder: Dest format ") +
                     toString(pBmp->getPixelFormat()) + " not supported.").c_str());
-            destFmt = PIX_FMT_BGRA;
+            destFmt = AV_PIX_FMT_BGRA;
     }
     AVCodecContext const* pContext = m_pStream->codec;
-    if (destFmt == PIX_FMT_BGRA && (pContext->pix_fmt == PIX_FMT_YUV420P || 
-                pContext->pix_fmt == PIX_FMT_YUVJ420P))
+    if (destFmt == AV_PIX_FMT_BGRA && (pContext->pix_fmt == AV_PIX_FMT_YUV420P || 
+                pContext->pix_fmt == AV_PIX_FMT_YUVJ420P))
     {
         ScopeTimer timer(ConvertImageLibavgProfilingZone);
         BitmapPtr pBmpY(new Bitmap(pBmp->getSize(), I8, pFrame->data[0],
@@ -152,7 +149,7 @@ void FFMpegFrameDecoder::convertFrameToBmp(AVFrame* pFrame, BitmapPtr pBmp)
         BitmapPtr pBmpV(new Bitmap(pBmp->getSize(), I8, pFrame->data[2],
                 pFrame->linesize[2], false));
         pBmp->copyYUVPixels(*pBmpY, *pBmpU, *pBmpV, 
-                pContext->pix_fmt == PIX_FMT_YUVJ420P);
+                pContext->pix_fmt == AV_PIX_FMT_YUVJ420P);
     } else {
         if (!m_pSwsContext) {
             m_pSwsContext = sws_getContext(pContext->width, pContext->height, 

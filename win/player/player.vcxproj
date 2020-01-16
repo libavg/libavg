@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
@@ -16,10 +12,6 @@
     <RootNamespace>player</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -27,28 +19,14 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\libavg.props" />
-  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\libavg.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>..\..\src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PrecompiledHeader>
@@ -93,20 +71,21 @@
     <ClCompile Include="..\..\src\player\FilledVectorNode.cpp" />
     <ClCompile Include="..\..\src\player\FontStyle.cpp" />
     <ClCompile Include="..\..\src\player\FXNode.cpp" />
+    <ClCompile Include="..\..\src\player\GPUImage.cpp" />
     <ClCompile Include="..\..\src\player\HueSatFXNode.cpp" />
     <ClCompile Include="..\..\src\player\InputDevice.cpp" />
     <ClCompile Include="..\..\src\player\InvertFXNode.cpp" />
-    <ClCompile Include="..\..\src\player\Image.cpp" />
     <ClCompile Include="..\..\src\player\ImageNode.cpp" />
     <ClCompile Include="..\..\src\player\KeyEvent.cpp" />
     <ClCompile Include="..\..\src\player\LineNode.cpp" />
     <ClCompile Include="..\..\src\player\MainCanvas.cpp" />
-    <ClCompile Include="..\..\src\player\MaterialInfo.cpp" />
     <ClCompile Include="..\..\src\player\MeshNode.cpp" />
     <ClCompile Include="..\..\src\player\MessageID.cpp" />
     <ClCompile Include="..\..\src\player\MouseEvent.cpp" />
+    <ClCompile Include="..\..\src\player\MouseWheelEvent.cpp" />
     <ClCompile Include="..\..\src\player\MultitouchInputDevice.cpp" />
     <ClCompile Include="..\..\src\player\Node.cpp" />
+    <ClCompile Include="..\..\src\player\NodeChain.cpp" />
     <ClCompile Include="..\..\src\player\NullFXNode.cpp" />
     <ClCompile Include="..\..\src\player\OffscreenCanvas.cpp" />
     <ClCompile Include="..\..\src\player\OffscreenCanvasNode.cpp" />
@@ -121,6 +100,7 @@
     <ClCompile Include="..\..\src\player\PythonLogSink.cpp" />
     <ClCompile Include="..\..\src\player\RasterNode.cpp" />
     <ClCompile Include="..\..\src\player\RectNode.cpp" />
+    <ClCompile Include="..\..\src\player\SDLTouchInputDevice.cpp" />
     <ClCompile Include="..\..\src\player\SDLWindow.cpp" />
     <ClCompile Include="..\..\src\player\SecondaryWindow.cpp" />
     <ClCompile Include="..\..\src\player\ShadowFXNode.cpp" />
@@ -135,9 +115,6 @@
     <ClCompile Include="..\..\src\player\Timeout.cpp" />
     <ClCompile Include="..\..\src\player\TouchEvent.cpp" />
     <ClCompile Include="..\..\src\player\TouchStatus.cpp" />
-    <ClCompile Include="..\..\src\player\TrackerCalibrator.cpp" />
-    <ClCompile Include="..\..\src\player\TrackerInputDevice.cpp" />
-    <ClCompile Include="..\..\src\player\TrackerTouchStatus.cpp" />
     <ClCompile Include="..\..\src\player\TUIOInputDevice.cpp" />
     <ClCompile Include="..\..\src\player\TypeDefinition.cpp" />
     <ClCompile Include="..\..\src\player\TypeRegistry.cpp" />
@@ -146,7 +123,6 @@
     <ClCompile Include="..\..\src\player\VideoNode.cpp" />
     <ClCompile Include="..\..\src\player\VideoWriter.cpp" />
     <ClCompile Include="..\..\src\player\VideoWriterThread.cpp" />
-    <ClCompile Include="..\..\src\player\Win7TouchInputDevice.cpp" />
     <ClCompile Include="..\..\src\player\Window.cpp" />
     <ClCompile Include="..\..\src\player\WindowParams.cpp" />
     <ClCompile Include="..\..\src\player\WordsNode.cpp" />
@@ -181,20 +157,21 @@
     <ClInclude Include="..\..\src\player\FilledVectorNode.h" />
     <ClInclude Include="..\..\src\player\FontStyle.h" />
     <ClInclude Include="..\..\src\player\FXNode.h" />
+    <ClInclude Include="..\..\src\player\GPUImage.h" />
     <ClInclude Include="..\..\src\player\HueSatFXNode.h" />
     <ClInclude Include="..\..\src\player\InputDevice.h" />
     <ClInclude Include="..\..\src\player\InvertFXNode.h" />
-    <ClInclude Include="..\..\src\player\Image.h" />
     <ClInclude Include="..\..\src\player\ImageNode.h" />
     <ClInclude Include="..\..\src\player\KeyEvent.h" />
     <ClInclude Include="..\..\src\player\LineNode.h" />
     <ClInclude Include="..\..\src\player\MainCanvas.h" />
-    <ClInclude Include="..\..\src\player\MaterialInfo.h" />
     <ClInclude Include="..\..\src\player\MeshNode.h" />
     <ClInclude Include="..\..\src\player\MessageID.h" />
     <ClInclude Include="..\..\src\player\MouseEvent.h" />
+    <ClInclude Include="..\..\src\player\MouseWheelEvent.h" />
     <ClInclude Include="..\..\src\player\MultitouchInputDevice.h" />
     <ClInclude Include="..\..\src\player\Node.h" />
+    <ClInclude Include="..\..\src\player\NodeChain.h" />
     <ClInclude Include="..\..\src\player\NullFXNode.h" />
     <ClInclude Include="..\..\src\player\OffscreenCanvas.h" />
     <ClInclude Include="..\..\src\player\OffscreenCanvasNode.h" />
@@ -209,7 +186,7 @@
     <ClInclude Include="..\..\src\player\PythonLogSink.h" />
     <ClInclude Include="..\..\src\player\RasterNode.h" />
     <ClInclude Include="..\..\src\player\RectNode.h" />
-    <ClInclude Include="..\..\src\player\SDLMain.h" />
+    <ClInclude Include="..\..\src\player\SDLTouchInputDevice.h" />
     <ClInclude Include="..\..\src\player\SDLWindow.h" />
     <ClInclude Include="..\..\src\player\SecondaryWindow.h" />
     <ClInclude Include="..\..\src\player\ShadowFXNode.h" />
@@ -224,9 +201,6 @@
     <ClInclude Include="..\..\src\player\Timeout.h" />
     <ClInclude Include="..\..\src\player\TouchEvent.h" />
     <ClInclude Include="..\..\src\player\TouchStatus.h" />
-    <ClInclude Include="..\..\src\player\TrackerCalibrator.h" />
-    <ClInclude Include="..\..\src\player\TrackerInputDevice.h" />
-    <ClInclude Include="..\..\src\player\TrackerTouchStatus.h" />
     <ClInclude Include="..\..\src\player\TUIOInputDevice.h" />
     <ClInclude Include="..\..\src\player\TypeDefinition.h" />
     <ClInclude Include="..\..\src\player\TypeRegistry.h" />
@@ -235,7 +209,6 @@
     <ClInclude Include="..\..\src\player\VideoNode.h" />
     <ClInclude Include="..\..\src\player\VideoWriter.h" />
     <ClInclude Include="..\..\src\player\VideoWriterThread.h" />
-    <ClInclude Include="..\..\src\player\Win7TouchInputDevice.h" />
     <ClInclude Include="..\..\src\player\Window.h" />
     <ClInclude Include="..\..\src\player\WindowParams.h" />
     <ClInclude Include="..\..\src\player\WordsNode.h" />

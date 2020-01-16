@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -50,24 +50,9 @@ extern "C" {
 #include <libavutil/mathematics.h>
 #include <libavutil/opt.h>
 #include <libavutil/error.h>
-#if LIBAVFORMAT_VERSION_MAJOR < 53
-#define AVMEDIA_TYPE_VIDEO CODEC_TYPE_VIDEO
-#define AVMEDIA_TYPE_AUDIO CODEC_TYPE_AUDIO
-#endif
-
-#if LIBAVFORMAT_VERSION_MAJOR > 52
-  #define SAMPLE_FMT_S16 AV_SAMPLE_FMT_S16
-  #define SAMPLE_FMT_FLT AV_SAMPLE_FMT_FLT
-  #define SAMPLE_FMT_DBL AV_SAMPLE_FMT_DBL
-  #define SAMPLE_FMT_S32 AV_SAMPLE_FMT_S32
-  #define SAMPLE_FMT_U8 AV_SAMPLE_FMT_U8
-  #define SAMPLE_FMT_S16P AV_SAMPLE_FMT_S16P
-  #define SAMPLE_FMT_FLTP AV_SAMPLE_FMT_FLTP
-  #define SampleFormat AVSampleFormat
-#endif
 
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(54, 25, 00)
-  #define AV_CODEC_ID_MPEG1VIDEO CODEC_ID_MPEG1VIDEO 
+  #define AV_CODEC_ID_MPEG1VIDEO CODEC_ID_MPEG1VIDEO
   #define AV_CODEC_ID_MPEG2VIDEO CODEC_ID_MPEG2VIDEO
   #define AV_CODEC_ID_H264 CODEC_ID_H264
   #define AV_CODEC_ID_WMV3 CODEC_ID_WMV3
@@ -81,16 +66,35 @@ extern "C" {
         #define url_fclose avio_close
         #define URL_WRONLY AVIO_FLAG_WRITE
 #endif
-#ifdef HAVE_LIBAVRESAMPLE_AVRESAMPLE_H
-    #include <libavresample/avresample.h>
-    #include <libavresample/version.h>
+#include <libswresample/swresample.h>
+#include <libswresample/version.h>
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55,28,1)
+#define av_frame_alloc  avcodec_alloc_frame
 #endif
 }
 
+// Old ffmpeg has PixelFormat, new ffmpeg uses AVPixelFormat.
+// Intermediate versions define PixelFormat in terms of AVPixelFormat for compatibility.
+// libavg also defines avg::PixelFormat.
 #ifdef PixelFormat
-#undef PixelFormat
-#else
-#define AVPixelFormat ::PixelFormat
+    // In this case, PixelFormat is #defined and collides with avg::PixelFormat.
+    // AVPixelFormat is also defined.
+    #undef PixelFormat
+#endif
+#ifndef AV_PIX_FMT_NE
+    // Old version, no AVPixelFormat defined.
+    // ::PixelFormat is a typedef, so no collision with avg::PixelFormat.
+    #define AVPixelFormat ::PixelFormat
+    #define AV_PIX_FMT_NONE PIX_FMT_NONE
+    #define AV_PIX_FMT_RGB24 PIX_FMT_RGB24
+    #define AV_PIX_FMT_RGB32 PIX_FMT_RGB32
+    #define AV_PIX_FMT_BGR24 PIX_FMT_BGR24
+    #define AV_PIX_FMT_RGBA PIX_FMT_RGBA
+    #define AV_PIX_FMT_BGRA PIX_FMT_BGRA
+    #define AV_PIX_FMT_YUV420P PIX_FMT_YUV420P
+    #define AV_PIX_FMT_YUVJ420P PIX_FMT_YUVJ420P
+    #define AV_PIX_FMT_YUVA420P PIX_FMT_YUVA420P
+    #define AV_PIX_FMT_YUYV422 PIX_FMT_YUYV422
 #endif
 
 namespace avg

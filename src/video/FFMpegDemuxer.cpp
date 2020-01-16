@@ -75,14 +75,12 @@ AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
             int err = av_read_frame(m_pFormatContext, pPacket);
             if (err < 0) {
                 // EOF or error
-#if LIBAVUTIL_VERSION_MAJOR > 50
                 if (err != int(AVERROR_EOF)) {
                     char sz[256];
                     av_strerror(err, sz, 256);
                     AVG_TRACE(Logger::category::PLAYER, Logger::severity::ERROR,
                             "Error decoding video: " << sz);
                 }
-#endif
                 av_free_packet(pPacket);
                 delete pPacket;
                 pPacket = 0;
@@ -113,16 +111,8 @@ AVPacket * FFMpegDemuxer::getPacket(int streamIndex)
         
 void FFMpegDemuxer::seek(float destTime)
 {
-#if LIBAVFORMAT_BUILD <= 4616
-    av_seek_frame(m_pFormatContext, -1, destTime*1000000);
-#else
-#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    av_seek_frame(m_pFormatContext, -1, destTime*1000000, 0);
-#else
-   av_seek_frame(m_pFormatContext, -1, (long long)(destTime*AV_TIME_BASE),
+    av_seek_frame(m_pFormatContext, -1, (long long)(destTime*AV_TIME_BASE),
             AVSEEK_FLAG_BACKWARD);
-#endif
-#endif
     clearPacketCache();
 }
 

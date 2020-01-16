@@ -39,6 +39,12 @@ namespace avg {
 const int VertexData::MIN_VERTEXES = 100;
 const int VertexData::MIN_INDEXES = 100;
 
+glm::vec2 Vertex::posAsVec()
+{
+    return glm::make_vec2(m_Pos);
+
+}
+
 VertexData::VertexData(int reserveVerts, int reserveIndexes)
     : m_NumVerts(0),
       m_NumIndexes(0),
@@ -155,6 +161,19 @@ void VertexData::reset()
     m_bDataChanged = false;
 }
 
+FRect VertexData::calcBoundingRect() const
+{
+    FRect bounds(m_pVertexData[0].posAsVec(), m_pVertexData[0].posAsVec());
+    for (int i=1; i<m_NumVerts; ++i) {
+        glm::vec2 pos = m_pVertexData[i].posAsVec();
+        bounds.tl.x = min(pos.x, bounds.tl.x);
+        bounds.tl.y = min(pos.y, bounds.tl.y);
+        bounds.br.x = max(pos.x, bounds.br.x);
+        bounds.br.y = max(pos.y, bounds.br.y);
+    }
+    return bounds;
+}
+
 int VertexData::getNumVerts() const
 {
     return m_NumVerts;
@@ -223,16 +242,6 @@ void VertexData::grow()
     }
 }
 
-int VertexData::getReserveVerts() const
-{
-    return m_ReserveVerts;
-}
-
-int VertexData::getReserveIndexes() const
-{
-    return m_ReserveIndexes;
-}
-
 const Vertex * VertexData::getVertexPointer() const
 {
     return m_pVertexData;
@@ -241,6 +250,16 @@ const Vertex * VertexData::getVertexPointer() const
 const GL_INDEX_TYPE * VertexData::getIndexPointer() const
 {
     return m_pIndexData;
+}
+
+int VertexData::getReserveVerts() const
+{
+    return m_ReserveVerts;
+}
+
+int VertexData::getReserveIndexes() const
+{
+    return m_ReserveIndexes;
 }
 
 std::ostream& operator<<(std::ostream& os, const Vertex& v)

@@ -35,6 +35,32 @@ using namespace avg;
 using namespace std;
 using namespace boost::python;
 
+void* from_python_sequence_base::convertible(PyObject* obj_ptr)
+{
+    if (!(   PyList_Check(obj_ptr)
+          || PyTuple_Check(obj_ptr)
+          || PyIter_Check(obj_ptr)
+          || PyRange_Check(obj_ptr)
+          || (   !PyString_Check(obj_ptr)
+              && !PyUnicode_Check(obj_ptr)
+              && (   obj_ptr->ob_type == 0
+                  || obj_ptr->ob_type->ob_type == 0
+                  || obj_ptr->ob_type->ob_type->tp_name == 0
+                  || std::strcmp(
+                       obj_ptr->ob_type->ob_type->tp_name,
+                       "Boost.Python.class") != 0)
+              && PyObject_HasAttrString(obj_ptr, "__len__")
+              && PyObject_HasAttrString(obj_ptr, "__getitem__")))) return 0;
+    boost::python::handle<> obj_iter(
+      boost::python::allow_null(PyObject_GetIter(obj_ptr)));
+    if (!obj_iter.get()) { // must be convertible to an iterator
+      PyErr_Clear();
+      return 0;
+    }
+    return obj_ptr;
+}
+
+
 namespace Vec2Helper
 {
     int len(const glm::vec2&)
@@ -209,6 +235,9 @@ struct vec2_from_python
         if (PySequence_Size(obj_ptr) != 2) {
             return 0;
         }
+        if (PyString_Check(obj_ptr)) {
+            return 0;
+        }
         return obj_ptr;
     }
 
@@ -247,6 +276,10 @@ struct vec3_from_python
         if (PySequence_Size(obj_ptr) != 3) {
             return 0;
         }
+        if (PyString_Check(obj_ptr)) {
+            return 0;
+        }
+
         return obj_ptr;
     }
 
@@ -404,13 +437,35 @@ struct type_info_to_string {
     }
 };
 
+PyObject* createExceptionClass(const char* pszName)
+{
+    string scopeName = extract<UTF8String>(scope().attr("__name__"));
+    string qualifiedName0 = scopeName + "." + pszName;
+    char* qualifiedName1 = const_cast<char*>(qualifiedName0.c_str());
+
+    PyObject* typeObj = PyErr_NewException(qualifiedName1, PyExc_RuntimeError, 0);
+    if (!typeObj) {
+        throw_error_already_set();
+    }
+    scope().attr(pszName) = handle<>(borrowed(typeObj));
+    return typeObj;
+}
+
 
 void export_base()
 {
+    // string
+    to_python_converter<UTF8String, UTF8String_to_unicode>();
+    UTF8String_from_unicode();
+    String_from_string<UTF8String>();
+    String_from_string<string>();
+
     // Exceptions
+    PyObject* pExceptionTypeObj = createExceptionClass("Exception");
+
     translateException<exception>(PyExc_RuntimeError);
     translateException<out_of_range>(PyExc_IndexError);
-    translateException<Exception>(PyExc_RuntimeError);
+    translateException<Exception>(pExceptionTypeObj);
     to_python_converter< exception, Exception_to_python_exception<exception> >();
     to_python_converter< Exception, Exception_to_python_exception<Exception> >();
 

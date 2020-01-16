@@ -52,7 +52,7 @@ OUTPUT_TEMPLATE = '''// version.h
 #define AVG_VERSION_MICRO       "%(micro)s"
 '''
 TOPDIR = os.path.dirname(os.path.abspath(__file__))
-INPUT_FILE = os.path.join(TOPDIR, 'm4', 'avg_version.m4')
+INPUT_FILE = os.path.join(TOPDIR, 'CMakeLists.txt')
 CACHE_FILE = os.path.join(TOPDIR, 'versioninfo.cache')
 OUTPUT_FILENAME = 'version.h'
 
@@ -96,8 +96,8 @@ def getBuilder():
     
     return '%s@%s %s' % (user, hostname, platform.platform())
 
-def extractComponentFromM4(text, component):
-    match = re.search(r'%s\s*\].*\[\s*([A-Za-z0-9\.]+)\s*\]' % component, text, re.M)
+def extractComponentFromCmakeLists(text, component):
+    match = re.search(r'%s\s([A-Za-z0-9\.]+)\s*\)' % component, text, re.M)
     if match:
         return match.group(1)
     else:
@@ -109,9 +109,9 @@ def getVersionComponents():
     contents = f.read()
     f.close()
     
-    major = extractComponentFromM4(contents, 'VERSION_MAJOR')
-    minor = extractComponentFromM4(contents, 'VERSION_MINOR')
-    micro = extractComponentFromM4(contents, 'VERSION_MICRO')
+    major = extractComponentFromCmakeLists(contents, 'AVG_VERSION_MAJOR')
+    minor = extractComponentFromCmakeLists(contents, 'AVG_VERSION_MINOR')
+    micro = extractComponentFromCmakeLists(contents, 'AVG_VERSION_MICRO')
     
     return (major, minor, micro)
     

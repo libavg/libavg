@@ -27,6 +27,7 @@
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
+#include "../base/TimeSource.h"
 
 #include <iostream>
 
@@ -46,8 +47,10 @@ AudioEngine::AudioEngine()
     : m_pTempBuffer(),
       m_pMixBuffer(0),
       m_pLimiter(0),
+      m_pGobblerThread(0),
       m_bEnabled(true),
-      m_Volume(1)
+      m_Volume(1),
+      m_bInitialized(false)
 {
     AVG_ASSERT(s_pInstance == 0);
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) == -1) {
@@ -61,6 +64,10 @@ AudioEngine::~AudioEngine()
 {
     if (m_pMixBuffer) {
         delete[] m_pMixBuffer;
+    }
+    if (m_pLimiter) {
+        delete m_pLimiter;
+        m_pLimiter = 0;
     }
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
     m_AudioSources.clear();
@@ -88,50 +95,67 @@ const AudioParams * AudioEngine::getParams()
 void AudioEngine::init(const AudioParams& ap, float volume) 
 {
     m_Volume = volume;
-    m_AP = ap;
-    Dynamics<float, 2>* pLimiter = new Dynamics<float, 2>(float(m_AP.m_SampleRate));
-    pLimiter->setThreshold(0.f); // in dB
-    pLimiter->setAttackTime(0.f); // in seconds
-    pLimiter->setReleaseTime(0.05f); // in seconds
-    pLimiter->setRmsTime(0.f); // in seconds
-    pLimiter->setRatio(std::numeric_limits<float>::infinity());
-    pLimiter->setMakeupGain(0.f); // in dB
-    m_pLimiter = pLimiter;
-    
-    SDL_AudioSpec desired;
-    desired.freq = m_AP.m_SampleRate;
-    desired.format = AUDIO_S16SYS;
-    desired.channels = m_AP.m_Channels;
-    desired.silence = 0;
-    desired.samples = m_AP.m_OutputBufferSamples;
-    desired.callback = audioCallback;
-    desired.userdata = this;
+    if (!m_bInitialized) {
+        m_bInitialized = true;
+        m_AP = ap;
+        Dynamics<float, 2>* pLimiter = new Dynamics<float, 2>(float(m_AP.m_SampleRate));
+        pLimiter->setThreshold(0.f); // in dB
+        pLimiter->setAttackTime(0.f); // in seconds
+        pLimiter->setReleaseTime(0.05f); // in seconds
+        pLimiter->setRmsTime(0.f); // in seconds
+        pLimiter->setRatio(std::numeric_limits<float>::infinity());
+        pLimiter->setMakeupGain(0.f); // in dB
+        m_pLimiter = pLimiter;
 
-    int err = SDL_OpenAudio(&desired, 0);
-    if (err < 0) {
-        static bool bWarned = false;
-        if (!bWarned) {
+        SDL_AudioSpec desired;
+        desired.freq = m_AP.m_SampleRate;
+        desired.format = AUDIO_S16SYS;
+        desired.channels = m_AP.m_Channels;
+        desired.silence = 0;
+        desired.samples = m_AP.m_OutputBufferSamples;
+        desired.callback = audioCallback;
+        desired.userdata = this;
+
+        int err = SDL_OpenAudio(&desired, 0);
+        if (err < 0) {
             AVG_TRACE(Logger::category::CONFIG, Logger::severity::WARNING,
                     "Can't open audio: " << SDL_GetError());
-            bWarned = true;
+            m_bStopGobbler = false;
+            m_bFakeAudio = true;
+            m_pGobblerThread = new boost::thread(&AudioEngine::consumeBuffers, this);
+        } else {
+            m_bFakeAudio = false;
+        }
+
+    } else {
+        if (m_bFakeAudio) {
+            m_bStopGobbler = false;
+            m_pGobblerThread = new boost::thread(&AudioEngine::consumeBuffers, this);
+        } else {
+            SDL_PauseAudio(0);
         }
     }
 }
 
 void AudioEngine::teardown()
 {
-    {
-        lock_guard lock(m_Mutex);
+    if (m_bFakeAudio) {
+        if (m_pGobblerThread) {
+            m_bStopGobbler = true;
+            m_pGobblerThread->join();
+            delete m_pGobblerThread;
+            m_pGobblerThread = 0;
+        }
+    } else {
         SDL_PauseAudio(1);
+#ifdef AVG_ENABLE_RPI
+        // Optimized away for all but Raspberry PI - takes too long.
+        // But: Leaving it away on the RPi causes hangs.
+        SDL_CloseAudio();
+#endif
     }
-    // Optimized away - takes too long.
-//    SDL_CloseAudio();
 
     m_AudioSources.clear();
-    if (m_pLimiter) {
-        delete m_pLimiter;
-        m_pLimiter = 0;
-    }
 }
 
 void AudioEngine::setAudioEnabled(bool bEnabled)
@@ -237,9 +261,6 @@ void AudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
 {
     int numFrames = destBufferLen/(2*getChannels()); // 16 bit samples.
 
-    if (m_AudioSources.size() == 0) {
-        return;
-    }
     if (!m_pTempBuffer || m_pTempBuffer->getNumFrames() < numFrames) {
         if (m_pTempBuffer) {
             delete[] m_pMixBuffer;
@@ -265,6 +286,19 @@ void AudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
         m_pLimiter->process(m_pMixBuffer+i*getChannels());
         for (int j = 0; j < getChannels(); ++j) {
             ((short*)pDestBuffer)[i*2+j]=short(m_pMixBuffer[i*2+j]*32768);
+        }
+    }
+}
+
+void AudioEngine::consumeBuffers()
+{
+    // Separate thread that's active only if we don't have a running sound subsystem.
+    while (!m_bStopGobbler) {
+        msleep(3);
+        AudioSourceMap::iterator it;
+        lock_guard lock(m_Mutex);
+        for (it = m_AudioSources.begin(); it != m_AudioSources.end(); it++) {
+            it->second->clearQueue();
         }
     }
 }

@@ -46,11 +46,9 @@ typedef boost::shared_ptr<MCTexture> MCTexturePtr;
 class AVG_API VideoNode: public RasterNode, IFrameEndListener
 {
     public:
-        enum VideoAccelType {NONE, VDPAU};
-
         static void registerType();
         
-        VideoNode(const ArgList& args);
+        VideoNode(const ArgList& args, const std::string& sPublisherName="Node");
         virtual ~VideoNode();
         
         virtual void connectDisplay();
@@ -73,6 +71,7 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener
         int getCurFrame() const;
         int getNumFramesQueued() const;
         void seekToFrame(int frameNum);
+        bool isSeeking() const;
         std::string getStreamPixelFormat() const;
         long long getDuration() const;
         long long getVideoDuration() const;
@@ -91,16 +90,13 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener
         bool hasAudio() const;
         bool hasAlpha() const;
         void setEOFCallback(PyObject * pEOFCallback);
-        bool isAccelerated() const;
 
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);
-        virtual void render();
+        virtual void render(GLContext* pContext, const glm::mat4& transform);
         virtual void onFrameEnd();
         
         virtual IntPoint getMediaSize();
-
-        static VideoAccelType getVideoAccelConfig();
 
     private:
         bool renderFrame();
@@ -147,7 +143,6 @@ class AVG_API VideoNode: public RasterNode, IFrameEndListener
 
         VideoDecoder * m_pDecoder;
         float m_Volume;
-        bool m_bUsesHardwareAcceleration;
         bool m_bEnableSound;
         int m_AudioID;
 

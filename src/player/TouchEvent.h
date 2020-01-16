@@ -27,7 +27,6 @@
 #include "../api.h"
 #include "CursorEvent.h"
 
-#include "../imaging/Blob.h"
 #include "../base/GLMHelper.h"
 
 #include <math.h>
@@ -42,15 +41,13 @@ typedef boost::weak_ptr<class TouchEvent> TouchEventWeakPtr;
 class AVG_API TouchEvent: public CursorEvent 
 {
     public:
-        TouchEvent(int id, Type eventType, BlobPtr pBlob, const IntPoint& pos, 
-                Source source, const glm::vec2& speed=glm::vec2(0,0));
         TouchEvent(int id, Type eventType, const IntPoint& pos, Source source, 
                 const glm::vec2& speed, float orientation, float area, 
                 float eccentricity, glm::vec2 majorAxis, glm::vec2 minorAxis);
         TouchEvent(int id, Type eventType, const IntPoint& pos, Source source,
                 const glm::vec2& speed=glm::vec2(0, 0));
         virtual ~TouchEvent();
-        virtual CursorEventPtr cloneAs(Type eventType) const;
+        virtual CursorEventPtr copy() const;
 
         float getOrientation() const;
         float getArea() const;
@@ -59,19 +56,14 @@ class AVG_API TouchEvent: public CursorEvent
         const glm::vec2 & getMajorAxis() const;
         const glm::vec2 & getMinorAxis() const;
 
-        const BlobPtr getBlob() const;
-        ContourSeq getContour();
         float getHandOrientation() const;
 
         void addRelatedEvent(TouchEventPtr pEvent);
         std::vector<TouchEventPtr> getRelatedEvents() const;
 
-        void removeBlob();
-
         virtual void trace();
 
     private:
-        BlobPtr m_pBlob;
         float m_Orientation;
         float m_Area;
         glm::vec2 m_Center;

@@ -35,7 +35,7 @@ public:
     GPUNullFilter(const IntPoint& size, bool bStandalone=true);
     virtual ~GPUNullFilter();
 
-    virtual void applyOnGPU(GLTexturePtr pSrcTex);
+    virtual void applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex);
 
 private:
     IntMCShaderParamPtr m_pTextureParam;

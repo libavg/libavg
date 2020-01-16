@@ -88,8 +88,11 @@ class AVG_API Canvas: public ExportedObject
         virtual void doFrame(bool bPythonAvailable);
         IntPoint getSize() const;
         virtual BitmapPtr screenshot() const = 0;
-        virtual void pushClipRect(const glm::mat4& transform, SubVertexArray& va);
-        virtual void popClipRect(const glm::mat4& transform, SubVertexArray& va);
+        virtual void pushClipRect(GLContext* pContext, const glm::mat4& transform,
+                SubVertexArray& va);
+        virtual void popClipRect(GLContext* pContext, const glm::mat4& transform,
+                SubVertexArray& va);
+        int getMultiSampleSamples() const;
 
         void registerPlaybackEndListener(IPlaybackEndListener* pListener);
         void unregisterPlaybackEndListener(IPlaybackEndListener* pListener);
@@ -97,8 +100,6 @@ class AVG_API Canvas: public ExportedObject
         void unregisterFrameEndListener(IFrameEndListener* pListener);
         void registerPreRenderListener(IPreRenderListener* pListener);
         void unregisterPreRenderListener(IPreRenderListener* pListener);
-
-        std::vector<NodePtr> getElementsByPos(const glm::vec2& Pos) const;
 
         virtual void renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, 
                 const IntRect& viewport);
@@ -113,12 +114,13 @@ class AVG_API Canvas: public ExportedObject
 
     private:
         virtual void renderTree()=0;
-        void renderFX();
+        void renderFX(GLContext* pContext);
         void resetFXSchedule();
-        void renderOutlines(const glm::mat4& transform);
+        void renderOutlines(GLContext* pContext, const glm::mat4& transform);
         void createStdSubVA();
 
-        void clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencilOp);
+        void clip(GLContext* pContext, const glm::mat4& transform, SubVertexArray& va,
+                GLenum stencilOp);
         Player * m_pPlayer;
         CanvasNodePtr m_pRootNode;
         bool m_bIsPlaying;

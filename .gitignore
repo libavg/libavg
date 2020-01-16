@@ -13,6 +13,9 @@ config.status
 config.sub
 configure
 libtool
+depcomp
+missing
+compile
 ltmain.sh
 m4/libtool.m4
 m4/ltoptions.m4
@@ -32,7 +35,9 @@ src/player/testplayer
 src/stamp-h1
 src/version.h
 src/video/testvideo
+src/test/tmp.dot
 test-driver
+*.orig
 
 #libavg dist-check
 version.h
@@ -74,3 +79,27 @@ __pycache__/
 
 # vim temp files
 *.swp
+
+# PyCharm user specific
+.idea/workspace.xml
+.idea/tasks.xml
+
+# MSVC
+*.vcxproj.user
+win/*/Debug/
+win/*/Release/
+win/Debug/
+win/Release/
+win/testplugin/version.txt
+win/testplugin/build/
+win/testplugin/dist/
+*/*sdf
+*/*.suo
+*~
+
+# cmake
+build/
+*.cmake
+CMakeCache.txt
+CMakeFiles/
+Testing/

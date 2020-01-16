@@ -31,8 +31,6 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/tss.hpp>
 
-struct SDL_SysWMinfo;
-
 namespace avg {
 
 class GLContext;
@@ -40,7 +38,6 @@ typedef boost::shared_ptr<GLContext> GLContextPtr;
 class ShaderRegistry;
 typedef boost::shared_ptr<ShaderRegistry> ShaderRegistryPtr;
 class StandardShader;
-typedef boost::shared_ptr<StandardShader> StandardShaderPtr;
 
 class AVG_API GLContext
 {
@@ -50,7 +47,7 @@ public:
 
     virtual void activate()=0;
     ShaderRegistryPtr getShaderRegistry() const;
-    StandardShaderPtr getStandardShader();
+    StandardShader* getStandardShader();
     bool useGPUYUVConversion() const;
     GLConfig::ShaderUsage getShaderUsage() const;
 
@@ -76,10 +73,11 @@ public:
     OGLMemoryMode getMemoryMode();
     bool isGLES() const;
     bool isVendor(const std::string& sWantedVendor) const;
+    bool isRenderer(const std::string& sWantedRenderer) const;
     virtual bool useDepthBuffer() const;
 
-    virtual bool initVBlank(int rate)=0;
-    virtual void swapBuffers();
+    virtual bool initVBlank(int rate);
+    virtual void swapBuffers() = 0;
 
     static void enableErrorChecks(bool bEnable);
     static void checkError(const char* pszWhere);
@@ -89,7 +87,6 @@ public:
     static BlendMode stringToBlendMode(const std::string& s);
 
     static GLContext* getCurrent();
-    static void setMain(GLContext * pMainContext);
 
     static int nextMultiSampleValue(int curSamples);
     static void enableErrorLog(bool bEnable);
@@ -112,7 +109,7 @@ private:
     bool m_bOwnsContext;
     
     ShaderRegistryPtr m_pShaderRegistry;
-    StandardShaderPtr m_pStandardShader;
+    StandardShader* m_pStandardShader;
 
     GLBufferCache m_PBOCache;
     std::vector<unsigned int> m_FBOIDs;
@@ -130,13 +127,15 @@ private:
     bool m_bPremultipliedAlpha;
     unsigned m_BoundTextures[16];
 
+    std::string m_sVendor;
+    std::string m_sRenderer;
     int m_MajorGLVersion;
     int m_MinorGLVersion;
 
     static bool s_bErrorCheckEnabled;
     static bool s_bErrorLogEnabled;
 
-    static boost::thread_specific_ptr<GLContext*> s_pCurrentContext;
+    static GLContext* s_pCurrentContext;
 };
 
 }

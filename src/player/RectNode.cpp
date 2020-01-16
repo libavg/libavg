@@ -51,8 +51,8 @@ void RectNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-RectNode::RectNode(const ArgList& args)
-    : FilledVectorNode(args)
+RectNode::RectNode(const ArgList& args, const string& sPublisherName)
+    : FilledVectorNode(args, sPublisherName)
 {
     args.setMembers(this);
     setSize(args.getArgVal<glm::vec2>("size"));
@@ -130,15 +130,6 @@ glm::vec2 RectNode::toGlobal(const glm::vec2& localPos) const
     return globalPos + m_Rect.tl;
 }
 
-void RectNode::getElementsByPos(const glm::vec2& pos, vector<NodePtr>& pElements)
-{
-    if (pos.x >= 0 && pos.y >= 0 && pos.x < m_Rect.size().x && pos.y < m_Rect.size().y 
-            && reactsToMouseEvents())
-    {
-        pElements.push_back(getSharedThis());
-    }
-}
-
 void RectNode::calcVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
 {
     glm::vec2 pivot = m_Rect.tl+m_Rect.size()/2.f;
@@ -175,6 +166,13 @@ void RectNode::calcFillVertexes(const VertexDataPtr& pVertexData, Pixel32 color)
     glm::vec2 trTexCoord = glm::vec2(getFillTexCoord2().x, getFillTexCoord1().y);
     pVertexData->appendPos(rp4, trTexCoord, color);
     pVertexData->appendQuadIndexes(1, 0, 2, 3);
+}
+  
+bool RectNode::isInside(const glm::vec2& pos)
+{
+    return FilledVectorNode::isInside(pos) ||
+            (pos.x >= 0 && pos.y >= 0 && pos.x < m_Rect.size().x &&
+              pos.y < m_Rect.size().y);
 }
 
 }

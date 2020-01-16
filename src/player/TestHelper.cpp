@@ -22,6 +22,7 @@
 #include "TestHelper.h"
 #include "Player.h"
 #include "MouseEvent.h"
+#include "MouseWheelEvent.h"
 #include "TouchEvent.h"
 #include "TangibleEvent.h"
 #include "KeyEvent.h"
@@ -65,6 +66,12 @@ void TestHelper::fakeMouseEvent(Event::Type eventType,
     m_Events.push_back(pEvent);
 }
 
+void TestHelper::fakeMouseWheelEvent(const glm::vec2& pos, const glm::vec2& motion)
+{
+    MouseWheelEventPtr pEvent(new MouseWheelEvent(pos, motion));
+    m_Events.push_back(pEvent);
+}
+
 void TestHelper::fakeTouchEvent(int id, Event::Type eventType,
         Event::Source source, const glm::vec2& pos, const glm::vec2& speed)
 {
@@ -86,12 +93,13 @@ void TestHelper::fakeTangibleEvent(int id, int markerID, Event::Type eventType,
 
 }
 
-void TestHelper::fakeKeyEvent(Event::Type eventType,
-        unsigned char scanCode, int keyCode, 
-        const UTF8String& keyString, int unicode, int modifiers)
+void TestHelper::fakeKeyEvent(Event::Type eventType, unsigned char scanCode,
+        const string& sKeyString, int modifiers, const string& sText)
 {
-    KeyEventPtr pEvent(new KeyEvent(eventType, scanCode, keyCode, 
-        keyString, unicode, modifiers));
+    KeyEventPtr pEvent(new KeyEvent(eventType, scanCode, sKeyString, modifiers));
+    if (sText != "") {
+        pEvent->setText(sText);
+    }
     m_Events.push_back(pEvent);
 }
 

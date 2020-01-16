@@ -44,20 +44,19 @@ using namespace std;
 // don't overlap.
 unsigned GLTexture::s_LastTexID = 10000000;
 
-GLTexture::GLTexture(const TexInfo& texInfo)
+GLTexture::GLTexture(GLContext* pContext, const TexInfo& texInfo)
     : TexInfo(texInfo),
-      m_bDeleteTex(true)      
+      m_pContext(pContext)      
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     init();
 
 }
 
-GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
-        unsigned wrapSMode, unsigned wrapTMode, bool bForcePOT, int potBorderColor)
-    : TexInfo(size, pf, bMipmap, wrapSMode, wrapTMode, usePOT(bForcePOT, bMipmap), 
-            potBorderColor),
-      m_bDeleteTex(true)
+GLTexture::GLTexture(GLContext* pContext, const IntPoint& size, PixelFormat pf,
+        bool bMipmap, bool bForcePOT, int potBorderColor)
+    : TexInfo(size, pf, bMipmap, usePOT(bForcePOT, bMipmap), potBorderColor),
+      m_pContext(pContext)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     init();
@@ -65,7 +64,7 @@ GLTexture::GLTexture(const IntPoint& size, PixelFormat pf, bool bMipmap,
 
 GLTexture::~GLTexture()
 {
-    if (m_bDeleteTex && GLContextManager::isActive()) {
+    if (GLContextManager::isActive()) {
         GLContextManager::get()->deleteTexture(m_TexID);
     }
     ObjectCounter::get()->decRef(&typeid(*this));
@@ -76,11 +75,9 @@ void GLTexture::init()
     s_LastTexID++;
     m_TexID = s_LastTexID;
 
-    GLContext::getCurrent()->bindTexture(GL_TEXTURE0, m_TexID);
+    m_pContext->bindTexture(GL_TEXTURE0, m_TexID);
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, getWrapSMode());
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, getWrapTMode());
     IntPoint size = getGLSize();
     PixelFormat pf = getPF();
     glTexImage2D(GL_TEXTURE_2D, 0, getGLInternalFormat(), size.x, size.y, 0,
@@ -93,6 +90,8 @@ void GLTexture::init()
     } else {
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_WrapMode.getS());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_WrapMode.getT());
 
     if (getUsePOT()) {
         // Make sure the texture is transparent and black before loading stuff 
@@ -108,15 +107,21 @@ void GLTexture::init()
     }
 }
 
-void GLTexture::activate(int textureUnit)
+void GLTexture::activate(const WrapMode& wrapMode, int textureUnit)
 {
-    GLContext::getCurrent()->bindTexture(textureUnit, m_TexID);
+    m_pContext->bindTexture(textureUnit, m_TexID);
+    if (wrapMode.getS() != m_WrapMode.getS() || wrapMode.getT() != m_WrapMode.getT()) {
+        glproc::ActiveTexture(textureUnit);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode.getS());
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapMode.getT());
+        m_WrapMode = wrapMode;
+    }
 }
 
 void GLTexture::generateMipmaps()
 {
     if (getUseMipmap()) {
-        activate();
+        m_pContext->bindTexture(GL_TEXTURE0, m_TexID);
         glproc::GenerateMipmap(GL_TEXTURE_2D);
         GLContext::checkError("GLTexture::generateMipmap()");
     }
@@ -124,7 +129,12 @@ void GLTexture::generateMipmaps()
 
 void GLTexture::moveBmpToTexture(BitmapPtr pBmp)
 {
-    TextureMoverPtr pMover = TextureMover::create(getSize(), getPF(), GL_DYNAMIC_DRAW);
+    unsigned usage = GL_DYNAMIC_DRAW;
+    if (getPF() == A8 && m_pContext->isVendor("ATI")) {
+        // Workaround for https://github.com/libavg/libavg/issues/687
+        usage = GL_STATIC_DRAW;
+    }
+    TextureMoverPtr pMover = TextureMover::create(getSize(), getPF(), usage);
     pMover->moveBmpToTexture(pBmp, *this);
 }
 

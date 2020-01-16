@@ -27,6 +27,7 @@
 #include "GLContext.h"
 
 #include "../base/GLMHelper.h"
+#include "../base/Exception.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -39,6 +40,8 @@ class OGLShader;
 class AVG_API GLShaderParam
 {
 public:
+    GLShaderParam();
+
     GLShaderParam(OGLShader* pShader, const std::string& sName);
     virtual ~GLShaderParam() {};
     
@@ -57,6 +60,9 @@ template<class VAL_TYPE>
 class AVG_TEMPLATE_API GLShaderParamTemplate: public GLShaderParam
 {
 public:
+    GLShaderParamTemplate()
+    {};
+
     GLShaderParamTemplate(OGLShader* pShader, const std::string& sName)
         : GLShaderParam(pShader, sName),
           m_bValSet(false)
@@ -76,7 +82,7 @@ private:
     void uniformSet(unsigned location, const VAL_TYPE& val) 
     {
         AVG_ASSERT_MSG(false, 
-                getName()+"GLShaderParam::uniformSet() called for unsupported type.");
+                (getName()+"GLShaderParam::uniformSet() called for unsupported type.").c_str());
     };
 
     bool m_bValSet;

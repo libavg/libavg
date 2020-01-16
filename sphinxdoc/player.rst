@@ -55,7 +55,13 @@ Player & Canvas
         .. py:attribute:: handleevents
 
             :py:const:`True` if events that arrive at an image node that is displaying 
-            this canvas are routed to the offscreen canvas. Read-only.
+            this canvas are routed to the offscreen canvas. Events arrive at the correct
+            node inside the canvas, so a click on a node will trigger an appropriate 
+            :py:const:`CURSOR_DOWN` event. :py:attr:`event.pos` is also adjusted to be
+            relative to the canvas root. There is a limitation, however: Events received
+            through contacts can't have this adjustment done. This means that gestures
+            such as drag - which use contacts internally - won't work correctly if scaling
+            or rotation is involved. Read-only.
 
         .. py:attribute:: mipmap
 
@@ -109,7 +115,7 @@ Player & Canvas
             To get these messages, call :py:meth:`Publisher.subscribe`.
 
             .. py:method:: KEY_DOWN(keyEvent)
-            
+
                 Called whenever a key is pressed.
             
             .. py:method:: KEY_UP(keyEvent)
@@ -119,6 +125,10 @@ Player & Canvas
             .. py:method:: ON_FRAME()
 
                 Called each frame.
+
+        .. py:attribute:: imageCache
+
+            The global :py:class:`ImageCache` that keeps images in CPU and GPU memory.
 
         .. py:attribute:: pluginPath
 
@@ -140,9 +150,9 @@ Player & Canvas
         .. py:method:: areFullShadersSupported() -> bool
 
             Returns :py:const:`True` if the current OpenGL configuration has full shader
-            support. Platforms without full shader support (this includes OpenGL ES) disable
-            several :py:class:`FXNode` types. Calling this when playback is not running is
-            an error.
+            support. Platforms without full shader support (this includes OpenGL ES)
+            disable several :py:class:`FXNode` types. Calling this when playback is not
+            running is an error.
 
         .. py:method:: assumePixelsPerMM(ppmm)
 
@@ -220,54 +230,9 @@ Player & Canvas
             errors inside libavg.
 
         .. py:method:: enableMouse(enable)
-        
+
             Enables or disable mouse event handling.
             
-        .. py:method:: enableMultitouch()
-
-            Enables multitouch event handling. Several drivers are available that 
-            generate multitouch events. To choose a driver, set the environment
-            variable :envvar:`AVG_MULTITOUCH_DRIVER` to the appropriate value:
-
-            :samp:`TUIO`:
-                Listens for TUIO events from a tracker that conforms to the TUIO 
-                protocol (http://www.tuio.org), a de-facto standard for multitouch
-                events. By default, it listens to events on the default TUIO UDP port
-                3333, but this can be configured using the environment variable 
-                :envvar:`AVG_TUIO_PORT`.
-
-            :samp:`APPLETRACKPAD`:
-                Uses the trackpad built into Mac Book Pros to generate events.
-
-            :samp:`LINUXMTDEV`:
-                Uses the linux mtdev library to interface to multitouch devices.
-                The environment variable :envvar:`AVG_LINUX_MULTITOUCH_DEVICE` is used
-                to determine which device file to open. Default is 
-                :samp:`/dev/input/event3`.
-
-            :samp:`TRACKER`:
-                Enables the internal camera-based tracker. Configuring this tracker is
-                described under https://www.libavg.de/wiki/ProgrammersGuide/Tracker.
-
-            :samp:`WIN7TOUCH`:
-                Enables handling of Windows 7 touch events. This works with all devices
-                which have Windows 7 drivers.
-
-            :samp:`XINPUT`:
-                Uses X11-based multitouch detection. This needs X11 with XInput >= 2.1
-                support. For backwards compatibility reasons, XINPUT21 is supported as 
-                value as well.
-
-            If :envvar:`AVG_MULTITOUCH_DRIVER` is not set, the driver defaults to 
-            a plattform-specific one. Under Linux, the default is :samp:`XINPUT` if
-            XInput multitouch is supported on the system, otherwise :samp:`LINUXMTDEV`.
-            Under Windows, the default is :samp:`WIN7TOUCH`.
-
-            :py:meth:`enableMultitouch` throws an exception if the chosen driver is not
-            available or no multitouch device could be found. (Exception: Since there is
-            no way to determine if a TUIO device is available, :py:meth:`enableMultitouch`
-            always appears to succeed in this case.)
-
         .. py:method:: getCanvas(id) -> OffscreenCanvas
 
             Returns the offscreen canvas with the :py:attr:`id` given.
@@ -340,12 +305,7 @@ Player & Canvas
 
             Returns the size in pixels of the current screen.
 
-        .. py:method:: getTestHelper
-
-        .. py:method:: getTracker() -> Tracker
-
-            Returns a tracker previously created using :py:meth:`enableMultitouch` with
-            the internal tracker configured.
+        .. py:method:: getTestHelper()
 
         .. py:method:: getVideoMemInstalled() -> int
 
@@ -379,11 +339,6 @@ Player & Canvas
 
             Returns :py:const:`True` if the player is running in fullscreen mode.
             
-        .. py:method:: isMultitouchAvailable() -> bool
-
-            Returns :py:const:`True` if a multitouch device has been configured and is
-            active, :py:const:`False` if not. Must be called after :py:meth:`play()`.
-
         .. py:method:: isPlaying() -> bool
 
             Returns :py:const:`True` if :py:meth:`play()` is currently executing, 
@@ -435,14 +390,6 @@ Player & Canvas
         .. py:method:: screenshot() -> Bitmap
 
             Returns the contents of the current screen as a bitmap.
-
-        .. py:method:: setCursor(bitmap, hotspot)
-
-            Sets the mouse cursor to the bitmap given. The bitmap must have a size
-            divisible by 8 and an RGBA pixel format. The cursor generated is
-            binary black and white with a binary transparency channel. hotspot is
-            the relative position of the actual pointing coordinate in the
-            bitmap.
 
         .. py:method:: setEventHook(pyfunc)
 
@@ -576,7 +523,9 @@ Player & Canvas
         .. py:method:: setTimeout(time, pyfunc) -> int
 
             Sets a python callable object that should be executed after a set
-            amount of time. :py:meth:`setTimeout` returns an id that can be used to
+            amount of time. The callable is executed exactly once (use
+            :py:meth:`setInterval` to trigger regular callbacks).
+            :py:meth:`setTimeout` returns an id that can be used to
             call :py:meth:`clearInterval()` to stop the function from being called.
 
             :param int time: Number of milliseconds before the call.

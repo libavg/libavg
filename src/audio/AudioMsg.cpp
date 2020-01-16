@@ -135,9 +135,6 @@ void AudioMsg::dump()
         case FRAME:
             cerr << "FRAME" << endl;
             break;
-        case VDPAU_FRAME:
-            cerr << "VDPAU_FRAME" << endl;
-            break;
         case SEEK_DONE:
             cerr << "SEEK_DONE" << endl;
             break;

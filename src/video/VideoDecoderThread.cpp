@@ -36,8 +36,7 @@ using namespace std;
 namespace avg {
 
 VideoDecoderThread::VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ, 
-        VideoMsgQueue& packetQ, AVStream* pStream, const IntPoint& size, PixelFormat pf, 
-        bool bUseVDPAU)
+        VideoMsgQueue& packetQ, AVStream* pStream, const IntPoint& size, PixelFormat pf)
     : WorkerThread<VideoDecoderThread>(string("Video Decoder"), cmdQ, 
             Logger::category::PROFILE_VIDEO),
       m_MsgQ(msgQ),
@@ -46,7 +45,6 @@ VideoDecoderThread::VideoDecoderThread(CQueue& cmdQ, VideoMsgQueue& msgQ,
       m_pHalfBmpQ(new BitmapQueue()),
       m_Size(size),
       m_PF(pf),
-      m_bUseVDPAU(bUseVDPAU),
       m_bSeekDone(false),
       m_bProcessingLastFrames(false)
 {
@@ -60,7 +58,7 @@ VideoDecoderThread::~VideoDecoderThread()
 bool VideoDecoderThread::init()
 {
 #if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(54, 28, 0) 
-    m_pFrame = avcodec_alloc_frame();
+    m_pFrame = av_frame_alloc();
 #else
     m_pFrame = new AVFrame;
 #endif
@@ -69,7 +67,9 @@ bool VideoDecoderThread::init()
         
 void VideoDecoderThread::deinit()
 {
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(54, 28, 0) 
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(55, 45,101)
+    av_frame_free(&m_pFrame);
+#elif LIBAVCODEC_VERSION_INT > AV_VERSION_INT(54, 28, 0)
     avcodec_free_frame(&m_pFrame);
 #else
     delete m_pFrame;
@@ -167,30 +167,25 @@ static ProfilingZoneID CopyImageProfilingZone("Copy image", true);
 void VideoDecoderThread::sendFrame(AVFrame* pFrame)
 {
     VideoMsgPtr pMsg(new VideoMsg());
-    if (m_bUseVDPAU) {
-        vdpau_render_state *pRenderState = (vdpau_render_state *)pFrame->data[0];
-        pMsg->setVDPAUFrame(pRenderState, m_pFrameDecoder->getCurTime());
-    } else {
-        vector<BitmapPtr> pBmps;
-        if (pixelFormatIsPlanar(m_PF)) {
-            ScopeTimer timer(CopyImageProfilingZone);
-            IntPoint halfSize(m_Size.x/2, m_Size.y/2);
+    vector<BitmapPtr> pBmps;
+    if (pixelFormatIsPlanar(m_PF)) {
+        ScopeTimer timer(CopyImageProfilingZone);
+        IntPoint halfSize(m_Size.x/2, m_Size.y/2);
+        pBmps.push_back(getBmp(m_pBmpQ, m_Size, I8));
+        pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
+        pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
+        if (m_PF == YCbCrA420p) {
             pBmps.push_back(getBmp(m_pBmpQ, m_Size, I8));
-            pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
-            pBmps.push_back(getBmp(m_pHalfBmpQ, halfSize, I8));
-            if (m_PF == YCbCrA420p) {
-                pBmps.push_back(getBmp(m_pBmpQ, m_Size, I8));
-            }
-            for (unsigned i = 0; i < pBmps.size(); ++i) {
-                m_pFrameDecoder->copyPlaneToBmp(pBmps[i], pFrame->data[i], 
-                        pFrame->linesize[i]);
-            }
-        } else {
-            pBmps.push_back(getBmp(m_pBmpQ, m_Size, m_PF));
-            m_pFrameDecoder->convertFrameToBmp(pFrame, pBmps[0]);
         }
-        pMsg->setFrame(pBmps, m_pFrameDecoder->getCurTime());
+        for (unsigned i = 0; i < pBmps.size(); ++i) {
+            m_pFrameDecoder->copyPlaneToBmp(pBmps[i], pFrame->data[i], 
+                    pFrame->linesize[i]);
+        }
+    } else {
+        pBmps.push_back(getBmp(m_pBmpQ, m_Size, m_PF));
+        m_pFrameDecoder->convertFrameToBmp(pFrame, pBmps[0]);
     }
+    pMsg->setFrame(pBmps, m_pFrameDecoder->getCurTime());
     pushMsg(pMsg);
 }
 

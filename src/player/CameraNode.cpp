@@ -62,7 +62,7 @@ void CameraNode::registerType()
         .addArg(Arg<float>("framerate", 15))
         .addArg(Arg<int>("capturewidth", 640))
         .addArg(Arg<int>("captureheight", 480))
-        .addArg(Arg<string>("pixelformat", "RGB"))
+        .addArg(Arg<string>("pixelformat", "R8G8B8"))
         .addArg(Arg<int>("brightness", -1))
         .addArg(Arg<int>("exposure", -1))
         .addArg(Arg<int>("sharpness", -1))
@@ -74,8 +74,9 @@ void CameraNode::registerType()
     TypeRegistry::get()->registerType(def);
 }
 
-CameraNode::CameraNode(const ArgList& args)
-    : m_bIsPlaying(false),
+CameraNode::CameraNode(const ArgList& args, const string& sPublisherName)
+    : RasterNode(sPublisherName),
+      m_bIsPlaying(false),
       m_FrameNum(0),
       m_bAutoUpdateCameraImage(true),
       m_bNewBmp(false),
@@ -306,9 +307,8 @@ void CameraNode::open()
     setViewport(-32767, -32767, -32767, -32767);
     PixelFormat pf = getPixelFormat();
     IntPoint size = getMediaSize();
-    bool bMipmap = getMaterial().getUseMipmaps();
     
-    m_pTex = GLContextManager::get()->createTexture(size, pf, bMipmap);
+    m_pTex = GLContextManager::get()->createTexture(size, pf, getMipmap());
     getSurface()->create(pf, m_pTex);
     m_bNewSurface = true;
     newSurface();
@@ -337,7 +337,7 @@ static ProfilingZoneID CameraDownloadProfilingZone("Camera tex download");
 void CameraNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
         float parentEffectiveOpacity)
 {
-    Node::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
+    AreaNode::preRender(pVA, bIsParentActive, parentEffectiveOpacity);
     if (m_bIsPlaying) {
         if (m_bAutoUpdateCameraImage) {
             ScopeTimer Timer(CameraFetchImage);
@@ -371,11 +371,11 @@ void CameraNode::preRender(const VertexArrayPtr& pVA, bool bIsParentActive,
 
 static ProfilingZoneID CameraProfilingZone("Camera::render");
 
-void CameraNode::render()
+void CameraNode::render(GLContext* pContext, const glm::mat4& transform)
 {
     if (m_bIsPlaying) {
         ScopeTimer Timer(CameraProfilingZone);
-        blt32();
+        blt32(pContext, transform);
     }
 }
 

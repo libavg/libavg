@@ -22,7 +22,7 @@
 
 import libavg
 from libavg import avg, player
-from testcase import *
+from libavg.testcase import *
 import AppTest
 
 class MultiWindowTestCase(AVGTestCase):
@@ -105,18 +105,14 @@ class MultiWindowTestCase(AVGTestCase):
             self.videoNode.setEffect(avg.NullFXNode())
             self.videoNode.play()
 
-        def addWords():
-            self.videoNode.unlink(True)
-            self.wordsNode = avg.WordsNode(text="WordsNode", color="FF0000", parent=root)
-            self.wordsNode.setEffect(avg.NullFXNode())
-
         root = self.loadEmptyScene()
         player.setWindowConfig("avgwindowconfig.xml")
         node = avg.ImageNode(pos=(0,0), href="rgb24-64x64.png", parent=root)
         node.setEffect(avg.NullFXNode())
         player.setFakeFPS(25)
         self.start(False,
-                (lambda: self.compareImage("testMultiWindowFX1"),
+                (self.skipIfMinimalShader,
+                 lambda: self.compareImage("testMultiWindowFX1"),
                  lambda: setHueSat(node),
                  lambda: self.compareImage("testMultiWindowFX2"),
                  lambda: setBlur(node),
@@ -125,7 +121,21 @@ class MultiWindowTestCase(AVGTestCase):
                  lambda: self.compareImage("testMultiWindowFXVideo1"),
                  lambda: setHueSat(self.videoNode),
                  lambda: self.compareImage("testMultiWindowFXVideo2"),
-                 addWords,
+                ))
+
+    def testMultiWindowFXWords(self):
+        def setHueSat(node):
+            effect = avg.HueSatFXNode()
+            effect.saturation = -200
+            node.setEffect(effect)
+
+        root = self.loadEmptyScene()
+        player.setWindowConfig("avgwindowconfig.xml")
+        self.wordsNode = avg.WordsNode(text="WordsNode", color="FF0000", parent=root)
+        self.wordsNode.setEffect(avg.NullFXNode())
+
+        self.start(True,
+                (
                  lambda: self.compareImage("testMultiWindowFXWords1"),
                  lambda: setHueSat(self.wordsNode),
                  lambda: self.compareImage("testMultiWindowFXWords2"),
@@ -134,20 +144,17 @@ class MultiWindowTestCase(AVGTestCase):
         
 
 def multiWindowTestSuite(tests):
-    if sys.platform.startswith("linux"):
-        if not player.isUsingGLES():
-            availableTests = (
-                    "testMultiWindowBase",
-                    "testMultiWindowApp",
-                    "testMultiWindowCanvas",
-                    "testMultiWindowManualCanvas",
-                    "testMultiWindowFX"
-                    )
-            return createAVGTestSuite(availableTests, MultiWindowTestCase, tests)
-        else:
-            sys.stderr.write("Skipping multi-window tests - only supported under Linux w/GLX")
-            return unittest.TestSuite()
+    if not player.isUsingGLES():
+        availableTests = (
+                "testMultiWindowBase",
+                "testMultiWindowApp",
+                "testMultiWindowCanvas",
+                "testMultiWindowManualCanvas",
+                "testMultiWindowFX",
+                "testMultiWindowFXWords"
+                )
+        return createAVGTestSuite(availableTests, MultiWindowTestCase, tests)
     else:
-        sys.stderr.write("Skipping multi-window tests - only supported under Linux.")
+        sys.stderr.write("Skipping multi-window tests - not supported for GLES.\n")
         return unittest.TestSuite()
         

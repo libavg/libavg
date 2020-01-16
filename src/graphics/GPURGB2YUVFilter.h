@@ -34,9 +34,9 @@ public:
     GPURGB2YUVFilter(const IntPoint& size);
     virtual ~GPURGB2YUVFilter();
     
-    virtual void applyOnGPU(GLTexturePtr pSrcTex);
+    virtual void applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex);
 
-    BitmapPtr getResults();
+    BitmapPtr getResults(GLContext* pContext);
 
 private:
 };

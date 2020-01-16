@@ -20,9 +20,6 @@
 //
 
 #include "VideoDecoder.h"
-#ifdef AVG_ENABLE_VDPAU
-#include "VDPAUDecoder.h"
-#endif
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -54,9 +51,6 @@ VideoDecoder::VideoDecoder()
       m_pVStream(0),
       m_PF(NO_PIXELFORMAT),
       m_Size(0,0),
-#ifdef AVG_ENABLE_VDPAU
-      m_pVDPAUDecoder(0),
-#endif
       m_AStreamIndex(-1),
       m_pAStream(0)
 {
@@ -69,16 +63,10 @@ VideoDecoder::~VideoDecoder()
     if (m_pFormatContext) {
         close();
     }
-#ifdef AVG_ENABLE_VDPAU
-    if (m_pVDPAUDecoder) {
-        delete m_pVDPAUDecoder;
-    }
-#endif
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void VideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration, 
-        bool bEnableSound)
+void VideoDecoder::open(const string& sFilename, bool bEnableSound)
 {
     lock_guard lock(s_OpenMutex);
     int err;
@@ -137,7 +125,7 @@ void VideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration,
 
         char szCodec[256];
         avcodec_string(szCodec, sizeof(szCodec), m_pVStream->codec, 0);
-        int rc = openCodec(m_VStreamIndex, bUseHardwareAcceleration);
+        int rc = openCodec(m_VStreamIndex);
         if (rc == -1) {
             m_VStreamIndex = -1;
             m_pVStream = 0;
@@ -151,7 +139,7 @@ void VideoDecoder::open(const string& sFilename, bool bUseHardwareAcceleration,
         m_pAStream = m_pFormatContext->streams[m_AStreamIndex];
         char szCodec[256];
         avcodec_string(szCodec, sizeof(szCodec), m_pAStream->codec, 0);
-        int rc = openCodec(m_AStreamIndex, false);
+        int rc = openCodec(m_AStreamIndex);
         if (rc == -1) {
             m_AStreamIndex = -1;
             m_pAStream = 0; 
@@ -203,8 +191,9 @@ void VideoDecoder::startDecoding(bool bDeliverYCbCr, const AudioParams* pAP)
 void VideoDecoder::close() 
 {
     lock_guard lock(s_OpenMutex);
-    AVG_TRACE(Logger::category::MEMORY, Logger::severity::INFO, "Closing " << m_sFilename);
-    
+    AVG_TRACE(Logger::category::MEMORY, Logger::severity::INFO, "Closing " <<
+            m_sFilename);
+
     // Close audio and video codecs
     if (m_pVStream) {
         avcodec_close(m_pVStream->codec);
@@ -218,12 +207,7 @@ void VideoDecoder::close()
         m_AStreamIndex = -1;
     }
     if (m_pFormatContext) {
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(53, 21, 0)
         avformat_close_input(&m_pFormatContext);
-#else
-        av_close_input_file(m_pFormatContext);
-        m_pFormatContext = 0;
-#endif
     }
     
     m_State = CLOSED;
@@ -244,7 +228,7 @@ VideoInfo VideoDecoder::getVideoInfo() const
             m_pVStream != 0, m_pAStream != 0);
     if (m_pVStream) {
         info.setVideoData(m_Size, getStreamPF(), getNumFrames(), getStreamFPS(),
-                m_pVStream->codec->codec->name, usesVDPAU(), getDuration(SS_VIDEO));
+                m_pVStream->codec->codec->name, getDuration(SS_VIDEO));
     }
     if (m_pAStream) {
         AVCodecContext * pACodec = m_pAStream->codec;
@@ -281,21 +265,6 @@ FrameAvailableCode VideoDecoder::getRenderedBmp(BitmapPtr& pBmp, float timeWante
     return fa;
 }
 
-void VideoDecoder::logConfig()
-{
-    bool bVDPAUAvailable = false;
-#ifdef AVG_ENABLE_VDPAU
-    bVDPAUAvailable = VDPAUDecoder::isAvailable();
-#endif
-    if (bVDPAUAvailable) {
-        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
-                "Hardware video acceleration: VDPAU");
-    } else {
-        AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
-                "Hardware video acceleration: Off");
-    }
-}
-
 int VideoDecoder::getNumFrames() const
 {
     AVG_ASSERT(m_State != CLOSED);
@@ -311,16 +280,6 @@ AVFormatContext* VideoDecoder::getFormatContext()
 {
     AVG_ASSERT(m_pFormatContext);
     return m_pFormatContext;
-}
-
-bool VideoDecoder::usesVDPAU() const
-{
-#ifdef AVG_ENABLE_VDPAU
-    AVCodecContext const* pContext = getCodecContext();
-    return pContext->codec && (pContext->codec->capabilities & CODEC_CAP_HWACCEL_VDPAU);
-#else
-    return false;
-#endif
 }
 
 AVCodecContext const* VideoDecoder::getCodecContext() const
@@ -380,28 +339,18 @@ void VideoDecoder::initVideoSupport()
     }
 }
 
-int VideoDecoder::openCodec(int streamIndex, bool bUseHardwareAcceleration)
+int VideoDecoder::openCodec(int streamIndex)
 {
     AVCodecContext* pContext;
     pContext = m_pFormatContext->streams[streamIndex]->codec;
 //    pContext->debug = 0x0001; // see avcodec.h
 
     AVCodec * pCodec = 0;
-#ifdef AVG_ENABLE_VDPAU
-    if (bUseHardwareAcceleration) {
-        m_pVDPAUDecoder = new VDPAUDecoder();
-        pContext->opaque = m_pVDPAUDecoder;
-        pCodec = m_pVDPAUDecoder->openCodec(pContext);
-    } 
-#endif
-    if (!pCodec) {
-        pCodec = avcodec_find_decoder(pContext->codec_id);
-    }
+    pCodec = avcodec_find_decoder(pContext->codec_id);
     if (!pCodec) {
         return -1;
     }
     int rc = avcodec_open2(pContext, pCodec, 0);
-
     if (rc < 0) {
         return -1;
     }
@@ -439,25 +388,18 @@ PixelFormat VideoDecoder::calcPixelFormat(bool bUseYCbCr)
     AVCodecContext const* pContext = getCodecContext();
     if (bUseYCbCr) {
         switch(pContext->pix_fmt) {
-            case PIX_FMT_YUV420P:
-#ifdef AVG_ENABLE_VDPAU
-            case PIX_FMT_VDPAU_H264:
-            case PIX_FMT_VDPAU_MPEG1:
-            case PIX_FMT_VDPAU_MPEG2:
-            case PIX_FMT_VDPAU_WMV3:
-            case PIX_FMT_VDPAU_VC1:
-#endif
+            case AV_PIX_FMT_YUV420P:
                 return YCbCr420p;
-            case PIX_FMT_YUVJ420P:
+            case AV_PIX_FMT_YUVJ420P:
                 return YCbCrJ420p;
-            case PIX_FMT_YUVA420P:
+            case AV_PIX_FMT_YUVA420P:
                 return YCbCrA420p;
             default:
                 break;
         }
     }
-    bool bAlpha = (pContext->pix_fmt == PIX_FMT_BGRA ||
-            pContext->pix_fmt == PIX_FMT_YUVA420P);
+    bool bAlpha = (pContext->pix_fmt == AV_PIX_FMT_BGRA ||
+            pContext->pix_fmt == AV_PIX_FMT_YUVA420P);
     return BitmapLoader::get()->getDefaultPixelFormat(bAlpha);
 }
 

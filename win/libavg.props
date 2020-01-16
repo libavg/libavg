@@ -6,7 +6,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <IncludePath>$(PYTHON_ROOT)\include;..\..\..\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(PYTHON_ROOT)\libs;..\Release;..\..\..\lib;$(MSBuildProgramFiles32)\CMU\1394Camera\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(PYTHON_ROOT)\libs;..\Release;..\..\..\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -22,6 +22,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <FloatingPointModel>Fast</FloatingPointModel>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <DisableSpecificWarnings>4800</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalDependencies>dbghelp.lib;psapi.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>

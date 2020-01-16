@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -29,17 +29,19 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/MathHelper.h"
+#include "../base/OSHelper.h"
+
+#include <SDL2/SDL.h>
 
 #include <iostream>
 #include <stdio.h>
-
 
 namespace avg {
 
 using namespace std;
 using namespace boost;
 
-thread_specific_ptr<GLContext*> GLContext::s_pCurrentContext;
+GLContext* GLContext::s_pCurrentContext;
 bool GLContext::s_bErrorCheckEnabled = false;
 bool GLContext::s_bErrorLogEnabled = true;
 
@@ -52,8 +54,9 @@ GLContext::GLContext(const IntPoint& windowSize)
       m_BlendMode(BLEND_ADD),
       m_MajorGLVersion(-1)
 {
-    if (s_pCurrentContext.get() == 0) {
-        s_pCurrentContext.reset(new (GLContext*));
+    string sVal;
+    if (getEnv("AVG_ENABLE_GL_ERROR_CHECKS", sVal)) {
+        enableErrorChecks(true);
     }
     GLContextManager::get()->registerContext(this);
 }
@@ -77,6 +80,8 @@ void GLContext::init(const GLConfig& glConfig, bool bOwnsContext)
         sscanf(pVersion, "%d.%d", &m_MajorGLVersion, &m_MinorGLVersion);
     }
 
+    m_sVendor = (const char *)glGetString(GL_VENDOR);
+    m_sRenderer = (const char *)glGetString(GL_RENDERER);
     if (m_GLConfig.m_bUseDebugContext) {
         if (isDebugContextSupported()) {
             glproc::DebugMessageCallback(GLContext::debugLogCallback, 0);
@@ -96,7 +101,7 @@ void GLContext::init(const GLConfig& glConfig, bool bOwnsContext)
     }
     setBlendMode(BLEND_BLEND, false);
     if (!m_GLConfig.m_bUsePOTTextures) {
-        m_GLConfig.m_bUsePOTTextures = 
+        m_GLConfig.m_bUsePOTTextures =
                 !queryOGLExtension("GL_ARB_texture_non_power_of_two") && !isGLES();
     }
     if (m_GLConfig.m_ShaderUsage == GLConfig::AUTO) {
@@ -125,17 +130,19 @@ void GLContext::init(const GLConfig& glConfig, bool bOwnsContext)
     checkError("init: glDisable(GL_DEPTH_TEST)");
     glEnable(GL_STENCIL_TEST);
     checkError("init: glEnable(GL_STENCIL_TEST)");
+
+    m_pStandardShader = new StandardShader(this);
 }
 
 void GLContext::deleteObjects()
 {
-    m_pStandardShader = StandardShaderPtr();
+    delete m_pStandardShader;
     for (unsigned i=0; i<m_FBOIDs.size(); ++i) {
         glproc::DeleteFramebuffers(1, &(m_FBOIDs[i]));
     }
     m_FBOIDs.clear();
-    if (*s_pCurrentContext == this) {
-        *s_pCurrentContext = 0;
+    if (s_pCurrentContext == this) {
+        s_pCurrentContext = 0;
     }
 }
 
@@ -152,7 +159,7 @@ bool GLContext::ownsContext() const
 
 void GLContext::setCurrent()
 {
-    *s_pCurrentContext = this;
+    s_pCurrentContext = this;
 }
 
 ShaderRegistryPtr GLContext::getShaderRegistry() const
@@ -160,11 +167,8 @@ ShaderRegistryPtr GLContext::getShaderRegistry() const
     return m_pShaderRegistry;
 }
 
-StandardShaderPtr GLContext::getStandardShader()
+StandardShader* GLContext::getStandardShader()
 {
-    if (m_pStandardShader == StandardShaderPtr()) {
-        m_pStandardShader = StandardShaderPtr(new StandardShader());
-    }
     return m_pStandardShader;
 }
 
@@ -186,18 +190,26 @@ GLBufferCache& GLContext::getPBOCache()
 unsigned GLContext::genFBO()
 {
     unsigned fboID;
+#ifdef AVG_ENABLE_RPI
+    glproc::GenFramebuffers(1, &fboID);
+#else
     if (m_FBOIDs.empty()) {
         glproc::GenFramebuffers(1, &fboID);
     } else {
         fboID = m_FBOIDs.back();
         m_FBOIDs.pop_back();
     }
+#endif
     return fboID;
 }
 
-void GLContext::returnFBOToCache(unsigned fboID) 
+void GLContext::returnFBOToCache(unsigned fboID)
 {
+#ifdef AVG_ENABLE_RPI
+    glproc::DeleteFramebuffers(1, &fboID);
+#else
     m_FBOIDs.push_back(fboID);
+#endif
 }
 
 void GLContext::setBlendColor(const glm::vec4& color)
@@ -221,7 +233,7 @@ void GLContext::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
         switch (mode) {
             case BLEND_BLEND:
                 glproc::BlendEquation(GL_FUNC_ADD);
-                glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
+                glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA,
                         GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
                 checkError("setBlendMode: blend");
                 break;
@@ -232,13 +244,13 @@ void GLContext::setBlendMode(BlendMode mode, bool bPremultipliedAlpha)
                 break;
             case BLEND_MIN:
                 glproc::BlendEquation(GL_MIN_EXT);
-                glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
+                glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA,
                         GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
                 checkError("setBlendMode: min");
                 break;
             case BLEND_MAX:
                 glproc::BlendEquation(GL_MAX_EXT);
-                glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA, 
+                glproc::BlendFuncSeparate(srcFunc, GL_ONE_MINUS_SRC_ALPHA,
                         GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
                 checkError("setBlendMode: max");
                 break;
@@ -281,7 +293,7 @@ const GLConfig& GLContext::getConfig()
     return m_GLConfig;
 }
 
-void GLContext::logConfig() 
+void GLContext::logConfig()
 {
     AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO, "OpenGL configuration: ");
     AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
@@ -318,7 +330,7 @@ void GLContext::logConfig()
         AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
                 "  Video memory used at start: " << getVideoMemUsed()/(1024*1024)
                 << " MB");
-    } catch (Exception) {
+    } catch (const Exception &) {
         AVG_TRACE(Logger::category::CONFIG, Logger::severity::ERROR,
                 "  Dedicated video memory: Unknown");
         AVG_TRACE(Logger::category::CONFIG, Logger::severity::ERROR,
@@ -352,7 +364,7 @@ bool GLContext::arePBOsSupported()
     if (isGLES()) {
         return false;
     } else {
-        return (queryOGLExtension("GL_ARB_pixel_buffer_object") || 
+        return (queryOGLExtension("GL_ARB_pixel_buffer_object") ||
                  queryOGLExtension("GL_EXT_pixel_buffer_object"));
     }
 }
@@ -369,7 +381,7 @@ OGLMemoryMode GLContext::getMemoryMode()
     }
     return m_MemoryMode;
 }
-    
+
 bool GLContext::isGLES() const
 {
     return m_GLConfig.m_bGLES;
@@ -377,8 +389,12 @@ bool GLContext::isGLES() const
 
 bool GLContext::isVendor(const string& sWantedVendor) const
 {
-    string sVendor((const char *)glGetString(GL_VENDOR));
-    return (sVendor.find(sWantedVendor) != string::npos);
+    return (m_sVendor.find(sWantedVendor) != string::npos);
+}
+
+bool GLContext::isRenderer(const string& sWantedRenderer) const
+{
+    return (m_sRenderer.find(sWantedRenderer) != string::npos);
 }
 
 bool GLContext::useDepthBuffer() const
@@ -386,7 +402,20 @@ bool GLContext::useDepthBuffer() const
     return !isGLES();
 }
 
-int GLContext::getMaxTexSize() 
+bool GLContext::initVBlank(int rate)
+{
+    int rc = SDL_GL_SetSwapInterval(rate);
+    if (rc == -1) {
+#ifndef WIN32
+        AVG_LOG_WARNING("VBlank setup failed.");
+#endif
+        return false;
+    } else {
+        return true;
+    }
+}
+
+int GLContext::getMaxTexSize()
 {
     if (m_MaxTexSize == 0) {
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_MaxTexSize);
@@ -395,46 +424,63 @@ int GLContext::getMaxTexSize()
 }
 
 
-void GLContext::swapBuffers()
-{
-    AVG_ASSERT(false);
-}
-
 void GLContext::enableErrorChecks(bool bEnable)
 {
     s_bErrorCheckEnabled = bEnable;
 }
-    
-void GLContext::checkError(const char* pszWhere) 
+
+void GLContext::checkError(const char* pszWhere)
 {
     if (s_bErrorCheckEnabled) {
         mandatoryCheckError(pszWhere);
     }
 }
 
-void GLContext::mandatoryCheckError(const char* pszWhere) 
+void GLContext::mandatoryCheckError(const char* pszWhere)
 {
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
-        stringstream s;
+        string sErr;
+        switch (err) {
+            case GL_INVALID_ENUM:
+                sErr = "GL_INVALID_ENUM";
+                break;
+            case GL_INVALID_VALUE:
+                sErr = "GL_INVALID_VALUE";
+                break;
+            case GL_INVALID_OPERATION:
+                sErr = "GL_INVALID_OPERATION";
+                break;
+            case GL_INVALID_FRAMEBUFFER_OPERATION:
+                sErr = "GL_INVALID_FRAMEBUFFER_OPERATION";
+                break;
+            case GL_OUT_OF_MEMORY:
+                sErr = "GL_OUT_OF_MEMORY";
+                break;
 #ifndef AVG_ENABLE_EGL
-        s << "OpenGL error in " << pszWhere <<": " << gluErrorString(err) 
-            << " (#" << err << ") ";
-#else
-        s << "OpenGL error in " << pszWhere <<": (#" << err << ") ";
+            case GL_STACK_UNDERFLOW:
+                sErr = "GL_STACK_UNDERFLOW";
+                break;
+            case GL_STACK_OVERFLOW:
+                sErr = "GL_STACK_OVERFLOW";
+                break;
 #endif
-        AVG_LOG_ERROR(s.str());
+            default:
+                AVG_ASSERT(false);
+        }
+        AVG_LOG_ERROR("OpenGL error in " + string(pszWhere) + ": " + sErr);
+
         if (err != GL_INVALID_OPERATION) {
             checkError("  --");
         }
         AVG_ASSERT(false);
     }
 }
-    
+
 void GLContext::ensureFullShaders(const string& sContext) const
 {
     if (getShaderUsage() != GLConfig::FULL) {
-        throw Exception(AVG_ERR_UNSUPPORTED, 
+        throw Exception(AVG_ERR_UNSUPPORTED,
                 sContext + " not supported if ShaderUsage==MINIMAL");
     }
 
@@ -457,7 +503,7 @@ GLContext::BlendMode GLContext::stringToBlendMode(const string& s)
 
 GLContext* GLContext::getCurrent()
 {
-    return *s_pCurrentContext;
+    return s_pCurrentContext;
 }
 
 int GLContext::nextMultiSampleValue(int curSamples)
@@ -465,11 +511,11 @@ int GLContext::nextMultiSampleValue(int curSamples)
     switch (curSamples) {
         case 1:
             return 0;
-        case 2:  
+        case 2:
             return 1;
-        case 4:  
+        case 4:
             return 2;
-        case 8:  
+        case 8:
             return 4;
         default:
             return 8;
@@ -488,7 +534,7 @@ void GLContext::checkGPUMemInfoSupport()
         m_bCheckedGPUMemInfoExtension = true;
     }
     if (!m_bGPUMemInfoSupported) {
-        throw Exception(AVG_ERR_UNSUPPORTED, 
+        throw Exception(AVG_ERR_UNSUPPORTED,
                 "Video memory query not supported on this system.");
     }
 }
@@ -506,10 +552,10 @@ bool GLContext::isDebugContextSupported() const
     return false;
 }
 
-void GLContext::debugLogCallback(GLenum source, GLenum type, GLuint id, 
-        GLenum severity, GLsizei length, const GLchar* message, void* userParam) 
+void GLContext::debugLogCallback(GLenum source, GLenum type, GLuint id,
+        GLenum severity, GLsizei length, const GLchar* message, void* userParam)
 {
-/*    
+/*
     string sSource;
     switch (source) {
         case GL_DEBUG_SOURCE_API_ARB:

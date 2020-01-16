@@ -24,7 +24,7 @@
 import shutil
 
 from libavg import avg, player
-from testcase import *
+from libavg.testcase import *
 
 class ImageTestCase(AVGTestCase):
     def __init__(self, testFuncName):
@@ -82,7 +82,7 @@ class ImageTestCase(AVGTestCase):
                  lambda: addNodes(48),
                  lambda: self.compareImage("testImgHRef2"),
                  setUnicodeHref,
-                 compareUnicode
+                 compareUnicode,
                 ))
       
     def testImagePos(self):
@@ -155,42 +155,15 @@ class ImageTestCase(AVGTestCase):
                  lambda: self.compareImage("testImgSize2"),
                 ))
        
-    def testImageWarp(self):
-        def createNode(p):
-            return avg.ImageNode(pos=p, href="rgb24-32x32.png",
-                    maxtilewidth=16, maxtileheight=8) 
-
-        def moveVertex(node):
-            grid = node.getWarpedVertexCoords()
-            grid[0][1] = (grid[0][1][0]+0.25, grid[0][1][1]+0.25)
-            node.setWarpedVertexCoords(grid)
-
-        def testEarlyAccessException():
-            node = createNode((16, 16))
-            root.appendChild(node)
-            self.assertRaises(RuntimeError, node.getWarpedVertexCoords)
-            node.unlink()
-
-        def addNode():
-            self.node = createNode((16, 16))
-            root.appendChild(self.node)
-            moveVertex(self.node)
-       
-        def changeHref():
-            self.node.href = "rgb24-65x65.png"
-            grid = self.node.getWarpedVertexCoords()
-            self.assert_(len(grid) == 10)
-            self.assert_(len(grid[0]) == 6)
-            
-
-        root = self.loadEmptyScene()
-        testEarlyAccessException()
-        self.start(False,
-                (lambda: addNode(),
-                 lambda: self.compareImage("testImgWarp1"),
-                 lambda: changeHref(),
-                 lambda: self.compareImage("testImgWarp2"),
-                ))
+    def testImageCache(self):
+        cache = player.imageCache
+        oldCapacity = cache.capacity
+        cache.capacity = (100000, 100000)
+        self.assert_(cache.capacity == (100000,100000))
+        cache.capacity = (0, 0)
+        self.assert_(cache.getNumImages() == (0,0))
+        self.assert_(cache.getMemUsed() == (0,0))
+        cache.capacity = oldCapacity
 
     def testBitmap(self):
         def getBitmap(node):
@@ -232,7 +205,7 @@ class ImageTestCase(AVGTestCase):
                 bmp1.setPixels(s)
                 self.assert_(self.areSimilarBmps(bmp, bmp1, 0.01, 0.01))
 
-            self.assertRaises(RuntimeError, lambda: bmp1.setPixels(13)),
+            self.assertRaises(avg.Exception, lambda: bmp1.setPixels(13)),
 
 
         def testCropRect():
@@ -275,7 +248,7 @@ class ImageTestCase(AVGTestCase):
             bmp = avg.Bitmap('media/greyscale.png')
             self.assertEqual(bmp.getPixel((1,1)), (255,255,255,255))
             self.assertEqual(bmp.getPixel((1,63)), (0,0,0,255))
-            self.assertRaises(RuntimeError, lambda: bmp.getPixel((64,0)))
+            self.assertRaises(avg.Exception, lambda: bmp.getPixel((64,0)))
 
         def setNullBitmap():
             node.setBitmap(None)
@@ -284,7 +257,7 @@ class ImageTestCase(AVGTestCase):
             srcBmp = avg.Bitmap('media/rgb24-32x32.png')
             destBmp = avg.Bitmap(srcBmp, (16,16), (32,32))
             self.assertEqual(srcBmp.getPixel((16,16)), destBmp.getPixel((0,0)))
-            self.assertRaises(RuntimeError, lambda: avg.Bitmap(srcBmp, (16,16), (16,32)))
+            self.assertRaises(avg.Exception, lambda: avg.Bitmap(srcBmp, (16,16), (16,32)))
 
         node = avg.ImageNode(href="media/rgb24-65x65.png", size=(32, 32))
         getBitmap(node)
@@ -311,12 +284,12 @@ class ImageTestCase(AVGTestCase):
                  testResize,
                  lambda: self.compareImage("testBitmap4"),
                  testGetPixel,
-                 lambda: self.assertRaises(RuntimeError, setNullBitmap),
+                 lambda: self.assertRaises(avg.Exception, setNullBitmap),
                  testSubBitmap,
                 ))
 
     def testBitmapManager(self):
-        WAIT_TIMEOUT = 2000
+        WAIT_TIMEOUT = 5000
         def expectException(returnValue, nextAction):
             if isinstance(returnValue, Exception):
                 nextAction()
@@ -329,8 +302,7 @@ class ImageTestCase(AVGTestCase):
                 self.assert_(not isinstance(bitmap, Exception))
                 player.setTimeout(0, loadBitmapWithPixelFormat)
 
-            avg.BitmapManager.get().loadBitmap("media/rgb24alpha-64x64.png",
-                    validBitmapCb)
+            bitmapManager.loadBitmap("media/rgb24alpha-64x64.png", validBitmapCb)
 
         def loadBitmapWithPixelFormat():
             def validBitmapCb(bitmap):
@@ -338,11 +310,11 @@ class ImageTestCase(AVGTestCase):
                 self.assert_(bitmap.getFormat() == avg.B5G6R5)
                 player.setTimeout(0, loadUnexistentBitmap)
 
-            avg.BitmapManager.get().loadBitmap("media/rgb24alpha-64x64.png",
+            bitmapManager.loadBitmap("media/rgb24alpha-64x64.png",
                     validBitmapCb, avg.B5G6R5)
 
         def loadUnexistentBitmap():
-            avg.BitmapManager.get().loadBitmap("nonexistent.png",
+            bitmapManager.loadBitmap("nonexistent.png",
                     lambda bmp: expectException(
                             returnValue=bmp,
                             nextAction=lambda: player.setTimeout(0, loadBrokenBitmap)))
@@ -357,18 +329,20 @@ class ImageTestCase(AVGTestCase):
                 os.unlink(tempFileName)
                 expectException(returnValue=returnValue, nextAction=player.stop)
 
-            avg.BitmapManager.get().loadBitmap(tempFileName,
-                    cleanupAndTestReturnValue)
+            bitmapManager.loadBitmap(tempFileName, cleanupAndTestReturnValue)
 
         def reportStuck():
             raise RuntimeError("BitmapManager didn't reply "
                     "within %dms timeout" % WAIT_TIMEOUT)
-            player.stop()
-            
+
+        player.setFakeFPS(-1)
+        sys.stderr.write("\n")
         for multithread in [False, True]:
+            bitmapManager = avg.BitmapManager.get()
+            sys.stderr.write("  Multithread: "+str(multithread)+"\n")
             self.loadEmptyScene()
             if multithread:
-                avg.BitmapManager.get().setNumThreads(2)
+                bitmapManager.setNumThreads(2)
             player.setTimeout(WAIT_TIMEOUT, reportStuck)
             loadValidBitmap()
             player.play()
@@ -387,7 +361,7 @@ class ImageTestCase(AVGTestCase):
             def tryInsertNode():
                 try:
                     avg.ImageNode(href="rgb24-65x65.png", blendmode="min", parent=root)
-                except RuntimeError:
+                except avg.Exception:
                     self.supported = False
             root = self.loadEmptyScene()
             self.supported = True
@@ -421,139 +395,135 @@ class ImageTestCase(AVGTestCase):
 
     def testImageMask(self):
         def createNode(p):
-            node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
-                    pos=p, size=(32, 32))
+            node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask4.png",
+                    pos=p, size=(32, 32), masksize=(32,32))
             root.appendChild(node)
 
-        def setNoAttach(p):
-            node = avg.ImageNode(href="rgb24-65x65.png", pos=p, size=(32, 32))
-            node.maskhref = "mask.png"
+        def setNoAttach(p, useHRef):
+            node = avg.ImageNode(href="rgb24-65x65.png", pos=p, size=(32, 32),
+                    masksize=(32,32))
+            if useHRef:
+                node.maskhref = "mask4.png"
+            else:
+                node.setMaskBitmap(avg.Bitmap("media/mask4.png"))
             root.appendChild(node)
 
-        def setAttach(p):
-            node = avg.ImageNode(href="rgb24-65x65.png", pos=p, size=(32, 32))
+        def setAttach(p, useHRef):
+            node = avg.ImageNode(href="rgb24-65x65.png", pos=p, size=(32, 32),
+                    masksize=(32,32))
             root.appendChild(node)
-            node.maskhref = "mask.png"
+            if useHRef:
+                node.maskhref = "mask4.png"
+            else:
+                node.setMaskBitmap(avg.Bitmap("media/mask4.png"))
 
-        def changeHRef():
-            node.maskhref = "mask2.png" 
+        def changeMask(useHRef):
+            if useHRef:
+                node.maskhref = "mask2.png"
+            else:
+                node.setMaskBitmap(avg.Bitmap("media/mask2.png"))
 
         def changeBaseHRef():
-            node.href = "greyscale.png" 
+            node.href = "greyscale.png"
 
-        def setMaskNotFound():
-            node.maskhref = "nonexistentmask.png"        
-            
-        root = self.loadEmptyScene()
-        createNode((0,0))
-        node = root.getChild(0)
-        setNoAttach((32,0))
-        setAttach((64,0))
-        self.start(False,
-                (lambda: createNode((0, 32)),
-                 lambda: setNoAttach((32,32)),
-                 lambda: setAttach((64,32)),
-                 lambda: self.compareImage("testImgMask1"),
-                 changeHRef,
-                 lambda: self.compareImage("testImgMask2"),
-                 changeBaseHRef,
-                 lambda: self.compareImage("testImgMask3"),
-                 setMaskNotFound
-                ))
+        def setNoneMask(useHRef):
+            if useHRef:
+                node.maskhref = "nonexistentmask.png"
+            else:
+                node.setMaskBitmap(None)
+
+        for useHRef in (True, False):
+            root = self.loadEmptyScene()
+            createNode((0,0))
+            node = root.getChild(0)
+            setNoAttach((32,0), useHRef)
+            setAttach((64,0), useHRef)
+            self.start(False,
+                    (lambda: createNode((0, 32)),
+                     lambda: setNoAttach((32,32), useHRef),
+                     lambda: setAttach((64,32), useHRef),
+                     lambda: self.compareImage("testImgMask1"),
+                     lambda: changeMask(useHRef),
+                     lambda: self.compareImage("testImgMask2"),
+                     changeBaseHRef,
+                     lambda: self.compareImage("testImgMask3"),
+                     lambda: setNoneMask(useHRef),
+                     lambda: self.compareImage("testImgMask4")
+                    ))
 
     def testImageMaskCanvas(self):
         root = self.loadEmptyScene()
         canvas = player.createCanvas(id="testcanvas", size=(64,64), mediadir="media")
         avg.ImageNode(href="rgb24-64x64.png", parent=canvas.getRootNode())
         avg.RectNode(size=(160,120), fillcolor="FFFFFF", fillopacity=1, parent=root)
-        avg.ImageNode(href="canvas:testcanvas", maskhref="mask.png", parent=root)
+        avg.ImageNode(href="canvas:testcanvas", maskhref="mask4.png", parent=root)
         self.start(False,
                 (lambda: self.compareImage("testImgMaskCanvas"),))
 
     def testImageMaskPos(self):
-        def createNode(p):
-            node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
-                    pos=p, size=(32, 32), maskpos=(32, 32))
-            root.appendChild(node)
-            
-        def setNoAttach(p):
-            node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
-                    pos=p, size=(32, 32))
-            node.maskpos = (32, 32)
-            root.appendChild(node)
+        def createMaskPos():
+            self.img1 = avg.ImageNode(href="rgb24-64x64.png", maskhref="mask4.png",
+                    parent=root)
+            self.img2 = avg.ImageNode(pos=(64,0), href="rgb24-64x64.png",
+                    maskhref="mask4.png", maskpos=(32,0), parent=root)
 
-        def setAttach(p):
-            node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
-                    pos=p, size=(32, 32))
-            root.appendChild(node)
-            node.maskpos = (32, 32)
+        def createNodeSize(): 
+            self.img1.unlink()
+            self.img2.unlink()
+            self.img1 = avg.ImageNode(size=(80,80), href="rgb24-64x64.png",
+                    maskhref="mask4.png", parent=root)
+            self.img2 = avg.ImageNode(pos=(80,0), size=(80,80), href="rgb24-64x64.png",
+                    maskhref="mask4.png", maskpos=(40,0), parent=root)
 
-        def rectMask():
-            for i in range(1, root.getNumChildren()):
-                root.getChild(1).unlink(True)
-            node = root.getChild(0)
-            node.size = (65, 65)
-            node.maskhref = "mask3.png"
-            node.maskpos = (0, 0)
-            node.masksize = (64, 48)
+        def createMaskSize():
+            self.img1.unlink()
+            self.img2.unlink()
+            self.img1 = avg.ImageNode(href="rgb24-64x64.png", maskhref="mask4.png",
+                    masksize=(32,32), parent=root)
+            self.img2 = avg.ImageNode(pos=(64,0), href="rgb24-64x64.png",
+                    maskhref="mask4.png", maskpos=(32,0), masksize=(32,32), parent=root)
 
-        def rectMaskPos():
-            node = root.getChild(0)
-            node.maskpos = (0, 16)
+        def createNPOT():
+            self.img1.unlink()
+            self.img2.unlink()
+            self.img1 = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask4.png",
+                    parent=root)
+            self.img2 = avg.ImageNode(pos=(64,0), size=(80,80), href="rgb24-65x65.png", 
+                    maskhref="mask4.png", maskpos=(40,0), masksize=(40,40), parent=root)
+
+        def createRectMask():
+            self.img1.unlink()
+            self.img2.unlink()
+            self.img1 = avg.ImageNode(href="rgb24-64x64.png", maskhref="mask3.png",
+                    parent=root)
+            self.img2 = avg.ImageNode(pos=(64,0), href="rgb24-64x64.png",
+                    maskhref="mask3.png", maskpos=(16,0), masksize=(32,32), parent=root)
+
+        def createRectImg():
+            self.img1.unlink()
+            self.img2.unlink()
+            self.img1 = avg.ImageNode(href="rgb24-64x32.png", maskhref="mask4.png",
+                    masksize=(32,32), parent=root)
+            self.img2 = avg.ImageNode(pos=(64,0), href="rgb24-64x32.png",
+                    maskhref="mask4.png", maskpos=(16,0), masksize=(32,32), parent=root)
+
 
         root = self.loadEmptyScene()
-        createNode((0,0))
-        setNoAttach((32,0))
-        setAttach((64,0))
+        createMaskPos();
         self.start(False,
-                (lambda: createNode((0, 32)),
-                 lambda: setNoAttach((32,32)),
-                 lambda: setAttach((64,32)),
-                 lambda: self.compareImage("testImgMaskPos1"),
-                 rectMask,
+                (lambda: self.compareImage("testImgMaskPos1"),
+                 createNodeSize,
                  lambda: self.compareImage("testImgMaskPos2"),
-                 rectMaskPos,
+                 createMaskSize,
                  lambda: self.compareImage("testImgMaskPos3"),
+                 createNPOT,
+                 lambda: self.compareImage("testImgMaskPos4"),
+                 createRectMask,
+                 lambda: self.compareImage("testImgMaskPos5"),
+                 createRectImg,
+                 lambda: self.compareImage("testImgMaskPos6")
                 ))
 
-    def testImageMaskSize(self):
-        def createNode(p):
-            avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
-                    pos=p, size=(32, 32), masksize=(48, 48), parent=root)
-            
-        def setNoAttach(p):
-            node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
-                    pos=p, size=(32, 32))
-            node.masksize = (48, 48)
-            root.appendChild(node)
-
-        def setAttach(p):
-            node = avg.ImageNode(href="rgb24-65x65.png", maskhref="mask.png", 
-                    pos=p, size=(32, 32), parent=root)
-            node.masksize = (48, 48)
-
-        def setPos():
-            node.maskpos = (16, 16)
-
-        def resetPos():
-            node.maskpos = (0, 0)
-            node.masksize = (0, 0)
-
-        root = self.loadEmptyScene()
-        createNode((0,0))
-        node = root.getChild(0)
-        setNoAttach((32,0))
-        setAttach((64,0))
-        self.start(False,
-                (lambda: createNode((0, 32)),
-                 lambda: setNoAttach((32,32)),
-                 lambda: setAttach((64,32)),
-                 lambda: self.compareImage("testImgMaskSize1"),
-                 setPos,
-                 lambda: self.compareImage("testImgMaskSize2"),
-                 resetPos,
-                 lambda: self.compareImage("testImgMaskSize3")
-                ))
 
     def testImageMipmap(self):
         root = self.loadEmptyScene()
@@ -607,7 +577,7 @@ def imageTestSuite(tests):
             "testImageHRef",
             "testImagePos",
             "testImageSize",
-            "testImageWarp",
+            "testImageCache",
             "testBitmap",
             "testBitmapManager",
             "testBitmapManagerException",
@@ -615,7 +585,6 @@ def imageTestSuite(tests):
             "testImageMask",
             "testImageMaskCanvas",
             "testImageMaskPos",
-            "testImageMaskSize",
             "testImageMipmap",
             "testImageCompression",
             "testSpline",

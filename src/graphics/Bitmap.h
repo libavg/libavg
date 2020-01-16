@@ -36,10 +36,8 @@
 #include <xmmintrin.h>
 #endif
 
-#include <stdlib.h>
 #include <string>
 #include <vector>
-#include <algorithm>
 #include <iostream>
 
 namespace avg {
@@ -76,7 +74,7 @@ public:
     void setPixelFormat(PixelFormat pf);
     unsigned char* getPixels();
     const unsigned char* getPixels() const;
-    void setPixels(const unsigned char* pPixels);
+    void setPixels(const unsigned char* pPixels, int stride=0);
     bool ownsBits() const;
     const std::string& getName() const;
     int getBytesPerPixel() const;
@@ -90,8 +88,6 @@ public:
     Pixel32 getPythonPixel(const glm::vec2& pos);
     template<class PIXEL>
     void setPixel(const IntPoint& p, PIXEL color);
-    template<class PIXEL>
-    void drawLine(IntPoint p0, IntPoint p1, PIXEL color);
 
     BitmapPtr subtract(const Bitmap& pOtherBmp);
     void blt(const Bitmap& otherBmp, const IntPoint& pos);
@@ -137,45 +133,6 @@ void Bitmap::setPixel(const IntPoint& p, PIXEL color)
     *(PIXEL*)(&(m_pBits[p.y*m_Stride+p.x*getBytesPerPixel()])) = color;
 }
 
-// TODO: This is slow, and it clips incorrectly. Replace with external lib?
-template<class PIXEL>
-void Bitmap::drawLine(IntPoint p0, IntPoint p1, PIXEL color)
-{
-    IntRect BmpRect(IntPoint(0,0), m_Size);
-    p0 = BmpRect.cropPoint(p0);
-    p1 = BmpRect.cropPoint(p1);
-
-    bool bSteep = abs(p1.y - p0.y) > abs(p1.x - p0.x);
-    if (bSteep) {
-        std::swap(p0.x, p0.y);
-        std::swap(p1.x, p1.y);
-    }
-    if (p0.x > p1.x) {
-        std::swap(p0, p1); 
-    }
-    int deltax = p1.x - p0.x;
-    int deltay = abs(p1.y - p0.y);
-    int error = -deltax/2;
-    int ystep;
-    int y = p0.y;
-    if (p0.y < p1.y) {
-        ystep = 1;
-    } else {
-        ystep = -1;
-    }
-    for (int x = p0.x; x <= p1.x; x++) {
-        if (bSteep) {
-            setPixel(IntPoint(y, x), color); 
-        } else {
-            setPixel(IntPoint(x, y), color);
-        }
-        error += deltay;
-        if (error > 0) {
-            y += ystep;
-            error -= deltax;
-        }
-    }
-}
 #if defined(__SSE__) || defined(_WIN32)
 std::ostream& operator<<(std::ostream& os, const __m64 &val);
 #endif

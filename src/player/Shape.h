@@ -26,6 +26,7 @@
 
 #include "../base/GLMHelper.h"
 #include "../graphics/SubVertexArray.h"
+#include "../graphics/WrapMode.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -33,15 +34,14 @@ namespace avg {
 
 class Bitmap;
 typedef boost::shared_ptr<Bitmap> BitmapPtr;
-class Image;
-typedef boost::shared_ptr<Image> ImagePtr;
-class MaterialInfo;
+class GPUImage;
+typedef boost::shared_ptr<GPUImage> GPUImagePtr;
 class OGLSurface;
 
 class AVG_API Shape
 {
     public:
-        Shape(const MaterialInfo& material);
+        Shape(const WrapMode& wrapMode, bool bUseMipmaps);
         virtual ~Shape();
 
         void setBitmap(BitmapPtr pBmp);
@@ -49,10 +49,11 @@ class AVG_API Shape
         virtual void moveToGPU();
         virtual void moveToCPU();
 
-        ImagePtr getImage();
-        VertexDataPtr getVertexData();
+        GPUImagePtr getGPUImage();
+        void setVertexData(VertexDataPtr pVertexData);
         void setVertexArray(const VertexArrayPtr& pVA);
-        void draw(const glm::mat4& transform, float opacity);
+        void draw(GLContext* pContext, const glm::mat4& transform, float opacity);
+        bool isPtInside(const glm::vec2& pos);
 
         void discard();
 
@@ -60,7 +61,8 @@ class AVG_API Shape
         VertexDataPtr m_pVertexData;
         SubVertexArray m_SubVA;
         OGLSurface * m_pSurface;
-        ImagePtr m_pImage;
+        GPUImagePtr m_pGPUImage;
+        FRect m_Bounds;
 };
 
 typedef boost::shared_ptr<Shape> ShapePtr;

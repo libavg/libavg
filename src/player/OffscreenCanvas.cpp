@@ -81,8 +81,10 @@ void OffscreenCanvas::initPlayback()
     }
     GLContextManager* pCM = GLContextManager::get();
     bool bUseDepthBuffer = pDisplayEngine->getWindow(0)->getGLContext()->useDepthBuffer();
-    m_pFBO = pCM->createFBO(getSize(), pf, 1, getMultiSampleSamples(),
-            bUseDepthBuffer, true, m_bUseMipmaps);
+    int numSamples = dynamic_pointer_cast<OffscreenCanvasNode>(
+            getRootNode())->getMultiSampleSamples();
+    m_pFBO = pCM->createFBO(getSize(), pf, 1, numSamples, bUseDepthBuffer, true,
+            m_bUseMipmaps);
     try {
         pCM->uploadData();
     } catch (...) {
@@ -90,7 +92,7 @@ void OffscreenCanvas::initPlayback()
         m_pFBO = MCFBOPtr();
         throw;
     }
-    Canvas::initPlayback(getMultiSampleSamples());
+    Canvas::initPlayback(numSamples);
     m_bIsRendered = false;
 }
 
@@ -114,19 +116,13 @@ BitmapPtr OffscreenCanvas::screenshotIgnoreAlpha() const
         throw(Exception(AVG_ERR_UNSUPPORTED,
                 "OffscreenCanvas::screenshot(): Canvas has not been rendered. No screenshot available"));
     }
-    BitmapPtr pBmp = m_pFBO->getImage(0);
+    BitmapPtr pBmp = m_pFBO->getImage(GLContext::getCurrent(), 0);
     return pBmp;
 }
 
 bool OffscreenCanvas::getHandleEvents() const
 {
     return dynamic_pointer_cast<OffscreenCanvasNode>(getRootNode())->getHandleEvents();
-}
-
-int OffscreenCanvas::getMultiSampleSamples() const
-{
-    return dynamic_pointer_cast<OffscreenCanvasNode>(
-            getRootNode())->getMultiSampleSamples();
 }
 
 bool OffscreenCanvas::getMipmap() const
@@ -158,7 +154,7 @@ std::string OffscreenCanvas::getID() const
 
 bool OffscreenCanvas::isRunning() const
 {
-    return (m_pFBO);
+    return (m_pFBO != MCFBOPtr());
 }
 
 MCTexturePtr OffscreenCanvas::getTex() const
@@ -167,10 +163,10 @@ MCTexturePtr OffscreenCanvas::getTex() const
     return m_pFBO->getTex();
 }
 
-FBOPtr OffscreenCanvas::getFBO()
+FBOPtr OffscreenCanvas::getFBO(GLContext* pContext)
 {
     AVG_ASSERT(isRunning());
-    return m_pFBO->getCurFBO();
+    return m_pFBO->getCurFBO(pContext);
 }
 
 void OffscreenCanvas::registerCameraNode(CameraNode* pCameraNode)
@@ -284,7 +280,7 @@ void OffscreenCanvas::renderTree()
         pContext->activate();
         IntRect viewport(IntPoint(0,0), IntPoint(getRootNode()->getSize()));
         renderWindow(pWindow, m_pFBO, viewport);
-        m_pFBO->copyToDestTexture();
+        m_pFBO->copyToDestTexture(pContext);
     }
     GLContextManager::get()->reset();
     m_bIsRendered = true;

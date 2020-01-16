@@ -22,18 +22,12 @@
 #include "DisplayEngine.h"
 #include "../avgconfigwrapper.h"
 
-#ifdef __APPLE__
-#include "SDLMain.h"
-#endif
-
 #include "Event.h"
 #include "MouseEvent.h"
 #include "KeyEvent.h"
-#include "SDLWindow.h"
 #include "DisplayParams.h"
-#ifndef AVG_ENABLE_EGL
-  #include "SecondaryWindow.h"
-#endif
+#include "SDLWindow.h"
+#include "SecondaryWindow.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -51,7 +45,8 @@
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 
-#include <SDL/SDL.h>
+#include <boost/pointer_cast.hpp>
+#include <SDL2/SDL.h>
 
 #ifdef __APPLE__
 #include <OpenGL/OpenGL.h>
@@ -60,6 +55,8 @@
 #ifdef AVG_ENABLE_XINERAMA
 #include <X11/extensions/Xinerama.h>
 #endif
+// For _Xdebug
+// #include <X11/Xlib.h>
 
 #include <signal.h>
 #include <iostream>
@@ -69,24 +66,13 @@
 #endif
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
 void DisplayEngine::initSDL()
 {
-#ifdef __APPLE__
-    static bool bSDLInitialized = false;
-    if (!bSDLInitialized) {
-        CustomSDLMain();
-        bSDLInitialized = true;
-    }
-#endif
-#ifdef linux
-    // Disable all other video drivers (DirectFB, libcaca, ...) to avoid confusing
-    // error messages.
-    SDL_putenv((char*)"SDL_VIDEODRIVER=x11");
-#endif
-    int err = SDL_InitSubSystem(SDL_INIT_VIDEO);
+    int err = SDL_Init(SDL_INIT_VIDEO);
     if (err == -1) {
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, SDL_GetError());
     }
@@ -94,9 +80,7 @@ void DisplayEngine::initSDL()
 
 void DisplayEngine::quitSDL()
 {
-#ifndef _WIN32
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
-#endif
 }
 
 DisplayEngine::DisplayEngine()
@@ -108,8 +92,7 @@ DisplayEngine::DisplayEngine()
       m_bInitialized(false),
       m_EffFramerate(0)
 {
-    initSDL();
-
+//    _Xdebug = 1;
     m_Gamma[0] = 1.0;
     m_Gamma[1] = 1.0;
     m_Gamma[2] = 1.0;
@@ -121,18 +104,25 @@ DisplayEngine::~DisplayEngine()
 
 void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig) 
 {
+    for (int i=0; i<dp.getNumWindows(); ++i) {
+        if (dp.getWindowParams(i).m_DisplayServer == 0) {
+            m_pWindows.push_back(WindowPtr(new SDLWindow(dp, dp.getWindowParams(i),
+                    glConfig)));
+        } else {
+#ifdef __linux__
+            m_pWindows.push_back(WindowPtr(new SecondaryWindow(dp.getWindowParams(i),
+                    dp.isFullscreen(), glConfig)));
+#else
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED,
+                    "Setting DisplayServer != 0 is only valid under linux.");
+#endif
+        }
+    }
     if (m_Gamma[0] != 1.0f || m_Gamma[1] != 1.0f || m_Gamma[2] != 1.0f) {
-        internalSetGamma(1.0f, 1.0f, 1.0f);
+        m_pWindows[0]->setGamma(1.0f, 1.0f, 1.0f);
     }
 
-    
-    m_pWindows.push_back(WindowPtr(new SDLWindow(dp, glConfig)));
-    #ifndef AVG_ENABLE_EGL
-    for (int i=1; i<dp.getNumWindows(); ++i) {
-        m_pWindows.push_back(WindowPtr(new SecondaryWindow(dp.getWindowParams(i),
-                dp.isFullscreen(), glConfig)));
-    }
-    #endif
+    m_Size = dp.getWindowParams(0).m_Viewport.size();
 
     Display::get()->getRefreshRate();
 
@@ -143,12 +133,6 @@ void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
     } else {
         setFramerate(dp.getFramerate());
     }
-
-    // SDL sets up a signal handler we really don't want.
-    signal(SIGSEGV, SIG_DFL);
-    VideoDecoder::logConfig();
-
-    SDL_EnableUNICODE(1);
 }
 
 void DisplayEngine::teardown()
@@ -232,7 +216,7 @@ void DisplayEngine::setVBlankRate(int rate)
         bool bOK = pContext->initVBlank(rate);
         m_Framerate = Display::get()->getRefreshRate()/m_VBRate;
         if (!bOK || rate == 0) { 
-            AVG_LOG_WARNING("Using framerate of " << m_Framerate << 
+            AVG_LOG_INFO("Using framerate of " << m_Framerate <<
                     " instead of VBRate of " << m_VBRate);
             m_VBRate = 0;
         }
@@ -246,30 +230,25 @@ bool DisplayEngine::wasFrameLate()
 
 void DisplayEngine::setGamma(float red, float green, float blue)
 {
+    if (m_pWindows.empty()) {
+        throw Exception(AVG_ERR_UNSUPPORTED, "setGamma needs an open window.");
+    }
     if (red > 0) {
-        bool bOk = internalSetGamma(red, green, blue);
+        dynamic_pointer_cast<SDLWindow>(m_pWindows[0])->setGamma(red, green, blue);
         m_Gamma[0] = red;
         m_Gamma[1] = green;
         m_Gamma[2] = blue;
-        if (!bOk) {
-            AVG_LOG_WARNING("Unable to set display gamma.");
-        }
     }
 }
 
 void DisplayEngine::setMousePos(const IntPoint& pos)
 {
-    SDL_WarpMouse(pos.x, pos.y);
+    dynamic_pointer_cast<SDLWindow>(m_pWindows[0])->setMousePos(pos);
 }
 
 int DisplayEngine::getKeyModifierState() const
 {
     return SDL_GetModState();
-}
-
-void DisplayEngine::setWindowTitle(const string& sTitle)
-{
-    SDL_WM_SetCaption(sTitle.c_str(), 0);
 }
 
 unsigned DisplayEngine::getNumWindows() const
@@ -282,9 +261,22 @@ const WindowPtr DisplayEngine::getWindow(unsigned i) const
     return m_pWindows[i];
 }
 
-SDLWindowPtr DisplayEngine::getSDLWindow() const
+void DisplayEngine::endFrame()
 {
-    return boost::dynamic_pointer_cast<SDLWindow>(m_pWindows[0]);
+    frameWait();
+    swapBuffers();
+#ifdef __APPLE__
+    // Hack/Workaround for bug #661: When the window is completely occluded, mac
+    // SwapBuffers doesn't wait for VBlank. We detect this condition and wait manually.
+    if (m_VBRate > 0) {
+        long long curIntervalTime = TimeSource::get()->getCurrentMicrosecs()
+                - m_LastFrameTime;
+        if (curIntervalTime < 8000) {
+            TimeSource::get()->sleepUntil(m_TargetTime/1000);
+        }
+    }
+#endif
+    checkJitter();
 }
 
 static ProfilingZoneID WaitProfilingZone("Render - wait");
@@ -414,19 +406,6 @@ vector<EventPtr> DisplayEngine::pollEvents()
         pEvents.insert(pEvents.end(), pWinEvents.begin(), pWinEvents.end());
     }
     return pEvents;
-}
-
-bool DisplayEngine::internalSetGamma(float red, float green, float blue)
-{
-#ifdef __APPLE__
-    // Workaround for broken SDL_SetGamma for libSDL 1.2.15 under Lion
-    CGError err = CGSetDisplayTransferByFormula(kCGDirectMainDisplay, 0, 1, 1/red,
-            0, 1, 1/green, 0, 1, 1/blue);
-    return (err == CGDisplayNoErr);
-#else
-    int err = SDL_SetGamma(float(red), float(green), float(blue));
-    return (err != -1);
-#endif
 }
 
 }

@@ -174,20 +174,27 @@ IntPoint Canvas::getSize() const
 }
 static ProfilingZoneID PushClipRectProfilingZone("pushClipRect");
 
-void Canvas::pushClipRect(const glm::mat4& transform, SubVertexArray& va)
+void Canvas::pushClipRect(GLContext* pContext, const glm::mat4& transform,
+        SubVertexArray& va)
 {
     ScopeTimer timer(PushClipRectProfilingZone);
     m_ClipLevel++;
-    clip(transform, va, GL_INCR);
+    clip(pContext, transform, va, GL_INCR);
 }
 
 static ProfilingZoneID PopClipRectProfilingZone("popClipRect");
 
-void Canvas::popClipRect(const glm::mat4& transform, SubVertexArray& va)
+void Canvas::popClipRect(GLContext* pContext, const glm::mat4& transform,
+        SubVertexArray& va)
 {
     ScopeTimer timer(PopClipRectProfilingZone);
     m_ClipLevel--;
-    clip(transform, va, GL_DECR);
+    clip(pContext, transform, va, GL_DECR);
+}
+
+int Canvas::getMultiSampleSamples() const
+{
+    return m_MultiSampleSamples;
 }
 
 void Canvas::registerPlaybackEndListener(IPlaybackEndListener* pListener)
@@ -225,13 +232,6 @@ Player* Canvas::getPlayer() const
     return m_pPlayer;
 }
 
-vector<NodePtr> Canvas::getElementsByPos(const glm::vec2& pos) const
-{
-    vector<NodePtr> elements;
-    m_pRootNode->getElementsByPos(pos, elements);
-    return elements;
-}
-
 static ProfilingZoneID PreRenderProfilingZone("PreRender");
 static ProfilingZoneID VATransferProfilingZone("VA Transfer");
 
@@ -247,35 +247,39 @@ static ProfilingZoneID RootRenderProfilingZone("RootNode: render");
 
 void Canvas::renderWindow(WindowPtr pWindow, MCFBOPtr pFBO, const IntRect& viewport)
 {
-    pWindow->getGLContext()->activate();
+    GLContext* pContext = pWindow->getGLContext();
+    pContext->activate();
+
     GLContextManager::get()->uploadDataForContext();
-    renderFX();
+    renderFX(pContext);
     glm::mat4 projMat;
     if (pFBO) {
-        pFBO->activate();
+        pFBO->activate(pContext);
         glm::vec2 size = m_pRootNode->getSize();
         projMat = glm::ortho(0.f, size.x, 0.f, size.y);
         glViewport(0, 0, GLsizei(size.x), GLsizei(size.y));
+        glFrontFace(GL_CW);
     } else {
         glproc::BindFramebuffer(GL_FRAMEBUFFER, 0);
         projMat = glm::ortho(float(viewport.tl.x), float(viewport.br.x), 
                 float(viewport.br.y), float(viewport.tl.y));
         IntPoint windowSize = pWindow->getSize();
         glViewport(0, 0, windowSize.x, windowSize.y);
+        glFrontFace(GL_CCW);
     }
     {
         ScopeTimer Timer(VATransferProfilingZone);
-        m_pVertexArray->update();
+        m_pVertexArray->update(pContext);
     }
     clearGLBuffers(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
             !pFBO);
     GLContext::checkError("Canvas::renderWindow: glViewport()");
-    m_pVertexArray->activate();
+    m_pVertexArray->activate(pContext);
     {
         ScopeTimer timer(RootRenderProfilingZone);
-        m_pRootNode->maybeRender(projMat);
+        m_pRootNode->maybeRender(pContext, projMat);
     }
-    renderOutlines(projMat);
+    renderOutlines(pContext, projMat);
 }
 
 void Canvas::scheduleFXRender(const RasterNodePtr& pNode)
@@ -288,20 +292,19 @@ SubVertexArray& Canvas::getStdSubVA()
     return m_StdSubVA;
 }
 
-void Canvas::renderOutlines(const glm::mat4& transform)
+void Canvas::renderOutlines(GLContext* pContext, const glm::mat4& transform)
 {
-    GLContext* pContext = GLContext::getCurrent();
     VertexArrayPtr pVA = GLContextManager::get()->createVertexArray();
-    pVA->initForGLContext();
+    pVA->initForGLContext(pContext);
     pContext->setBlendMode(GLContext::BLEND_BLEND, false);
     m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
-    StandardShaderPtr pShader = pContext->getStandardShader();
+    StandardShader* pShader = pContext->getStandardShader();
     pShader->setTransform(transform);
     pShader->setUntextured();
     pShader->setAlpha(0.5f);
     pShader->activate();
     if (pVA->getNumVerts() != 0) {
-        pVA->draw();
+        pVA->draw(pContext);
     }
 }
 
@@ -316,11 +319,11 @@ void Canvas::createStdSubVA()
     m_StdSubVA.appendQuadIndexes(1, 0, 2, 3);
 }
 
-void Canvas::renderFX()
+void Canvas::renderFX(GLContext* pContext)
 {
     vector<RasterNodePtr>::iterator it;
     for (it=m_pScheduledFXNodes.begin(); it!=m_pScheduledFXNodes.end(); ++it) {
-        (*it)->renderFX();
+        (*it)->renderFX(pContext);
     }
 }
 
@@ -334,7 +337,8 @@ void Canvas::resetFXSchedule()
 }
 
 
-void Canvas::clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencilOp)
+void Canvas::clip(GLContext* pContext, const glm::mat4& transform, SubVertexArray& va,
+        GLenum stencilOp)
 {
     // Disable drawing to color buffer
     glColorMask(0, 0, 0, 0);
@@ -346,7 +350,7 @@ void Canvas::clip(const glm::mat4& transform, SubVertexArray& va, GLenum stencil
     glStencilFunc(GL_ALWAYS, 0, 0);
     glStencilOp(stencilOp, stencilOp, stencilOp);
 
-    StandardShaderPtr pShader = GLContext::getCurrent()->getStandardShader();
+    StandardShader* pShader = pContext->getStandardShader();
     pShader->setUntextured();
     pShader->setTransform(transform);
     pShader->activate();

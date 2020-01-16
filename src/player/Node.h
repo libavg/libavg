@@ -26,9 +26,11 @@
 
 #include "Publisher.h"
 #include "Event.h"
-#include "Image.h"
 
 #include "../graphics/Pixel32.h"
+#include "../graphics/TexInfo.h"
+
+#include "../base/GLMHelper.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
@@ -58,7 +60,12 @@ class VertexArray;
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 class Canvas;
 typedef boost::shared_ptr<Canvas> CanvasPtr;
+class NodeChain;
+typedef boost::shared_ptr<NodeChain> NodeChainPtr;
+class GPUImage;
+typedef boost::shared_ptr<GPUImage> GPUImagePtr;
 typedef boost::weak_ptr<Canvas> CanvasWeakPtr;
+class GLContext;
 
 class AVG_API Node: public Publisher
 {
@@ -74,7 +81,7 @@ class AVG_API Node: public Publisher
         virtual void removeParent();
         void checkSetParentError(DivNode* pParent);
         DivNodePtr getParent() const;
-        std::vector<NodePtr> getParentChain();
+        NodeChainPtr getParentChain();
 
         virtual void connectDisplay();
         virtual void connect(CanvasPtr pCanvas);
@@ -108,13 +115,13 @@ class AVG_API Node: public Publisher
         virtual glm::vec2 toLocal(const glm::vec2& pos) const;
         virtual glm::vec2 toGlobal(const glm::vec2& pos) const;
         NodePtr getElementByPos(const glm::vec2& pos);
-        virtual void getElementsByPos(const glm::vec2& pos, 
-                std::vector<NodePtr>& pElements);
+        virtual void getElementsByPos(const glm::vec2& pos, NodeChainPtr& pElements);
 
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);
-        virtual void maybeRender(const glm::mat4& parentTransform) {};
-        virtual void render() {};
+        virtual void maybeRender(GLContext* pContext, const glm::mat4& parentTransform)
+                {};
+        virtual void render(GLContext* pContext, const glm::mat4& transform) {};
         virtual void renderOutlines(const VertexArrayPtr& pVA, Pixel32 color) {};
 
         float getEffectiveOpacity() const;
@@ -128,14 +135,14 @@ class AVG_API Node: public Publisher
         virtual const std::string& getID() const;
     
     protected:
-        Node(const std::string& sPublisherName="Node");
+        Node(const std::string& sPublisherName);
 
         bool reactsToMouseEvents();
             
         void setState(NodeState state);
         void initFilename(std::string& sFilename);
-        bool checkReload(const std::string& sHRef, const ImagePtr& pImage,
-                Image::TextureCompression comp = Image::TEXTURECOMPRESSION_NONE);
+        bool checkReload(const std::string& sHRef, const GPUImagePtr& pGPUImage,
+                TexCompression comp=TEXCOMPRESSION_NONE);
         virtual bool isVisible() const;
         bool getEffectiveActive() const;
         NodePtr getSharedThis();

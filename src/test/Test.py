@@ -20,89 +20,30 @@
 # Current versions can be found at www.libavg.de
 #
 
-'''
-Runner for libavg unit tests
-
-On autotools-based systems, tests are performed on a local libavg package.
-This package is created by symlinking all the relevant files in a local, temporary
-directory, letting python find it as first instance.
-On windows, instead, tests are always carried on after distutils installs the package.
-'''
-
 import sys
 import os
-import shutil
-import atexit
 
-def cleanup(folder):
-    if os.path.isdir(folder):
-        sys.stderr.write('Wiping out directory: %s\n' % folder)
-        shutil.rmtree(folder)
+"""
+Note: The tests can be run in several locations. On make-based systems, they can run
+in the staging area (either by calling Test.py directly or by using make check) or
+from within site-packages after install. On windows, tests are always run on the
+installed package (within site-packages).
 
-def symtree(src, dest):
-    os.mkdir(dest)
-    for f in os.listdir(src):
-        fpath = os.path.join(src, f)
-        if (f and f[0] != '.' and
-            (os.path.isdir(fpath) or
-            (os.path.isfile(fpath) and os.path.splitext(f)[1] in ('.py', '.glsl')))):
-                os.symlink(os.path.join(os.pardir, src, f), os.path.join(dest, f))
-
-
+The following line allows us to find a local libavg in the staging area.
+"""
 if sys.platform != 'win32':
-    tempPackageDir = os.path.join(os.getcwd(), 'libavg')
-    # Possible values for srcdir:
-    # '.': make check
-    # None: ./Test.py
-    # dir name: make distcheck
-    srcDir = os.getenv("srcdir",".")
-    if srcDir == '.':
-        # Running make check or ./Test.py
-        if os.path.basename(os.getcwd()) != 'test':
-            raise RuntimeError('Manual tests must be performed inside directory "test"')
-        
-        cleanup(tempPackageDir)
-        
-        try:
-            symtree('../python', 'libavg')
-            os.symlink('../../graphics/shaders', 'libavg/shaders')
-        except OSError:
-            pass
-    else:
-        # Running make distcheck
-        symtree('../../../../src/python', 'libavg')
-        os.symlink('../../../../../src/graphics/shaders', 'libavg/shaders')
-
-        # distcheck doesn't want leftovers (.pyc files)
-        atexit.register(lambda tempPackageDir=tempPackageDir: cleanup(tempPackageDir))
-    
-    if os.path.exists('../wrapper/.libs/avg.so'):
-        # Normal case: use the local version (not the installed one)
-        shutil.copy2('../wrapper/.libs/avg.so', 'libavg/avg.so')
-    elif os.path.exists('../../avg.so'):
-        # Mac version after installer dmg
-        pass
-    else:
-        raise RuntimeError('Compile libavg before running tests or use "make check"')
-
-    # The following line prevents the test to be run
-    # with an unknown version of libavg, which can be hiding somewhere
-    # in the system
-    sys.path.insert(0, os.getcwd())
-
-    # Meaningful only for distcheck
-    os.chdir(srcDir)
+    sys.path.insert(0, '../..')
 
 import libavg
 libavg.logger.configureCategory(libavg.Logger.Category.APP, libavg.Logger.Severity.INFO)
-libavg.logger.info("Using libavg from: "+ os.path.dirname(libavg.__file__), 
+libavg.logger.info("Using libavg from: "+ os.path.dirname(libavg.__file__),
         libavg.Logger.Category.APP)
 # Ensure mouse is activated
 libavg.player.enableMouse(True)
 
-import testapp
+from libavg import testapp
 
-libavg.Player.get().keepWindowOpen()
+libavg.player.keepWindowOpen()
 
 import PluginTest
 import PlayerTest
@@ -116,8 +57,6 @@ import DynamicsTest
 import PythonTest
 import AnimTest
 import EventTest
-import InputDeviceTest
-import AVGAppTest
 import WidgetTest
 import GestureTest
 import LoggerTest
@@ -126,24 +65,22 @@ import MultiWindowTest
 
 app = testapp.TestApp()
 
-app.registerSuiteFactory('plugin', PluginTest.pluginTestSuite)
 app.registerSuiteFactory('player', PlayerTest.playerTestSuite)
-app.registerSuiteFactory('offscreen', OffscreenTest.offscreenTestSuite)
 app.registerSuiteFactory('image', ImageTest.imageTestSuite)
-app.registerSuiteFactory('fx', FXTest.fxTestSuite)
 app.registerSuiteFactory('vector', VectorTest.vectorTestSuite)
 app.registerSuiteFactory('words', WordsTest.wordsTestSuite)
-app.registerSuiteFactory('av', AVTest.AVTestSuite)
 app.registerSuiteFactory('dynamics', DynamicsTest.dynamicsTestSuite)
+app.registerSuiteFactory('event', EventTest.eventTestSuite)
+app.registerSuiteFactory('av', AVTest.AVTestSuite)
+app.registerSuiteFactory('offscreen', OffscreenTest.offscreenTestSuite)
+app.registerSuiteFactory('fx', FXTest.fxTestSuite)
 app.registerSuiteFactory('python', PythonTest.pythonTestSuite)
 app.registerSuiteFactory('anim', AnimTest.animTestSuite)
-app.registerSuiteFactory('event', EventTest.eventTestSuite)
-app.registerSuiteFactory('inputdevice', InputDeviceTest.inputDeviceTestSuite)
 app.registerSuiteFactory('widget', WidgetTest.widgetTestSuite)
 app.registerSuiteFactory('gesture', GestureTest.gestureTestSuite)
-app.registerSuiteFactory('avgapp', AVGAppTest.avgAppTestSuite)
 app.registerSuiteFactory('logger', LoggerTest.loggerTestSuite)
 app.registerSuiteFactory('app', AppTest.appTestSuite)
+app.registerSuiteFactory('plugin', PluginTest.pluginTestSuite)
 app.registerSuiteFactory('multiwindow', MultiWindowTest.multiWindowTestSuite)
 
 app.run()

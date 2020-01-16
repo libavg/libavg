@@ -41,6 +41,10 @@ class CursorEvent;
 typedef boost::shared_ptr<class CursorEvent> CursorEventPtr;
 class Contact;
 typedef boost::shared_ptr<class Contact> ContactPtr;
+class NodeChain;
+typedef boost::shared_ptr<class NodeChain> NodeChainPtr;
+class Node;
+typedef boost::shared_ptr<class Node> NodePtr;
 
 class AVG_API Contact: public Publisher {
 public:
@@ -60,6 +64,10 @@ public:
 
     void addEvent(CursorEventPtr pEvent);
     void sendEventToListeners(CursorEventPtr pCursorEvent);
+
+    void setNodeChain(NodeChainPtr pNodeChain);
+    glm::vec2 getRelPos(NodePtr pNode, const glm::vec2& pos) const;
+    bool isNodeInTargets(NodePtr pNode) const;
 
     int getID() const;
     
@@ -87,6 +95,8 @@ private:
     bool m_bCurListenerIsDead;
     int m_CursorID;
     float m_DistanceTravelled;
+
+    NodeChainPtr m_pNodeChain;
 };
 
 }

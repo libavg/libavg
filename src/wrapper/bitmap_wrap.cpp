@@ -28,6 +28,8 @@
 #include "../graphics/Bitmap.h"
 #include "../graphics/BitmapLoader.h"
 #include "../graphics/FilterResizeBilinear.h"
+#include "../graphics/ImageCache.h"
+#include "../graphics/Color.h"
 
 #include "../base/CubicSpline.h"
 #include "../base/GeomHelper.h"
@@ -108,17 +110,17 @@ static bp::object Bitmap_getPixels(Bitmap& bitmap, bool bCopyData = true) {
     }
 }
 
-BOOST_PYTHON_FUNCTION_OVERLOADS(Bitmap_getPixels_overloads, Bitmap_getPixels, 1,
-                                2);
+BOOST_PYTHON_FUNCTION_OVERLOADS(Bitmap_getPixels_overloads, Bitmap_getPixels,
+        1, 2);
 
-static void Bitmap_setPixels(Bitmap& bitmap, PyObject* exporter) {
+static void Bitmap_setPixels(Bitmap& bitmap, PyObject* exporter, int stride=0)
+{
     Py_buffer bufferView;
     //    PyObject_Print(PyObject_Type(exporter), stderr, 0);
     if (PyObject_CheckBuffer(exporter)) {
         PyObject_GetBuffer(exporter, &bufferView, PyBUF_READ);
-        const unsigned char* pBuf =
-            reinterpret_cast<unsigned char*>(bufferView.buf);
-        bitmap.setPixels(pBuf);
+        const unsigned char* pBuf = reinterpret_cast<unsigned char*>(bufferView.buf);
+        bitmap.setPixels(pBuf, stride);
         PyBuffer_Release(&bufferView);
 #if PY_MAJOR_VERSION < 3
     }
@@ -150,7 +152,13 @@ static void Bitmap_setPixels(Bitmap& bitmap, PyObject* exporter) {
     }
 }
 
-ConstVec2 Bitmap_getSize(Bitmap* This) { return (glm::vec2)(This->getSize()); }
+BOOST_PYTHON_FUNCTION_OVERLOADS(Bitmap_setPixels_overloads, Bitmap_setPixels,
+        2, 3);
+
+ConstVec2 Bitmap_getSize(Bitmap* This)
+{
+    return (glm::vec2)(This->getSize());
+}
 
 BitmapPtr Bitmap_getResized(BitmapPtr This, const glm::vec2& size) {
     return FilterResizeBilinear(IntPoint(size)).apply(This);
@@ -182,14 +190,48 @@ BitmapPtr createBitmapWithRect(BitmapPtr pBmp, const glm::vec2& tlPos,
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(loadBitmap_overloads,
                                        BitmapManager::loadBitmapPy, 2, 3);
 
-void export_bitmap() {
+static bp::object ImageCache_GetCapacity(ImageCache* pCache)
+{
+    return bp::make_tuple(pCache->getCapacity(CachedImage::STORAGE_CPU),
+            pCache->getCapacity(CachedImage::STORAGE_GPU));
+}
+
+static void ImageCache_SetCapacity(ImageCache* pCache, const bp::tuple& cap)
+{
+    long long cpuCap = extract<long long>(cap[0]);
+    long long gpuCap = extract<long long>(cap[1]);
+    pCache->setCapacity(cpuCap, gpuCap);
+}
+
+static bp::object ImageCache_GetNumImages(ImageCache* pCache)
+{
+    return bp::make_tuple(pCache->getNumCPUImages(), pCache->getNumGPUImages());
+}
+
+static bp::object ImageCache_GetMemUsed(ImageCache* pCache)
+{
+    return bp::make_tuple(pCache->getMemUsed(CachedImage::STORAGE_CPU),
+            pCache->getMemUsed(CachedImage::STORAGE_GPU));
+}
+
+vector<string> getSupportedPixelFormatsDeprecated()
+{
+    avgDeprecationWarning("1.9.0", "avg.getSupportedPixelFormats",
+            "avg.Bitmap.getSupportedPixelFormats");
+    return getSupportedPixelFormats();
+}
+
+
+void export_bitmap()
+{
     export_point<glm::vec2>("Point2D")
         .def("__init__", make_constructor(createPoint))
         .def(init<float, float>())
         .def(init<const glm::vec2&>())
         .def("__setitem__", &Vec2Helper::setItem)
         .add_property("x", &Vec2Helper::getX, &Vec2Helper::setX, "")
-        .add_property("y", &Vec2Helper::getY, &Vec2Helper::setY, "");
+        .add_property("y", &Vec2Helper::getY, &Vec2Helper::setY, "")
+    ;
 
     export_point<ConstVec2>("ConstPoint2D")
         .add_property("x", &Vec2Helper::getX, "")
@@ -197,6 +239,24 @@ void export_bitmap() {
 
     implicitly_convertible<ConstVec2, glm::vec2>();
     implicitly_convertible<glm::vec2, ConstVec2>();
+
+    class_<Color, boost::shared_ptr<Color> >("Color", no_init)
+        .def(init<string>())
+        .def(init<unsigned char, unsigned char, unsigned char>())
+        .def(init<const glm::vec3&>())
+        .add_property("r", &Color::getR, "")
+        .add_property("g", &Color::getG, "")
+        .add_property("b", &Color::getB, "")
+        .def(self == self)
+        .def(self != self)
+        .def(self_ns::str(self))
+        .def("mix", &Color::mix)
+        .staticmethod("mix")
+        .def("fromLch", &Color::fromLch)
+        .staticmethod("fromLch")
+    ;
+    implicitly_convertible<glm::vec3, Color>();
+    implicitly_convertible<string, Color>();
 
     enum_<PixelFormat>("pixelformat")
         .value("B5G6R5", B5G6R5)
@@ -227,13 +287,14 @@ void export_bitmap() {
         .value("BAYER8_BGGR", BAYER8_BGGR)
         .value("R32G32B32A32F", R32G32B32A32F)
         .value("I32F", I32F)
+        .value("JPEG", JPEG)
         .export_values();
 
-    def("getSupportedPixelFormats", &getSupportedPixelFormats);
+    def("getSupportedPixelFormats", &getSupportedPixelFormatsDeprecated);
 
     to_python_converter<Pixel32, Pixel32_to_python_tuple>();
 
-    class_<Bitmap, boost::shared_ptr<Bitmap> >("Bitmap", no_init)
+    class_<Bitmap>("Bitmap", no_init)
         .def(init<glm::vec2, PixelFormat, UTF8String>())
         .def(init<Bitmap>())
         .def("__init__", make_constructor(createBitmapWithRect))
@@ -244,14 +305,23 @@ void export_bitmap() {
         .def("getSize", &Bitmap_getSize)
         .def("getFormat", &Bitmap::getPixelFormat)
         .def("getPixels", &Bitmap_getPixels, Bitmap_getPixels_overloads())
-        .def("setPixels", &Bitmap_setPixels)
+        .def("setPixels", &Bitmap_setPixels, Bitmap_setPixels_overloads())
         .def("getPixel", &Bitmap::getPythonPixel)
         .def("subtract", &Bitmap::subtract)
         .def("getAvg", &Bitmap::getAvg)
         .def("getChannelAvg", &Bitmap::getChannelAvg)
         .def("getStdDev", &Bitmap::getStdDev)
-        .def("getName", &Bitmap::getName,
-             return_value_policy<copy_const_reference>());
+        .def("getName", &Bitmap::getName, 
+                return_value_policy<copy_const_reference>())
+        .def("getSupportedPixelFormats", &getSupportedPixelFormats)
+        .staticmethod("getSupportedPixelFormats")
+    ;
+
+    class_<ImageCache>("ImageCache", no_init)
+        .add_property("capacity", ImageCache_GetCapacity, ImageCache_SetCapacity)
+        .def("getNumImages", ImageCache_GetNumImages)
+        .def("getMemUsed", ImageCache_GetMemUsed)
+    ;
 
     class_<BitmapManager>("BitmapManager", no_init)
         .def("get", &BitmapManager::get,

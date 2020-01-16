@@ -90,18 +90,11 @@ test_fonts_files=gatherFilesInDir(LIBAVG_SRC_DIR+'test/fonts/')
 test_media_files=gatherFilesInDir(LIBAVG_SRC_DIR+'test/media/')
 test_media_skin_files=gatherFilesInDir(LIBAVG_SRC_DIR+'test/media/incompleteSkinMedia')
 
-python_files = gatherPythonFilesInDir(LIBAVG_SRC_DIR+'python/')
-python_files += [
-        LIBAVG_SRC_DIR+'test/testcase.py',
-        LIBAVG_SRC_DIR+'test/testapp.py',
-        ]
-python_app_files = gatherFilesInDir(LIBAVG_SRC_DIR+'python/app/',
-        ('Makefile.am',))
-python_widget_files = gatherPythonFilesInDir(LIBAVG_SRC_DIR+'python/widget/')
-python_data_files = gatherFilesInDir(LIBAVG_SRC_DIR+'python/data/',
-        ('Makefile.am',))
-shader_files = gatherFilesInDir(LIBAVG_SRC_DIR+'graphics/shaders/',
-        ('Makefile.am',))
+python_files = gatherPythonFilesInDir(LIBAVG_SRC_DIR+'../python/libavg/')
+python_app_files = gatherFilesInDir(LIBAVG_SRC_DIR+'../python/libavg/app/')
+python_widget_files = gatherPythonFilesInDir(LIBAVG_SRC_DIR+'../python/libavg/widget/')
+python_data_files = gatherFilesInDir(LIBAVG_SRC_DIR+'../python/libavg/data/')
+shader_files = gatherFilesInDir(LIBAVG_SRC_DIR+'graphics/shaders/')
 
 assets_files=[]
 
@@ -156,7 +149,7 @@ else:
     if match and match.groups:
         revision = 'r' + match.groups()[0]
 
-scripts = glob.glob(os.path.join(LIBAVG_SRC_DIR, 'utils', 'avg_*.py'))
+scripts = glob.glob(os.path.join(LIBAVG_SRC_DIR, '../python/scripts', 'avg_*'))
 batches = []
 
 f = open('batch_template.txt')
@@ -164,7 +157,7 @@ batchTemplate = f.read(1024)
 f.close()
 
 for py in map(os.path.basename, scripts):
-    batch = os.path.splitext(py)[0] + '.bat'
+    batch = py + '.bat'
     fw = open(batch, 'w')
     fw.write(batchTemplate.replace('#$#PYSCRIPT#$#', py))
     fw.close()

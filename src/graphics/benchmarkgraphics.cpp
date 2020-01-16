@@ -32,7 +32,6 @@
 #include "Filterflipuv.h"
 #include "Filter3x3.h"
 #include "FilterConvol.h"
-#include "HistoryPreProcessor.h"
 #include "FilterHighpass.h"
 #include "FilterGauss.h"
 #include "FilterBlur.h"

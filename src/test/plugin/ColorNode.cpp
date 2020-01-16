@@ -30,6 +30,7 @@
 
 #include "../../base/Logger.h"
 #include "../../graphics/OGLHelper.h"
+#include "../../graphics/Color.h"
 #include "../../wrapper/WrapHelper.h"
 #include "../../wrapper/raw_constructor.hpp"
 
@@ -48,25 +49,25 @@ class ColorNode : public AreaNode
 public:
     static void registerType();
     
-    ColorNode(const ArgList& Args);
+    ColorNode(const ArgList& Args, const string& sPublisherName="Node");
 
-    void setFillColor(const std::string& sColor);
-    const std::string& getFillColor() const;
+    void setFillColor(const Color& color);
+    const Color& getFillColor() const;
 
     float getFloat() const;
     void setFloat(float f);
 
-    virtual void maybeRender(const glm::mat4& parentTransform);
-    virtual void render();
+    virtual void render(GLContext* pContext, const glm::mat4& transform);
 
 private:
     std::string m_sFillColorName;
-    Pixel32 m_Color;
+    Color m_Color;
     float m_FloatParam;
 };
 
-ColorNode::ColorNode(const ArgList& Args)
-    : m_sFillColorName("FFFFFF")
+ColorNode::ColorNode(const ArgList& Args, const string& sPublisherName)
+    : AreaNode(sPublisherName),
+      m_sFillColorName("FFFFFF")
 {   
     AVG_TRACE(Logger::category::PLUGIN, Logger::severity::INFO,
             "ColorNode c'tor gets Argument fillcolor= "  << 
@@ -75,20 +76,18 @@ ColorNode::ColorNode(const ArgList& Args)
     Args.setMembers(this);
     AVG_TRACE(Logger::category::PLUGIN, Logger::severity::INFO,
             "ColorNode constructed with " << m_sFillColorName);   
-    m_Color = colorStringToColor(m_sFillColorName);
 }
 
-void ColorNode::setFillColor(const string& sFillColor)
+void ColorNode::setFillColor(const Color& fillColor)
 {
     AVG_TRACE(Logger::category::PLUGIN,  Logger::severity::INFO,
-            "setFillColor called with " << sFillColor);   
-    m_sFillColorName = sFillColor;
-    m_Color = colorStringToColor(m_sFillColorName);
+            "setFillColor called with " << fillColor);   
+    m_Color = fillColor;
 }
 
-const std::string& ColorNode::getFillColor() const
+const Color& ColorNode::getFillColor() const
 {
-    return m_sFillColorName;
+    return m_Color;
 }
 
 float ColorNode::getFloat() const
@@ -101,13 +100,7 @@ void ColorNode::setFloat(float f)
     m_FloatParam = f;
 }
 
-
-void ColorNode::maybeRender(const glm::mat4& parentTransform)
-{
-    render();
-}
-
-void ColorNode::render()
+void ColorNode::render(GLContext* pContext, const glm::mat4& transform)
 {
     glClearColor(m_Color.getR()/255.f, m_Color.getG()/255.f, m_Color.getB()/255.f, 1.0f); 
     glClear(GL_COLOR_BUFFER_BIT);
@@ -121,8 +114,8 @@ void ColorNode::registerType()
             ExportedObject::buildObject<ColorNode>)
         .addArg(Arg<float>("floatparam", 0.0f, false,
                 offsetof(ColorNode, m_FloatParam)))
-        .addArg(Arg<string>("fillcolor", "0F0F0F", false, 
-                offsetof(ColorNode, m_sFillColorName)));
+        .addArg(Arg<Color>("fillcolor", Color("0F0F0F"), false,
+                offsetof(ColorNode, m_Color)));
     const char* allowedParentNodeNames[] = {"avg", 0};
     avg::TypeRegistry::get()->registerType(def, allowedParentNodeNames);
 }

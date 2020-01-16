@@ -43,8 +43,7 @@ class AVG_API AsyncVideoDecoder: public VideoDecoder
 public:
     AsyncVideoDecoder(int queueLength);
     virtual ~AsyncVideoDecoder();
-    virtual void open(const std::string& sFilename, bool bUseHardwareAcceleration, 
-            bool bEnableSound);
+    virtual void open(const std::string& sFilename, bool bEnableSound);
     virtual void startDecoding(bool bDeliverYCbCr, const AudioParams* pAP);
     virtual void close();
     virtual void seek(float destTime);

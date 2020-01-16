@@ -46,7 +46,7 @@ typedef boost::unordered_map< const category_t, const severity_t > CatToSeverity
 
 #ifdef _WIN32
 // non dll-interface class used as base for dll-interface class
-#pragma warning(disable:4275) 
+#pragma warning(disable:4275)
 #endif
 class AVG_API Logger: private boost::noncopyable {
 public:
@@ -110,7 +110,7 @@ public:
         try {
             severity_t targetSeverity = m_CategorySeverities.at(category);
             return (targetSeverity <= severity);
-        } catch (out_of_range e){
+        } catch (const out_of_range& e){
             string msg("Unknown category: " + category);
             throw Exception(AVG_ERR_INVALID_ARGS, msg);
         }

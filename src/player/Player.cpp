@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -44,18 +44,13 @@
 #include "MainCanvas.h"
 #include "OffscreenCanvas.h"
 #include "OffscreenCanvasNode.h"
-#include "TrackerInputDevice.h"
 #include "DisplayEngine.h"
 #include "MultitouchInputDevice.h"
 #include "TUIOInputDevice.h"
+#include "SDLTouchInputDevice.h"
 #include "OGLSurface.h"
+#include "Window.h"
 #include "SDLWindow.h"
-#if defined(_WIN32) && defined(SM_DIGITIZER)
-    #include "Win7TouchInputDevice.h"
-#endif
-#if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-    #include "XInputMTInputDevice.h"
-#endif
 #include "Contact.h"
 #include "KeyEvent.h"
 #include "MouseEvent.h"
@@ -66,6 +61,7 @@
 #include "TypeRegistry.h"
 #include "CursorState.h"
 #include "TestHelper.h"
+#include "NodeChain.h"
 
 #include "../base/FileHelper.h"
 #include "../base/StringHelper.h"
@@ -82,6 +78,7 @@
 #include "../graphics/ShaderRegistry.h"
 #include "../graphics/Display.h"
 #include "../graphics/GLContextManager.h"
+#include "../graphics/ImageCache.h"
 
 #include "../imaging/Camera.h"
 
@@ -96,11 +93,12 @@
 
 #include <iostream>
 
-#ifdef __linux
+#ifdef __linux__
 #include <fenv.h>
 #endif
 
 #include <glib-object.h>
+#include <boost/pointer_cast.hpp>
 #include <typeinfo>
 
 using namespace std;
@@ -126,7 +124,7 @@ Player::Player()
       m_FrameTime(0),
       m_Volume(1),
       m_bPythonAvailable(true),
-      m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false, 
+      m_pLastMouseEvent(new MouseEvent(Event::CURSOR_MOTION, false, false, false,
             IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0)),
       m_EventHookPyFunc(Py_None),
       m_bMouseEnabled(true)
@@ -139,7 +137,7 @@ Player::Player()
     }
 #endif
     m_pContextManager = GLContextManagerPtr(new GLContextManager());
-#ifdef __linux
+#ifdef __linux__
 // Turning this on causes fp exceptions in the linux nvidia drivers.
 //    feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 #endif
@@ -190,26 +188,16 @@ Player::Player()
     }
 }
 
-void deletePlayer()
-{
-    delete Player::s_pPlayer;
-    Player::s_pPlayer = 0;
-}
-
 Player::~Player()
 {
-    m_pMainCanvas = MainCanvasPtr();
-    if (m_pDisplayEngine) {
-        m_pDisplayEngine->teardown();
-    }
-    DisplayEngine::quitSDL();
+    // Never called, since python doesn't give us a safe place to call it.
 }
 
 Player* Player::get()
 {
     if (!s_pPlayer) {
         s_pPlayer = new Player();
-        atexit(deletePlayer);
+        Py_AtExit(DisplayEngine::quitSDL);
     }
     return s_pPlayer;
 }
@@ -250,7 +238,9 @@ void Player::setWindowPos(int x, int y)
 
 void Player::setWindowTitle(const string& sTitle)
 {
-    m_pDisplayEngine->setWindowTitle(sTitle);
+    errorIfPlaying("Player.setWindowTitle");
+    WindowParams& wp = m_DP.getWindowParams(0);
+    wp.m_sTitle = sTitle;
 }
 
 void Player::setWindowConfig(const string& sFileName)
@@ -268,7 +258,7 @@ void Player::useGLES(bool bGLES)
     BitmapLoader::init(!m_GLConfig.m_bGLES);
 }
 
-void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers, 
+void Player::setOGLOptions(bool bUsePOTTextures, bool bUsePixelBuffers,
         int multiSampleSamples, GLConfig::ShaderUsage shaderUsage,
         bool bUseDebugContext)
 {
@@ -304,7 +294,7 @@ void Player::enableGLErrorChecks(bool bEnable)
 {
     GLContext::enableErrorChecks(bEnable);
 }
-        
+
 glm::vec2 Player::getScreenResolution()
 {
     return glm::vec2(Display::get()->getScreenResolution());
@@ -325,6 +315,11 @@ void Player::assumePixelsPerMM(float ppmm)
     Display::get()->assumePixelsPerMM(ppmm);
 }
 
+ImageCache* Player::getImageCache()
+{
+    return ImageCache::get();
+}
+
 CanvasPtr Player::loadFile(const string& sFilename)
 {
     errorIfPlaying("Player.loadFile");
@@ -334,7 +329,7 @@ CanvasPtr Player::loadFile(const string& sFilename)
     }
 
     initMainCanvas(pNode);
-    
+
     return m_pMainCanvas;
 }
 
@@ -530,11 +525,11 @@ bool Player::isStopping()
     return m_bStopping;
 }
 
-void Player::initPlayback(const std::string& sShaderPath)
+void Player::initPlayback()
 {
     m_bIsPlaying = true;
     AVG_TRACE(Logger::category::PLAYER, Logger::severity::INFO, "Playback started.");
-    initGraphics(sShaderPath);
+    initGraphics();
     initAudio();
     try {
         for (unsigned i = 0; i < m_pCanvases.size(); ++i) {
@@ -549,13 +544,25 @@ void Player::initPlayback(const std::string& sShaderPath)
     m_pEventDispatcher->addInputDevice(
             boost::dynamic_pointer_cast<InputDevice>(m_pDisplayEngine));
     m_pEventDispatcher->addInputDevice(m_pTestHelper);
+    if (TUIOInputDevice::isEnabled()) {
+        m_pMultitouchInputDevice = InputDevicePtr(new TUIOInputDevice);
+        addInputDevice(m_pMultitouchInputDevice);
+    } else {
+#if defined(_WIN32) || defined(__linux__)
+        SDLWindowPtr pWin = dynamic_pointer_cast<SDLWindow>(m_pDisplayEngine->getWindow(0));
+        if (!pWin->hasTouchHandler()) {
+            SDLTouchInputDevicePtr pMultitouchInputDevice =
+                    SDLTouchInputDevicePtr(new SDLTouchInputDevice);
+            pWin->setTouchHandler(pMultitouchInputDevice);
+            m_pMultitouchInputDevice = pMultitouchInputDevice;
+            addInputDevice(m_pMultitouchInputDevice);
+        }
+#endif
+    }
 
     m_pDisplayEngine->initRender();
     Display::get()->rereadScreenResolution();
     m_bStopping = false;
-    if (m_pMultitouchInputDevice) {
-        m_pMultitouchInputDevice->start();
-    }
 
     m_FrameTime = 0;
     m_NumFrames = 0;
@@ -647,80 +654,22 @@ float Player::getFrameDuration()
     }
 }
 
-TrackerInputDevice * Player::getTracker()
+BitmapPtr Player::getTouchUserBmp() const
 {
-    TrackerInputDevice* pTracker = dynamic_cast<TrackerInputDevice*>(
-            m_pMultitouchInputDevice.get());
-    return pTracker;
-}
-
-void Player::enableMultitouch()
-{
-    if (!m_bIsPlaying) {
-        throw Exception(AVG_ERR_UNSUPPORTED,
-                "Must call Player.play() before enableMultitouch().");
+    TUIOInputDevicePtr pTUIODev = dynamic_pointer_cast<TUIOInputDevice>(
+            m_pMultitouchInputDevice);
+    if (!pTUIODev) {
+        throw Exception(AVG_ERR_UNSUPPORTED, "getTouchUserBmp: No TUIO device present.");
     }
-
-    string sDriver;
-    getEnv("AVG_MULTITOUCH_DRIVER", sDriver);
-    if (sDriver == "") {
-#if defined(_WIN32) && defined(SM_DIGITIZER)
-        sDriver = "WIN7TOUCH";
-#elif defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-        sDriver = "XINPUT";
-#else
-        AVG_LOG_WARNING("Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT, TRACKER, TUIO and APPLETRACKPAD.");
-        throw Exception(AVG_ERR_MT_INIT,
-                "Multitouch support: No default driver available. Set AVG_MULTITOUCH_DRIVER.");
-#endif
-    }
-    if (sDriver == "TUIO") {
-        m_pMultitouchInputDevice = InputDevicePtr(new TUIOInputDevice);
-#if defined(_WIN32) && defined(SM_DIGITIZER)
-    } else if (sDriver == "WIN7TOUCH") {
-        m_pMultitouchInputDevice = InputDevicePtr(new Win7TouchInputDevice);
-#endif
-    } else if (sDriver == "XINPUT" || sDriver == "XINPUT21") {
-#if defined(HAVE_XI2_1) || defined(HAVE_XI2_2) 
-        m_pMultitouchInputDevice =  InputDevicePtr(new XInputMTInputDevice);
-#else
-        throw Exception(AVG_ERR_MT_INIT,
-                "XInput multitouch event source: Support not configured.'");
-#endif
-    } else if (sDriver == "TRACKER") {
-        m_pMultitouchInputDevice = InputDevicePtr(new TrackerInputDevice);
-    } else {
-        AVG_LOG_WARNING("Valid values for AVG_MULTITOUCH_DRIVER are WIN7TOUCH, XINPUT, TRACKER and TUIO.");
-        throw Exception(AVG_ERR_UNSUPPORTED, string("Unsupported multitouch driver '")+
-                sDriver +"'.");
-    }
-    if (m_bIsPlaying) {
-        try {
-            m_pMultitouchInputDevice->start();
-        } catch (Exception&) {
-            m_pMultitouchInputDevice = InputDevicePtr();
-            throw;
-        }
-    }
-    addInputDevice(m_pMultitouchInputDevice);
+    return pTUIODev->getUserBmp();
 }
 
 void Player::enableMouse(bool enabled)
 {
     m_bMouseEnabled = enabled;
-    
+
     if (m_pEventDispatcher) {
         m_pEventDispatcher->enableMouse(enabled);
-    }
-}
-
-bool Player::isMultitouchAvailable() const
-{
-    if (m_bIsPlaying) {
-        return m_pMultitouchInputDevice != 0;
-    } else {
-        throw Exception(AVG_ERR_UNSUPPORTED,
-                "Must call Player.play() before isMultitouchAvailable().");
     }
 }
 
@@ -750,7 +699,7 @@ void Player::releaseEventCapture(int cursorID)
 {
     std::map<int, EventCaptureInfoPtr>::iterator it =
             m_EventCaptureInfoMap.find(cursorID);
-    if (it == m_EventCaptureInfoMap.end() || 
+    if (it == m_EventCaptureInfoMap.end() ||
             (it->second->m_pNode->getState() == Node::NS_UNCONNECTED))
     {
         throw Exception(AVG_ERR_INVALID_CAPTURE,
@@ -794,7 +743,7 @@ int Player::setTimeout(int time, PyObject * pyfunc)
 
 int Player::setOnFrameHandler(PyObject * pyfunc)
 {
-    avgDeprecationWarning("1.8", "Player.setOnFrameHandler", 
+    avgDeprecationWarning("1.8", "Player.setOnFrameHandler",
             "Player.subscribe(Player.ON_FRAME)");
     return internalSetTimeout(0, pyfunc, true);
 }
@@ -861,7 +810,7 @@ BitmapPtr Player::screenshot()
     if (GLContext::getCurrent()->isGLES()) {
         // Some GLES implementations invalidate the buffer after eglSwapBuffers.
         // The only way we can get at the contents at this point is to rerender them.
-        WindowPtr pWindow = m_pDisplayEngine->getSDLWindow();
+        WindowPtr pWindow = m_pDisplayEngine->getWindow(0);
         IntRect viewport = pWindow->getViewport();
         m_pMainCanvas->renderWindow(pWindow, MCFBOPtr(), viewport);
         GLContextManager::get()->reset();
@@ -882,47 +831,6 @@ bool Player::isCursorShown()
     return m_DP.isCursorVisible();
 }
 
-void Player::setCursor(const Bitmap* pBmp, IntPoint hotSpot)
-{
-    IntPoint size = pBmp->getSize();
-    if (size.x % 8 != 0 || size.y % 8 != 0 || pBmp->getPixelFormat() != R8G8B8A8) {
-        throw Exception(AVG_ERR_INVALID_ARGS,
-                "setCursor: Bitmap size must be divisible by 8 and in RGBA format.");
-    }
-    int i = -1;
-    unsigned char * pData = new unsigned char[size.x*size.y/8];
-    unsigned char * pMask = new unsigned char[size.x*size.y/8];
-    Pixel32 * pLine = (Pixel32*)(pBmp->getPixels());
-    int stride = pBmp->getStride()/4;
-    for (int y = 0; y < size.y; ++y) {
-        Pixel32 * pPixel = pLine;
-        for (int x = 0; x < size.x; ++x) {
-            if (x % 8 == 0) {
-                i++;
-                pData[i] = 0;
-                pMask[i] = 0;
-            } else {
-                pData[i] <<= 1;
-                pMask[i] <<= 1;
-            }
-            if (pPixel->getA() > 127) {
-                pMask[i] |= 0x01;
-                if (pPixel->getR() < 128) {
-                    // Black Pixel
-                    pData[i] |= 0x01;
-                }
-            }
-            pPixel++;
-        }
-        pLine += stride;
-    }
-    SDL_Cursor * pCursor = SDL_CreateCursor(pData, pMask, size.x, size.y,
-            hotSpot.x, hotSpot.y);
-    SDL_SetCursor(pCursor);
-    delete[] pData;
-    delete[] pMask;
-}
-
 NodePtr Player::getElementByID(const std::string& sID)
 {
     if (m_pMainCanvas) {
@@ -932,7 +840,7 @@ NodePtr Player::getElementByID(const std::string& sID)
     }
 }
 
-AVGNodePtr Player::getRootNode()
+AVGNodePtr Player::getRootNode() const
 {
     if (m_pMainCanvas) {
         return dynamic_pointer_cast<AVGNode>(m_pMainCanvas->getRootNode());
@@ -1052,7 +960,7 @@ bool Player::handleEvent(EventPtr pEvent)
         }
         getRootNode()->handleEvent(pKeyEvent);
         if (getStopOnEscape() && pEvent->getType() == Event::KEY_DOWN
-                && pKeyEvent->getKeyCode() == avg::key::KEY_ESCAPE)
+                && pKeyEvent->getScanCode() == SDL_SCANCODE_ESCAPE)
         {
             stop();
         }
@@ -1110,27 +1018,20 @@ void Player::doFrame(bool bFirstFrame)
         if (m_bPythonAvailable) {
             Py_BEGIN_ALLOW_THREADS;
             try {
-                endFrame();
+                m_pDisplayEngine->endFrame();
             } catch(...) {
                 Py_BLOCK_THREADS;
                 throw;
             }
             Py_END_ALLOW_THREADS;
         } else {
-            endFrame();
+            m_pDisplayEngine->endFrame();
         }
     }
     ThreadProfiler::get()->reset();
     if (m_NumFrames == 5) {
         ThreadProfiler::get()->restart();
     }
-}
-
-void Player::endFrame()
-{
-    m_pDisplayEngine->frameWait();
-    m_pDisplayEngine->swapBuffers();
-    m_pDisplayEngine->checkJitter();
 }
 
 float Player::getFramerate()
@@ -1175,7 +1076,6 @@ void Player::setGamma(float red, float green, float blue)
 
 void Player::initConfig()
 {
-    errorIfMultiDisplay("Player.setWindowPos");
     // Get data from config files.
     ConfigMgr* pMgr = ConfigMgr::get();
 
@@ -1242,7 +1142,7 @@ void Player::initConfig()
     m_DP.setGamma(gamma[0], gamma[1], gamma[2]);
 }
 
-void Player::initGraphics(const string& sShaderPath)
+void Player::initGraphics()
 {
     if (!Display::isInitialized()) {
         ConfigMgr* pMgr = ConfigMgr::get();
@@ -1255,7 +1155,9 @@ void Player::initGraphics(const string& sShaderPath)
 
     if (m_bDisplayEngineBroken) {
         m_bDisplayEngineBroken = false;
-        m_pDisplayEngine->teardown();
+        if (m_pDisplayEngine) {
+            m_pDisplayEngine->teardown();
+        }
         m_pDisplayEngine = DisplayEnginePtr();
     }
 
@@ -1268,16 +1170,13 @@ void Player::initGraphics(const string& sShaderPath)
     m_DP.calcWindowSizes();
     if (m_DP.getNumWindows() > 1 ||
             m_pDisplayEngine->getWindowSize() != m_DP.getWindowParams(0).m_Size ||
-            m_pDisplayEngine->isFullscreen() != m_DP.isFullscreen()) 
+            m_pDisplayEngine->isFullscreen() != m_DP.isFullscreen())
     {
         m_pDisplayEngine->teardown();
         m_pDisplayEngine->init(m_DP, m_GLConfig);
     }
     AVG_TRACE(Logger::category::CONFIG, Logger::severity::INFO,
             "Pixels per mm: " << Display::get()->getPixelsPerMM());
-    if (sShaderPath != "") {
-        ShaderRegistry::get()->setShaderPath(sShaderPath);
-    }
     m_pDisplayEngine->setGamma(1.0, 1.0, 1.0);
     m_GLConfig = GLContext::getCurrent()->getConfig();
 }
@@ -1299,7 +1198,7 @@ void Player::initMainCanvas(NodePtr pRootNode)
     m_pMainCanvas = MainCanvasPtr(new MainCanvas(this));
     m_pMainCanvas->setRoot(pRootNode);
     if (m_DP.getNumWindows() == 1) {
-        m_DP.getWindowParams(0).m_Viewport = 
+        m_DP.getWindowParams(0).m_Viewport =
                 IntRect(IntPoint(0,0), m_pMainCanvas->getSize());
     }
     registerFrameEndListener(BitmapManager::get());
@@ -1346,10 +1245,10 @@ NodePtr Player::createNode(const string& sType,
     // python derived class that's being constructed and we can't set parent here.
     string sSelfClassName = py::extract<string>(
             self.attr("__class__").attr("__name__"));
-    py::object pythonClassName = 
+    py::object pythonClassName =
             (py::object(pNode).attr("__class__").attr("__name__"));
     string sThisClassName = py::extract<string>(pythonClassName);
-    bool bHasDerivedClass = sSelfClassName != sThisClassName && 
+    bool bHasDerivedClass = sSelfClassName != sThisClassName &&
             sSelfClassName != "NoneType";
     if (bHasDerivedClass) {
         if (pParentNode) {
@@ -1359,7 +1258,7 @@ NodePtr Player::createNode(const string& sType,
         pNode->registerInstance(self.ptr(), pParentNode);
     } else {
         pNode->registerInstance(0, pParentNode);
-    } 
+    }
     if (parent) {
         attrs["parent"] = parent;
     }
@@ -1448,10 +1347,16 @@ OffscreenCanvasPtr Player::findCanvas(const string& sID) const
 
 void Player::sendFakeEvents()
 {
+    // Generate over and out events for unmoving cursors.
+    // This happens if the node constellation changes: A node moves so it's underneath
+    // the cursor, is deleted, etc.
     std::map<int, CursorStatePtr>::iterator it;
     for (it = m_pLastCursorStates.begin(); it != m_pLastCursorStates.end(); ++it) {
         CursorStatePtr pState = it->second;
-        handleCursorEvent(pState->getLastEvent(), true);
+        CursorEventPtr pEvent = pState->getLastEvent();
+        NodeChainPtr pCursorNodes = getNodesUnderCursor(pEvent);
+        generateOverEvents(pEvent, pCursorNodes);
+        updateCursorState(pEvent, pCursorNodes);
     }
 }
 
@@ -1465,31 +1370,28 @@ void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type type,
     }
 }
 
-void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
+void Player::handleCursorEvent(CursorEventPtr pEvent)
 {
-    // Find all nodes under the cursor.
-    vector<NodePtr> pCursorNodes;
-    DivNodePtr pEventReceiverNode = pEvent->getInputDevice()->getEventReceiverNode();
-    if (!pEventReceiverNode) {
-        pEventReceiverNode = getRootNode();
-    }
-    pEventReceiverNode->getElementsByPos(pEvent->getPos(), pCursorNodes);
+    NodeChainPtr pCursorNodes = getNodesUnderCursor(pEvent);
+
+    // Send event to contacts.
     ContactPtr pContact = pEvent->getContact();
-    if (pContact && !bOnlyCheckCursorOver) {
-        if (!pCursorNodes.empty()) {
-            NodePtr pNode = *(pCursorNodes.begin());
+    if (pContact) {
+        if (pEvent->getType() == Event::CURSOR_DOWN) {
+            pContact->setNodeChain(pCursorNodes);
+        }
+        if (!pCursorNodes->empty()) {
+            NodePtr pNode = pCursorNodes->getLeaf();
             pEvent->setNode(pNode);
         }
         pContact->sendEventToListeners(pEvent);
     }
-        
-    int cursorID = pEvent->getCursorID();
 
-    // Determine the nodes the event should be sent to.
-    vector<NodePtr> pDestNodes = pCursorNodes;
+    // Handle event capture.
+    int cursorID = pEvent->getCursorID();
+    NodeChainPtr pDestNodes = pCursorNodes;
     if (m_EventCaptureInfoMap.find(cursorID) != m_EventCaptureInfoMap.end()) {
-        NodeWeakPtr pEventCaptureNode = 
-                m_EventCaptureInfoMap[cursorID]->m_pNode;
+        NodeWeakPtr pEventCaptureNode = m_EventCaptureInfoMap[cursorID]->m_pNode;
         if (pEventCaptureNode.expired()) {
             m_EventCaptureInfoMap.erase(cursorID);
         } else {
@@ -1497,82 +1399,82 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
         }
     }
 
-    vector<NodePtr> pLastCursorNodes;
-    {
-        map<int, CursorStatePtr>::iterator it;
-        it = m_pLastCursorStates.find(cursorID);
-        if (it != m_pLastCursorStates.end()) {
-            pLastCursorNodes = it->second->getNodes();
-        }
-    }
+    generateOverEvents(pEvent, pCursorNodes);
 
-    // Send out events.
-    vector<NodePtr>::const_iterator itLast;
-    vector<NodePtr>::iterator itCur;
-    for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); 
-            ++itLast)
-    {
-        NodePtr pLastNode = *itLast;
-        for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
-            if (*itCur == pLastNode) {
-                break;
+    // Iterate through the nodes and send the event to all of them.
+    for (int i=0; i<pDestNodes->getSize(); ++i) {
+        NodePtr pNode = pDestNodes->getNode(i);
+        if (pNode->getState() != Node::NS_UNCONNECTED) {
+            pEvent->setNode(pNode);
+            if (pEvent->getType() != Event::CURSOR_MOTION) {
+                pEvent->trace();
             }
-        }
-        if (itCur == pCursorNodes.end()) {
-            sendOver(pEvent, Event::CURSOR_OUT, pLastNode);
-        }
-    }
-
-    // Send over events.
-    for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
-        NodePtr pCurNode = *itCur;
-        for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end();
-                ++itLast)
-        {
-            if (*itLast == pCurNode) {
+            bool bHandled = pNode->handleEvent(pEvent);
+            if (bHandled) {
+                // stop bubbling
                 break;
-            }
-        }
-        if (itLast == pLastCursorNodes.end()) {
-            sendOver(pEvent, Event::CURSOR_OVER, pCurNode);
-        }
-    }
-
-    if (!bOnlyCheckCursorOver) {
-        // Iterate through the nodes and send the event to all of them.
-        vector<NodePtr>::iterator it;
-        for (it = pDestNodes.begin(); it != pDestNodes.end(); ++it) {
-            NodePtr pNode = *it;
-            if (pNode->getState() != Node::NS_UNCONNECTED) {
-                pEvent->setNode(pNode);
-                if (pEvent->getType() != Event::CURSOR_MOTION) {
-                    pEvent->trace();
-                }
-                if (pNode->handleEvent(pEvent) == true) {
-                    // stop bubbling
-                    break;
-                }
             }
         }
     }
 
     if (pEvent->getType() == Event::CURSOR_UP && pEvent->getSource() != Event::MOUSE) {
         // Cursor has disappeared: send out events.
-        vector<NodePtr>::iterator it;
-        for (it = pCursorNodes.begin(); it != pCursorNodes.end(); ++it) {
-            NodePtr pNode = *it;
+        for (int i=0; i<pCursorNodes->getSize(); ++i) {
+            NodePtr pNode = pCursorNodes->getNode(i);
             sendOver(pEvent, Event::CURSOR_OUT, pNode);
         }
         m_pLastCursorStates.erase(cursorID);
     } else {
-        // Update list of nodes under cursor
-        if (m_pLastCursorStates.find(cursorID) != m_pLastCursorStates.end()) {
-            m_pLastCursorStates[cursorID]->setInfo(pEvent, pCursorNodes);
-        } else {
-            m_pLastCursorStates[cursorID] =
-                    CursorStatePtr(new CursorState(pEvent, pCursorNodes));
+        updateCursorState(pEvent, pCursorNodes);
+    }
+}
+
+NodeChainPtr Player::getNodesUnderCursor(CursorEventPtr pEvent) const
+{
+    NodeChainPtr pCursorNodes(new NodeChain);
+    DivNodePtr pEventReceiverNode = pEvent->getInputDevice()->getEventReceiverNode();
+    if (!pEventReceiverNode) {
+        pEventReceiverNode = getRootNode();
+    }
+    pEventReceiverNode->getElementsByPos(pEvent->getPos(), pCursorNodes);
+    return pCursorNodes;
+}
+
+void Player::generateOverEvents(CursorEventPtr pEvent, NodeChainPtr pCursorNodes)
+{
+    if (pEvent->getType() != Event::MOUSE_WHEEL) {
+        NodeChainPtr pLastCursorNodes(new NodeChain);
+        {
+            map<int, CursorStatePtr>::iterator it;
+            int cursorID = pEvent->getCursorID();
+            it = m_pLastCursorStates.find(cursorID);
+            if (it != m_pLastCursorStates.end()) {
+                pLastCursorNodes = it->second->getNodes();
+            }
+        }
+
+        // Send out events.
+        for (int i=0; i<pLastCursorNodes->getSize(); ++i) {
+            NodePtr pLastNode = pLastCursorNodes->getNode(i);
+            if (!pCursorNodes->contains(pLastNode)) {
+                sendOver(pEvent, Event::CURSOR_OUT, pLastNode);
+            }
+        }
+
+        // Send over events.
+        for (int i=0; i<pCursorNodes->getSize(); ++i) {
+            NodePtr pCurNode = pCursorNodes->getNode(i);
+            if (!pLastCursorNodes->contains(pCurNode)) {
+                sendOver(pEvent, Event::CURSOR_OVER, pCurNode);
+            }
         }
     }
+}
+
+void Player::updateCursorState(CursorEventPtr pEvent, NodeChainPtr pCursorNodes)
+{
+    int cursorID = pEvent->getCursorID();
+    m_pLastCursorStates[cursorID] = CursorStatePtr(new CursorState(pEvent, pCursorNodes));
 }
 
 void Player::dispatchOffscreenRendering(OffscreenCanvas* pOffscreenCanvas)
@@ -1638,9 +1540,9 @@ void Player::handleTimers()
         addTimeout(*it);
     }
     m_NewTimeouts.clear();
-    
+
     notifySubscribers("ON_FRAME");
-    
+
     m_bInHandleTimers = false;
 
     if (m_bPythonAvailable) {
@@ -1768,11 +1670,15 @@ void Player::cleanup(bool bIsAbort)
             m_pDisplayEngine = DisplayEnginePtr();
         }
     }
+
+    if (ImageCache::exists()) {
+        ImageCache::get()->unloadAllTextures();
+    }
     if (AudioEngine::get()) {
         AudioEngine::get()->teardown();
     }
     m_pEventDispatcher = EventDispatcherPtr();
-    m_pLastMouseEvent = MouseEventPtr(new MouseEvent(Event::CURSOR_MOTION, false, false, 
+    m_pLastMouseEvent = MouseEventPtr(new MouseEvent(Event::CURSOR_MOTION, false, false,
             false, IntPoint(-1, -1), MouseEvent::NO_BUTTON, glm::vec2(-1, -1), 0));
 
     m_FrameTime = 0;

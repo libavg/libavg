@@ -23,6 +23,7 @@
 #include "Logger.h"
 #include "Exception.h"
 #include "OSHelper.h"
+#include "Backtrace.h"
 
 #include <libxml/xmlmemory.h>
 
@@ -79,6 +80,7 @@ ConfigMgr::ConfigMgr()
     addOption("scr", "gamma", "-1,-1,-1");
     addOption("scr", "vsyncmode", "auto");
     addOption("scr", "videoaccel", "true");
+    addOption("scr", "imgcachesize", "-1,-1");
     
     addSubsys("aud");
     addOption("aud", "channels", "2");

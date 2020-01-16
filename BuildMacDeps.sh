@@ -3,6 +3,36 @@
 set -e
 set -x
 
+checkConfig()
+{
+    if [[ x"${AVG_PATH}" == "x" ]]
+    then
+        echo ${AVG_PATH}
+        echo Please set AVG_PATH and call 'source mac/avg_env.sh' before calling this script.
+        exit -1 
+    fi
+
+    if [[ x"${AVG_MAC_ENV_SET}" == "x" ]]
+    then
+        echo Please call 'source mac/avg_env.sh' before calling this script.
+        exit -1 
+    fi
+
+    PYTHON_VER=$(python --version 2>&1)
+    if [[ ${PYTHON_VER:7:3} != "2.7" ]]
+    then
+        echo libavg expects python 2.7. Found version ${PYTHON_VER:7:3}
+        exit -1 
+    fi
+
+    PYTHON_BITS=$(python -c 'import struct;print( 8 * struct.calcsize("P"))')
+    if [[ ${PYTHON_BITS} != "64" ]]
+    then
+        echo libvg expects a 64-bit version of python. Found a ${PYTHON_BITS}-bit version.
+        exit -1
+    fi
+}
+
 clean()
 {
     rm -rf ${AVG_PATH}/bin/
@@ -28,6 +58,16 @@ buildLib()
     cd ..
 }
 
+buildSDL()
+{
+    cd SDL2-2.0.4
+    CXXFLAGS="-mmacosx-version-min=10.6 -DMAC_OS_X_VERSION_MIN_REQUIRED=1050" LDFLAGS="-mmacosx-version-min=10.6" ./configure --disable-shared --disable-video-x11 --without-x --prefix=${AVG_PATH}
+    make clean
+    make -j5
+    make install
+    cd ..
+}
+
 buildglib()
 {
     echo --------------------------------------------------------------------
@@ -42,12 +82,13 @@ buildglib()
 buildfontconfig()
 {
     echo --------------------------------------------------------------------
-    cd fontconfig-2.7.0
-    automake
-    LDFLAGS="-framework ApplicationServices ${LDFLAGS}" ./configure --prefix=${AVG_PATH} --disable-shared --with-add-fonts=/Library/Fonts,/System/Library/Fonts,~/Library/Fonts --with-confdir=/etc/fonts --with-cache-dir=~/.fontconfig --with-cache-dir=~/.fontconfig
+    cd fontconfig-2.11.1
+    LDFLAGS="-framework ApplicationServices ${LDFLAGS}" ./configure --prefix=${AVG_PATH} --disable-shared --with-add-fonts=/Library/Fonts,/System/Library/Fonts,~/Library/Fonts --with-configdir=/etc/fonts --with-cache-dir=${HOME}/.fontconfig --disable-docs
     make clean
     make -j5
     sudo make install
+    # Workaround for fontconfig bug: Install fonts.conf in the correct place.
+    sudo cp ../../etc/fonts/fonts.conf /etc/fonts/fonts.conf
     sudo chown -R `whoami` ~/.fontconfig
     cd ..    
 }
@@ -88,35 +129,27 @@ buildboost()
     rm -f ../lib/libboost_date_time.dylib
     rm -f ../lib/libboost_system.dylib
 }
-if [[ x"${AVG_PATH}" == "x" ]]
-then
-    echo ${AVG_PATH}
-    echo Please set AVG_PATH and call 'source mac/avg_env.sh' before calling this script.
-    exit -1 
-fi
 
-if [[ x"${AVG_MAC_ENV_SET}" == "x" ]]
-then
-    echo Please call 'source mac/avg_env.sh' before calling this script.
-    exit -1 
-fi
+checkConfig
+
+cd ../deps
+tar xjf macdependencies.1.8.0.4.tar.bz2
+../libavg/mac/UnpackDeps.sh
 
 clean
 
-cd ../deps
-
-buildLib libtool-2.2.6
-buildLib autoconf-2.63
-buildLib automake-1.11
+buildLib libtool-2.4.6
+buildLib autoconf-2.69
+buildLib automake-1.15
 buildLib nasm-2.10.09
-buildLib libjpeg-turbo-1.3.0 "--host x86_64-apple-darwin --disable-shared NASM=${AVG_PATH}/bin/nasm"
+buildLib libjpeg-turbo-1.4.2 "--host x86_64-apple-darwin --disable-shared NASM=${AVG_PATH}/bin/nasm"
 buildLib tiff-3.8.2 --disable-shared 
 buildLib libpng-1.2.41 --disable-shared
 buildLib pkg-config-0.20
 buildLib yasm-1.2.0 
 buildLib libav-9.9 "--arch=x86_64 --disable-debug --enable-pthreads --enable-runtime-cpudetect"
 
-buildLib SDL-1.2.15 "--disable-shared --disable-cdrom --disable-threads --disable-file --disable-video-x11 --without-x"
+buildSDL
 buildLib gettext-0.18.1.1 "--disable-shared --with-included-gettext --disable-csharp  --disable-libasprintf"
 buildglib
 

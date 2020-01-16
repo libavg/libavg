@@ -34,7 +34,7 @@ class AVG_API FilledVectorNode : public VectorNode
     public:
         static void registerType();
         
-        FilledVectorNode(const ArgList& args);
+        FilledVectorNode(const ArgList& args, const std::string& sPublisherName);
         virtual ~FilledVectorNode();
         virtual void connectDisplay();
         virtual void disconnect(bool bKill);
@@ -49,35 +49,35 @@ class AVG_API FilledVectorNode : public VectorNode
         const glm::vec2& getFillTexCoord2() const;
         void setFillTexCoord2(const glm::vec2& pt);
 
-        void setFillColor(const UTF8String& sColor);
-        const UTF8String& getFillColor() const;
+        void setFillColor(const Color& color);
+        const Color& getFillColor() const;
 
         float getFillOpacity() const;
         void setFillOpacity(float opacity);
 
         virtual void preRender(const VertexArrayPtr& pVA, bool bIsParentActive, 
                 float parentEffectiveOpacity);
-        virtual void render();
+        virtual void render(GLContext* pContext, const glm::mat4& transform);
 
         virtual void calcFillVertexes(
                 const VertexDataPtr& pVertexData, Pixel32 color) = 0;
 
     protected:
-        Pixel32 getFillColorVal() const;
         glm::vec2 calcFillTexCoord(const glm::vec2& pt, const glm::vec2& minPt, 
                 const glm::vec2& maxPt);
         virtual bool isVisible() const;
+        bool isFillVisible() const;
+        void checkRedraw();
 
     private:
-        float m_OldOpacity;
+        float m_EffectiveOpacity;
 
         UTF8String m_FillTexHRef;
         glm::vec2 m_FillTexCoord1;
         glm::vec2 m_FillTexCoord2;
         ShapePtr m_pFillShape;
         float m_FillOpacity;
-        UTF8String m_sFillColorName;
-        Pixel32 m_FillColor;
+        Color m_FillColor;
 };
 
 typedef boost::shared_ptr<FilledVectorNode> FilledVectorNodePtr;

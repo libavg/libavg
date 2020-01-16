@@ -75,6 +75,8 @@ private:
     static void getCameraImageFormats(int fd, CameraInfo* camInfo);
     static void getCameraControls(int deviceNumber, CameraInfo* camInfo);
 
+    BitmapPtr decompressJpegFrame(unsigned char* pCaptureBuffer);
+
     void setFeature(V4LCID_t v4lFeature, int value);
     V4LCID_t getFeatureID(CameraFeature feature) const;
     std::string getFeatureName(V4LCID_t v4lFeature);
@@ -93,7 +95,7 @@ private:
     std::string m_sModelName;
     std::vector<Buffer> m_vBuffers;
     bool m_bCameraAvailable;
-    int m_v4lPF;
+    unsigned m_v4lPF;
 };
 
 }

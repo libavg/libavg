@@ -52,8 +52,13 @@ GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, PixelForma
     ObjectCounter::get()->incRef(&typeid(*this));
 
     GLContext::getCurrent()->ensureFullShaders("GPUBlurFilter");
-
-    setDimensions(size, stdDev, bClipBorders);
+#ifndef AVG_ENABLE_EGL
+    if (!m_bClipBorders) {
+        //TODO: TO_BORDER DOES NOT EXIST IN GLESV2
+        m_WrapMode = WrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+    }
+#endif
+    setDimensions(size, stdDev);
     GLContextManager* pCM = GLContextManager::get();
     pCM->createShader(SHADERID_VERT);
     setStdDev(stdDev);
@@ -78,48 +83,44 @@ void GPUBlurFilter::setStdDev(float stdDev)
 {
     m_StdDev = stdDev;
     m_pGaussCurveTex = calcBlurKernelTex(m_StdDev, 1, m_bUseFloatKernel);
-    setDimensions(getSrcSize(), stdDev, m_bClipBorders);
+    setDimensions(getSrcSize(), stdDev);
     IntRect destRect2(IntPoint(0,0), getDestRect().size());
     m_pProjection2 = ImagingProjectionPtr(new ImagingProjection(
             getDestRect().size(), destRect2));
 }
 
-void GPUBlurFilter::applyOnGPU(GLTexturePtr pSrcTex)
+void GPUBlurFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
 {
     int kernelWidth = m_pGaussCurveTex->getSize().x;
-    getFBO(1)->activate();
+    getFBO(pContext, 1)->activate();
     getShader()->activate();
-    m_pHorizWidthParam->set(float(kernelWidth));
-    m_pHorizRadiusParam->set((kernelWidth-1)/2);
-    m_pHorizTextureParam->set(0);
-    m_pHorizKernelTexParam->set(1);
-    m_pGaussCurveTex->activate(GL_TEXTURE1);
-    draw(pSrcTex);
+    m_pHorizWidthParam->set(pContext, float(kernelWidth));
+    m_pHorizRadiusParam->set(pContext, (kernelWidth-1)/2);
+    m_pHorizTextureParam->set(pContext, 0);
+    m_pHorizKernelTexParam->set(pContext, 1);
+    m_pGaussCurveTex->getTex(pContext)->activate(WrapMode(), GL_TEXTURE1);
+    draw(pContext, pSrcTex, m_WrapMode);
 
-    getFBO(0)->activate();
+    getFBO(pContext, 0)->activate();
     OGLShaderPtr pVShader = avg::getShader(SHADERID_VERT);
     pVShader->activate();
-    m_pVertWidthParam->set(float(kernelWidth));
-    m_pVertRadiusParam->set((kernelWidth-1)/2);
-    m_pVertTextureParam->set(0);
-    m_pVertKernelTexParam->set(1);
-    getDestTex(1)->activate(GL_TEXTURE0);
-    m_pProjection2->draw(pVShader);
+    m_pVertWidthParam->set(pContext, float(kernelWidth));
+    m_pVertRadiusParam->set(pContext, (kernelWidth-1)/2);
+    m_pVertTextureParam->set(pContext, 0);
+    m_pVertKernelTexParam->set(pContext, 1);
+    getDestTex(pContext, 1)->activate(m_WrapMode, GL_TEXTURE0);
+    m_pProjection2->draw(pContext, pVShader);
 }
 
-void GPUBlurFilter::setDimensions(IntPoint size, float stdDev, bool bClipBorders)
+void GPUBlurFilter::setDimensions(IntPoint size, float stdDev)
 {
-    
-#ifndef AVG_ENABLE_EGL
-    if (bClipBorders) {
+    if (m_bClipBorders) {
         GPUFilter::setDimensions(size);
     } else {
         int radius = getBlurKernelRadius(stdDev);
         IntPoint offset(radius, radius);
-        //TODO: TO_BORDER DOES NOT EXIST IN GLESV2
-        GPUFilter::setDimensions(size, IntRect(-offset, size+offset), GL_CLAMP_TO_BORDER);
+        GPUFilter::setDimensions(size, IntRect(-offset, size+offset));
     }
-#endif
 }
 
 }

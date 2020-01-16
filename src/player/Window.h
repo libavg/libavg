@@ -25,16 +25,22 @@
 
 #include "../api.h"
 #include "WindowParams.h"
+#include "DisplayParams.h"
 #include "Event.h"
 
 #include "../base/Rect.h"
 
 #include <boost/shared_ptr.hpp>
 #include <string>
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+#ifdef __linux__
+#include <X11/Xlib.h>
+#endif
 
 namespace avg {
 
-class XInputMTInputDevice;
 class Bitmap;
 typedef boost::shared_ptr<class Bitmap> BitmapPtr;
 class GLContext;
@@ -46,16 +52,25 @@ class AVG_API Window
         virtual ~Window();
 
         virtual void setTitle(const std::string& sTitle) = 0;
+        virtual void swapBuffers() const = 0;
         BitmapPtr screenshot(int buffer=0);
 
         const IntPoint& getPos() const;
         const IntPoint& getSize() const;
         const IntRect& getViewport() const;
         bool isFullscreen() const;
-        virtual void swapBuffers() const;
         GLContext* getGLContext() const;
-
+        
         virtual std::vector<EventPtr> pollEvents() = 0;
+
+        virtual void setGamma(float red, float green, float blue) {};
+#ifdef _WIN32
+        virtual HWND getWinHWnd() = 0;
+#endif
+#ifdef __linux__
+        virtual ::Display* getX11Display() { return 0;};
+        virtual ::Window getX11Window() { return 0;};
+#endif
 
     protected:
         void setGLContext(GLContext* pGLContext);
