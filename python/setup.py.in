@@ -36,7 +36,7 @@ class my_install_lib(distutils.command.install_lib.install_lib):
             # Hack to set executable bit for libavg cpptest
             basename = os.path.basename(fn)
             if testBinaryRegex.match(basename) or basename == 'Test.py':
-                mode = ((os.stat(fn).st_mode) | 0555) & 07777
+                mode = ((os.stat(fn).st_mode) | 0o555) & 0o777
                 os.chmod(fn, mode)
 
 
@@ -58,4 +58,3 @@ setup(name='libavg',
     },
     scripts=glob.glob('scripts/avg_*'),
 )
-

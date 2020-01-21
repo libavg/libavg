@@ -1,4 +1,6 @@
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules" )
+cmake_minimum_required(VERSION 2.8)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
 include(CheckCXXCompilerFlag)
 
 function(set_cxx_version)
@@ -17,8 +19,6 @@ function(set_cxx_version)
 endfunction(set_cxx_version)
 
 project(libavg)
-cmake_minimum_required(VERSION 2.8)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 # libavg release version
 set(AVG_VERSION_MAJOR 1)
@@ -45,7 +45,7 @@ endif()
 if(${PLATFORM_MACOSX})
     set(BOOST_ROOT "$ENV{AVG_PATH}")
 endif()
-find_package(Boost 1.46 REQUIRED system thread python)
+find_package(Boost 1.46 REQUIRED system thread python3)
 find_package(PkgConfig REQUIRED)
 if(${PLATFORM_MACOSX})
     set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:$ENV{AVG_PATH}/libavg/pkg-config/mac")
@@ -56,7 +56,7 @@ pkg_search_module(SDL2 REQUIRED sdl2)
 pkg_search_module(DC1394_2 libdc1394-2)
 pkg_check_modules(FFMPEG libswscale libavformat libavcodec libavutil libswresample)
 pkg_search_module(FFMPEG_AVRESAMPLE libavresample)
-set(Python_ADDITIONAL_VERSIONS 2.7)
+set(Python_ADDITIONAL_VERSIONS 3.7 3.6 3.5)
 find_package(PythonLibs REQUIRED)
 pkg_search_module(PANGOFT2 REQUIRED pangoft2)
 pkg_search_module(RSVG REQUIRED librsvg-2.0)
@@ -163,11 +163,11 @@ enable_testing()
 
 # Enable make check that dumps test output on failure
 if (CMAKE_CONFIGURATION_TYPES)
-    add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} 
-        --force-new-ctest-process --output-on-failure 
+    add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND}
+        --force-new-ctest-process --output-on-failure
         --build-config "$<CONFIGURATION>")
 else()
-    add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} 
+    add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND}
         --force-new-ctest-process --output-on-failure)
 endif()
 
@@ -177,4 +177,3 @@ configure_file(
 include_directories("${PROJECT_BINARY_DIR}/src")
 add_subdirectory(src)
 add_subdirectory(python)
-
