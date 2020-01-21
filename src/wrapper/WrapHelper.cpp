@@ -506,13 +506,6 @@ void export_base()
     from_python_sequence<vector<glm::ivec3> >();
     from_python_sequence<vector<glm::vec3> >();
 
-    // string
-    to_python_converter<UTF8String, UTF8String_to_unicode>();
-    UTF8String_from_unicode();
-    #if PY_MAJOR_VERSION < 3
-    UTF8String_from_string();
-    #endif
-
     to_python_converter<vector<string>, to_list<vector<string> > >();
     from_python_sequence<vector<string> >();
 
