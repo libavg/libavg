@@ -20,6 +20,7 @@
 #
 # Current versions can be found at www.libavg.de
 
+from __future__ import print_function
 
 from libavg import app, player
 
@@ -39,7 +40,7 @@ class DumpKeyEvents(app.MainDiv):
         msg = (title + ": name='" + event.keyname + "', text='" + event.text +
                 "', scancode=" + str(event.scancode))
         app.flashmessage.FlashMessage(msg)
-        print msg
+        print(msg)
 
 if __name__ == '__main__':
     app.App().run(DumpKeyEvents(), app_resolution='800x600')

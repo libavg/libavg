@@ -123,7 +123,7 @@ class DebugTouchVisualization(BaseTouchVisualization):
         if ((event.source == avg.Event.TANGIBLE or event.source == avg.Event.TOUCH) and
                 event.userid != -1):
             text += ' %d %d' % (event.userid, event.jointid)
-	self.__textNode.text = text
+        self.__textNode.text = text
 
     def __getHandVector(self, event):
         return -avg.Point2D.fromPolar(event.handorientation, 30)

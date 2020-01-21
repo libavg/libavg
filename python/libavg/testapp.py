@@ -30,7 +30,7 @@ import sys
 import six
 
 from libavg import avg, player
-import testcase
+from libavg import testcase
 
 
 class TestApp(object):

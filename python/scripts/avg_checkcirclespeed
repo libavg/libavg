@@ -21,6 +21,8 @@
 # Current versions can be found at www.libavg.de
 #
 
+from __future__ import print_function
+
 from libavg import *
 
 import random
@@ -75,7 +77,7 @@ class SpeedDiv(app.MainDiv):
 
         tstart = time.time()
         self.__createNodes()
-        print 'Time to create nodes: %f' % (time.time()-tstart)
+        print('Time to create nodes: %f' % (time.time()-tstart))
         app.instance.debugPanel.toggleWidget(app.debugpanel.FrametimeGraphWidget)
         if self.__optCreate:
             player.setInterval(400, self.__createNodes)

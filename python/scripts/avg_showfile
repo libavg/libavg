@@ -27,11 +27,11 @@ import sys
 from libavg import player
 
 if len(sys.argv) ==1:
-    print
+    print()
     print("avg_showfile.py displays the contents of an avg file.")
-    print
+    print()
     print("Usage: avg_showfile.py <avgfile>")
-    print
+    print()
     sys.exit(1)
 
 player.loadFile(sys.argv[1])

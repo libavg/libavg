@@ -26,7 +26,7 @@ from .methodref import methodref
 
 import subprocess
 import os
-import avg
+from libavg import avg
 
 class State(object):
     def __init__(self, transitions, enterFunc, leaveFunc):
