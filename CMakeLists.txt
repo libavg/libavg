@@ -85,7 +85,7 @@ endif()
 set(virtual_env $ENV{VIRTUAL_ENV})
 if (virtual_env)
     message(STATUS "Python virtualenv in use, setting install prefix to ${virtual_env}.")
-    set(CMAKE_INSTALL_PREFIX ${virtual_env})
+    set(CMAKE_INSTALL_PREFIX ${virtual_env} CACHE PATH "Install prefix" FORCE)
 endif()
 
 # Platform-specific configuration
