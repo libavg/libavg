@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2014 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -89,7 +89,7 @@ struct from_python_sequence_base
   static void* convertible(PyObject* obj_ptr);
 };
 
-template <typename ContainerType, typename ConversionPolicy>
+template <typename ContainerType>
 struct from_python_sequence: from_python_sequence_base
 {
   typedef typename ContainerType::value_type container_element_type;
@@ -100,47 +100,6 @@ struct from_python_sequence: from_python_sequence_base
       &convertible,
       &construct,
       boost::python::type_id<ContainerType>());
-  }
-
-  static void* convertible(PyObject* obj_ptr)
-  {
-    if (!(   PyList_Check(obj_ptr)
-          || PyTuple_Check(obj_ptr)
-          || PyIter_Check(obj_ptr)
-          || PyRange_Check(obj_ptr)
-          || (
-#if PY_MAJOR_VERSION < 3
-              !PyString_Check(obj_ptr)
-              &&
-#endif
-              !PyUnicode_Check(obj_ptr)
-              && (   Py_TYPE(obj_ptr) == 0
-                  || Py_TYPE(obj_ptr)->tp_name == 0
-                  || std::strcmp(
-                       Py_TYPE(obj_ptr)->tp_name,
-                       "Boost.Python.class") != 0)
-              && PyObject_HasAttrString(obj_ptr, "__len__")
-              && PyObject_HasAttrString(obj_ptr, "__getitem__")))) return 0;
-    boost::python::handle<> obj_iter(
-      boost::python::allow_null(PyObject_GetIter(obj_ptr)));
-    if (!obj_iter.get()) { // must be convertible to an iterator
-      PyErr_Clear();
-      return 0;
-    }
-    if (ConversionPolicy::check_convertibility_per_element()) {
-      int obj_size = int(PyObject_Length(obj_ptr));
-      if (obj_size < 0) { // must be a measurable sequence
-        PyErr_Clear();
-        return 0;
-      }
-      if (!ConversionPolicy::check_size(
-        boost::type<ContainerType>(), obj_size)) return 0;
-      bool is_range = PyRange_Check(obj_ptr);
-      std::size_t i=0;
-      if (!all_elements_convertible(obj_iter, is_range, i)) return 0;
-      if (!is_range) assert(i == (std::size_t)obj_size);
-    }
-    return obj_ptr;
   }
 
   // This loop factored out by Achim Domma to avoid Visual C++
@@ -235,7 +194,7 @@ public:
 
 AVG_API void checkEmptyArgs(const boost::python::tuple &args, int numArgs=1);
 
-template<const char * pszType> 
+template<const char * pszType>
 avg::ExportedObjectPtr createExportedObject(const boost::python::tuple &args,
         const boost::python::dict &attrs)
 {
@@ -243,7 +202,7 @@ avg::ExportedObjectPtr createExportedObject(const boost::python::tuple &args,
     return avg::TypeRegistry::get()->createObject(pszType, attrs);
 }
 
-template<const char * pszType> 
+template<const char * pszType>
 avg::NodePtr createNode(const boost::python::tuple &args,
         const boost::python::dict &attrs)
 {

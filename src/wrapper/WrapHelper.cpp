@@ -41,18 +41,19 @@ void* from_python_sequence_base::convertible(PyObject* obj_ptr)
           || PyTuple_Check(obj_ptr)
           || PyIter_Check(obj_ptr)
           || PyRange_Check(obj_ptr)
-          || (   !PyString_Check(obj_ptr)
+          || (   !PyBytes_Check(obj_ptr)
               && !PyUnicode_Check(obj_ptr)
-              && (   obj_ptr->ob_type == 0
-                  || obj_ptr->ob_type->ob_type == 0
-                  || obj_ptr->ob_type->ob_type->tp_name == 0
+              && (   Py_TYPE(obj_ptr) == 0
+                  || Py_TYPE(Py_TYPE(obj_ptr)) == 0
+                  || Py_TYPE(Py_TYPE(obj_ptr))->tp_name == 0
                   || std::strcmp(
-                       obj_ptr->ob_type->ob_type->tp_name,
-                       "Boost.Python.class") != 0)
+                      Py_TYPE(Py_TYPE(obj_ptr))->tp_name,
+                      "Boost.Python.class") != 0)
+
               && PyObject_HasAttrString(obj_ptr, "__len__")
               && PyObject_HasAttrString(obj_ptr, "__getitem__")))) return 0;
     boost::python::handle<> obj_iter(
-      boost::python::allow_null(PyObject_GetIter(obj_ptr)));
+        boost::python::allow_null(PyObject_GetIter(obj_ptr)));
     if (!obj_iter.get()) { // must be convertible to an iterator
       PyErr_Clear();
       return 0;
@@ -160,7 +161,7 @@ namespace Vec2Helper
         return angle;
     }
 
-    /* TODO: Cheap workaround for inability to properly overload operator< so that 
+    /* TODO: Cheap workaround for inability to properly overload operator< so that
      * boost python is able to pick  it up
      */
     bool lt(const glm::vec2& lhs, const glm::vec2& rhs)
@@ -235,7 +236,10 @@ struct vec2_from_python
         if (PySequence_Size(obj_ptr) != 2) {
             return 0;
         }
-        if (PyString_Check(obj_ptr)) {
+        if (PyUnicode_Check(obj_ptr)) {
+            return 0;
+        }
+        if (PyBytes_Check(obj_ptr)) {
             return 0;
         }
         return obj_ptr;
@@ -276,7 +280,10 @@ struct vec3_from_python
         if (PySequence_Size(obj_ptr) != 3) {
             return 0;
         }
-        if (PyString_Check(obj_ptr)) {
+        if (PyUnicode_Check(obj_ptr)) {
+            return 0;
+        }
+        if (PyBytes_Check(obj_ptr)) {
             return 0;
         }
 
@@ -307,12 +314,12 @@ struct vec3_from_python
 template<class VEC4, class ATTR>
 struct vec4_from_python
 {
-    vec4_from_python() 
+    vec4_from_python()
     {
         boost::python::converter::registry::push_back(
                 &convertible, &construct, boost::python::type_id<VEC4>());
     }
-    
+
     static void* convertible(PyObject* obj_ptr)
     {
         if (!PySequence_Check(obj_ptr)) {
@@ -457,8 +464,9 @@ void export_base()
     // string
     to_python_converter<UTF8String, UTF8String_to_unicode>();
     UTF8String_from_unicode();
-    String_from_string<UTF8String>();
-    String_from_string<string>();
+    #if PY_MAJOR_VERSION < 3
+    UTF8String_from_string();
+    #endif
 
     // Exceptions
     PyObject* pExceptionTypeObj = createExceptionClass("Exception");
@@ -477,26 +485,26 @@ void export_base()
 
     // vector<vec2>
     to_python_converter<vector<glm::vec2>, to_list<vector<glm::vec2> > >();
-    from_python_sequence<vector<IntPoint>, variable_capacity_policy>();
-    from_python_sequence<vector<glm::vec2>, variable_capacity_policy>();
+    from_python_sequence<vector<IntPoint> >();
+    from_python_sequence<vector<glm::vec2> >();
 
     // vec3
     to_python_converter<glm::ivec3, Vec3_to_python_tuple<glm::ivec3> >();
     to_python_converter<glm::vec3, Vec3_to_python_tuple<glm::vec3> >();
     vec3_from_python<glm::ivec3, int>();
     vec3_from_python<glm::vec3, float>();
-    
+
     // vec4
     to_python_converter<glm::ivec4, Vec4_to_python_tuple<glm::ivec4> >();
     to_python_converter<glm::vec4, Vec4_to_python_tuple<glm::vec4> >();
     vec4_from_python<glm::ivec4, int>();
     vec4_from_python<glm::vec4, float>();
-    
+
     // vector<vec3>
     to_python_converter<vector<glm::ivec3>, to_list<vector<glm::ivec3> > >();
     to_python_converter<vector<glm::vec3>, to_list<vector<glm::vec3> > >();
-    from_python_sequence<vector<glm::ivec3>, variable_capacity_policy>();
-    from_python_sequence<vector<glm::vec3>, variable_capacity_policy>();
+    from_python_sequence<vector<glm::ivec3> >();
+    from_python_sequence<vector<glm::vec3> >();
 
     // string
     to_python_converter<UTF8String, UTF8String_to_unicode>();
@@ -506,10 +514,10 @@ void export_base()
     #endif
 
     to_python_converter<vector<string>, to_list<vector<string> > >();
-    from_python_sequence<vector<string>, variable_capacity_policy>();
+    from_python_sequence<vector<string> >();
 
-    from_python_sequence<vector<float>, variable_capacity_policy>();
-    from_python_sequence<vector<int>, variable_capacity_policy>();
+    from_python_sequence<vector<float> >();
+    from_python_sequence<vector<int> >();
 
     to_python_converter<std::type_info, type_info_to_string>();
     //Maps
@@ -547,4 +555,3 @@ void pytrace(PyObject * self, const avg::category_t& category, const UTF8String&
             "any of the logging convenience functions");
     Logger::get()->trace(sMsg, category, severity);
 }
-
