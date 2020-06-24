@@ -353,12 +353,12 @@ class PlayerTestCase(AVGTestCase):
 
     def testInvalidVideoFilename(self):
         def tryplay():
-            assertRaises(SystemError, lambda: video.play())
+            self.assertRaises(Exception, lambda: video.play())
         
         root = self.loadEmptyScene()
         video = avg.VideoNode(href="filedoesntexist.avi", parent=root)
         self.start(False,
-                (lambda: tryplay,
+                (lambda: tryplay(),
                  lambda: video.stop()
                 ))
 
