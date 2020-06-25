@@ -1,55 +1,11 @@
 # libavg specific
-Makefile
-*.in
-.deps
-.libs
 *.cache
 core
 
-aclocal.m4
-config.guess
-config.log
-config.status
-config.sub
-configure
-libtool
-depcomp
-missing
-compile
-ltmain.sh
-m4/libtool.m4
-m4/ltoptions.m4
-m4/ltsugar.m4
-m4/ltversion.m4
-m4/lt~obsolete.m4
-py-compile
-src/audio/testlimiter
-src/avgconfig.h
-src/base/testbase
-src/graphics/benchmarkgraphics
-src/graphics/testgpu
-src/graphics/testgraphics
-src/imaging/testimaging
-src/player/testcalibrator
-src/player/testplayer
-src/stamp-h1
-src/version.h
-src/video/testvideo
-src/test/tmp.dot
-test-driver
-*.orig
-
 #libavg dist-check
-version.h
 sphinxdoc/_build
 libavg-*.tar.gz
 libavg-*.zip
-
-# Make check output
-*.log
-*.trs
-src/test/libavg
-src/test/resultimages
 
 # python
 # Byte-compiled / optimized / DLL files
@@ -81,8 +37,7 @@ __pycache__/
 *.swp
 
 # PyCharm user specific
-.idea/workspace.xml
-.idea/tasks.xml
+.idea
 
 # MSVC
 *.vcxproj.user
