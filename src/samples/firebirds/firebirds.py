@@ -256,30 +256,30 @@ class ScrollingBackground:
 ### gui elements ###
 
 class LifeCounter(avg.DivNode):
-    __NUM_LIVES = 3
+    __NUM_LIFES = 3
 
     def __init__(self, parent=None, **kwargs):
         super().__init__(**kwargs)
         self.registerInstance(self, parent)
-        self.__numLives = 0
+        self.__numLifes = 0
         self.__images = []
         x = 0
-        for i in range(LifeCounter.__NUM_LIVES):
+        for i in range(LifeCounter.__NUM_LIFES):
             avg.ImageNode(href='gui_lives_bg.png', pos=(x, 0), parent=self)
             img = avg.ImageNode(href='gui_lives_fg.png', pos=(x, 0), parent=self)
             self.__images.append(img)
             x += img.width
 
     def reset(self):
-        self.__numLives = 3
+        self.__numLifes = 3
         for img in self.__images:
             avg.Anim.fadeIn(img, 250)
 
     def dec(self):
-        assert(self.__numLives)
-        self.__numLives -= 1
-        avg.Anim.fadeOut(self.__images[self.__numLives], 250)
-        return not self.__numLives
+        assert(self.__numLifes)
+        self.__numLifes -= 1
+        avg.Anim.fadeOut(self.__images[self.__numLifes], 250)
+        return not self.__numLifes
 
 
 class ScoreCounter(avg.DivNode):
