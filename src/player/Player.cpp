@@ -40,7 +40,6 @@
 #include "FontStyle.h"
 #include "PluginManager.h"
 #include "TextEngine.h"
-#include "TestHelper.h"
 #include "MainCanvas.h"
 #include "OffscreenCanvas.h"
 #include "OffscreenCanvasNode.h"
