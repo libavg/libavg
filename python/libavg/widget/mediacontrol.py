@@ -26,7 +26,7 @@ class TimeSlider(slider.Slider):
     def __init__(self, orientation=slider.Orientation.HORIZONTAL,
             skinObj=skin.Skin.default, **kwargs):
         self.__progressThumb = None
-        super(TimeSlider, self).__init__(skinObj=skinObj, orientation=orientation,
+        super().__init__(skinObj=skinObj, orientation=orientation,
                 **kwargs)
 
         if self._orientation == slider.Orientation.HORIZONTAL:
@@ -45,7 +45,7 @@ class TimeSlider(slider.Slider):
         self._positionNodes()
  
     def _positionNodes(self, newSliderPos=None):
-        super(TimeSlider, self)._positionNodes(newSliderPos)
+        super()._positionNodes(newSliderPos)
 
         if self.__progressThumb:
             if self._orientation == slider.Orientation.HORIZONTAL:
@@ -64,7 +64,7 @@ class MediaControl(avg.DivNode):
 
     def __init__(self, skinObj=skin.Skin.default, duration=1000, time=0, parent=None,
             **kwargs):
-        super(MediaControl, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
 
         cfg = skinObj.defaultMediaControlCfg

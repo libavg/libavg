@@ -27,7 +27,7 @@ import AppTest
 
 class MultiWindowTestCase(AVGTestCase):
     def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName)
+        super().__init__(testFuncName)
 
     def testMultiWindowBase(self):
         root = self.loadEmptyScene()

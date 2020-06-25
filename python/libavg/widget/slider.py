@@ -30,7 +30,7 @@ class ScrollBarTrack(SwitchNode):
     def __init__(self, bmp, endsExtent, disabledBmp, orientation=Orientation.HORIZONTAL, 
             **kwargs):
       
-        super(ScrollBarTrack, self).__init__(nodeMap=None, **kwargs)
+        super().__init__(nodeMap=None, **kwargs)
         if orientation == Orientation.HORIZONTAL:
             StretchNode = HStretchNode
         else:
@@ -52,7 +52,7 @@ class ScrollBarThumb(SwitchNode):
             orientation=Orientation.HORIZONTAL, minExtent=-1, 
             **kwargs):
       
-        super(ScrollBarThumb, self).__init__(nodeMap=None, **kwargs)
+        super().__init__(nodeMap=None, **kwargs)
 
         if orientation == Orientation.HORIZONTAL:
             StretchNode = HStretchNode
@@ -82,14 +82,14 @@ class SliderThumb(SwitchNode):
         disabledNode = avg.ImageNode()
         disabledNode.setBitmap(disabledBmp)
         nodeMap = {"UP": upNode, "DOWN": downNode, "DISABLED": disabledNode}
-        super(SliderThumb, self).__init__(nodeMap=nodeMap, visibleid="UP", **kwargs)
+        super().__init__(nodeMap=nodeMap, visibleid="UP", **kwargs)
 
 
 class ProgressBar(avg.DivNode):
 
     def __init__(self, orientation, skinObj=skin.Skin.default, height=0, width=0, 
             range=(0.,1.), value=0.0, parent=None, **kwargs):
-        super(ProgressBar, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
         if orientation == Orientation.HORIZONTAL:
             cfg = skinObj.defaultProgressBarCfg["horizontal"]
@@ -160,7 +160,7 @@ class SliderBase(avg.DivNode):
 
     def __init__(self, orientation, cfg, enabled=True, height=0, width=0, range=(0.,1.), 
             thumbPos=0.0, parent=None, **kwargs):
-        super(SliderBase, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
         
         self.publish(SliderBase.THUMB_POS_CHANGED)
@@ -279,7 +279,7 @@ class Slider(SliderBase):
             cfg = skinObj.defaultSliderCfg["horizontal"]
         else:
             cfg = skinObj.defaultSliderCfg["vertical"]
-        super(Slider, self).__init__(orientation, cfg, **kwargs)
+        super().__init__(orientation, cfg, **kwargs)
         
     def _initThumb(self, cfg):
         thumbUpBmp = cfg["thumbUpBmp"]
@@ -314,7 +314,7 @@ class ScrollBar(SliderBase):
             cfg = skinObj.defaultScrollBarCfg["horizontal"]
         else:
             cfg = skinObj.defaultScrollBarCfg["vertical"]
-        super(ScrollBar, self).__init__(orientation=orientation, cfg=cfg, **kwargs)
+        super().__init__(orientation=orientation, cfg=cfg, **kwargs)
         
     def _initThumb(self, cfg):
         thumbUpBmp = cfg["thumbUpBmp"]
@@ -350,7 +350,7 @@ class ScrollBar(SliderBase):
         else:
             thumbExtent = (self.__thumbExtent/effectiveRange)*self.size.y
             self._thumbNode.height = thumbExtent
-        super(ScrollBar, self)._positionNodes(newSliderPos)
+        super()._positionNodes(newSliderPos)
         if self._range[1] < self._range[0]:
             # Reversed (upside-down) scrollbar
             if self._orientation == Orientation.HORIZONTAL:

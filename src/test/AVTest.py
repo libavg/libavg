@@ -20,17 +20,15 @@
 # Current versions can be found at www.libavg.de
 #
 
-from __future__ import print_function
-
 from libavg import avg, player
 from libavg.testcase import *
 
 class AVTestCase(AVGTestCase):
     def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName)
+        super().__init__(testFuncName)
 
     def setUp(self):
-        AVGTestCase.setUp(self)
+        super().setUp()
 
     def testEOF(self, node):
         def onEOF():

@@ -44,8 +44,6 @@ DEFAULT_BLUR_OPACITY = 0.3
 
 import time
 
-import six
-
 from libavg import avg, player, gesture
 from .avg import Point2D
 
@@ -67,7 +65,7 @@ class TextArea(avg.DivNode):
             this instance
         @param moveCoursorOnTouch: boolean, activate the coursor motion on touch events
         """
-        super(TextArea, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
 
         self.__blurOpacity = DEFAULT_BLUR_OPACITY
@@ -131,17 +129,14 @@ class TextArea(avg.DivNode):
         self.setStyle()
             
     def clearText(self):
-        self.setText(u'')
+        self.setText('')
 
     def setText(self, uString):
         """
         Set the text on the TextArea
 
-        @param uString: an unicode string (or an utf-8 encoded string)
+        @param uString: a (unicode) string
         """
-        if not isinstance(uString, six.text_type):
-            uString = six.text_type(uString, 'utf-8')
-
         self.__data = []
         for c in uString:
             self.__data.append(c)
@@ -192,7 +187,7 @@ class TextArea(avg.DivNode):
         self.__textNode.x = self.__border[0]
         self.__textNode.y = self.__border[1]
 
-        tempNode = avg.WordsNode(text=u'W', font=font, fontsize=int(fontsize),
+        tempNode = avg.WordsNode(text='W', font=font, fontsize=int(fontsize),
                 variant=variant)
         self.__textNode.realFontSize = tempNode.getGlyphSize(0)
         del tempNode
@@ -357,10 +352,10 @@ class TextArea(avg.DivNode):
         self.setFocus(True)
 
     def __getUnicodeFromData(self):
-        return u''.join(self.__data)
+        return ''.join(self.__data)
 
     def __appendKeycode(self, keycode):
-        self.__appendUChar(six.unichr(keycode))
+        self.__appendUChar(chr(keycode))
 
     def __appendUChar(self, uchar):
         # if maximum number of char is specified, honour the limit

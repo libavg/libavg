@@ -28,9 +28,6 @@ from collections import defaultdict
 from collections import deque
 import math
 
-import six
-from six.moves import range
-
 import libavg
 from libavg import avg
 from libavg import graph
@@ -59,7 +56,7 @@ class DebugWidgetFrame(avg.DivNode):
     FRAME_HEIGHT_CHANGED = avg.Publisher.genMessageID()
 
     def __init__(self, size, widgetCls, *args, **kwargs):
-        super(DebugWidgetFrame, self).__init__(size=size, *args, **kwargs)
+        super().__init__(size=size, *args, **kwargs)
         self.registerInstance(self, None)
         self.setup(widgetCls)
         self.subscribe(self.SIZE_CHANGED, self._onSizeChanged)
@@ -129,7 +126,7 @@ class DebugWidget(avg.DivNode):
     WIDGET_HEIGHT_CHANGED = avg.Publisher.genMessageID()
 
     def __init__(self, parent=None, **kwargs):
-        super(DebugWidget, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
         self.publish(DebugWidget.WIDGET_HEIGHT_CHANGED)
         if self.CAPTION:
@@ -164,7 +161,7 @@ class TableRow(avg.DivNode):
     ROW_ID = 0
 
     def __init__(self, parent=None, **kwargs):
-        super(TableRow, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
         global NUM_COLS
         NUM_COLS = int((self.parent.width - COL_WIDTH * 4) / COL_WIDTH)
@@ -235,7 +232,7 @@ class TableRow(avg.DivNode):
 
 class Table(avg.DivNode):
     def __init__(self, parent=None, **kwargs):
-        super(Table, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
 
     def labelColumnSizeChanged(self):
@@ -248,7 +245,7 @@ class ObjectDumpWidget(DebugWidget):
     CAPTION = 'Objects count'
 
     def __init__(self, parent=None, **kwargs):
-        super(ObjectDumpWidget, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
         self.tableContainer = Table(parent=self, size=(self.width, self.SLOT_HEIGHT))
         self.tableDivs = defaultdict(lambda: TableRow(parent=self.tableContainer))
@@ -256,7 +253,7 @@ class ObjectDumpWidget(DebugWidget):
     def update(self):
         objDump = libavg.player.getTestHelper().getObjectCount()
         pos = (0, 0)
-        for key in sorted(six.iterkeys(objDump)):
+        for key in sorted(objDump.keys()):
             val = objDump[key]
             self.tableDivs[key].updateLiveColumn(val)
             self.tableDivs[key].setLabel(key)
@@ -268,7 +265,7 @@ class ObjectDumpWidget(DebugWidget):
 
     def persistColumn(self):
         objDump = libavg.player.getTestHelper().getObjectCount()
-        for key, val in six.iteritems(objDump):
+        for key, val in objDump.items():
             self.tableDivs[key].insertValue(val)
 
     def syncSize(self, size):
@@ -295,7 +292,7 @@ class ObjectDumpWidget(DebugWidget):
 
 class GraphWidget(DebugWidget):
     def __init__(self, **kwargs):
-        super(GraphWidget, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, None)
         self.__graph = None
 
@@ -353,7 +350,7 @@ class KeyboardManagerBindingsShower(DebugWidget):
     CAPTION = 'Keyboard bindings'
 
     def __init__(self, *args, **kwargs):
-        super(KeyboardManagerBindingsShower, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, None)
         self.keybindingWordNodes = []
         kbmgr.publisher.subscribe(kbmgr.publisher.BINDINGS_UPDATED, self.update)
@@ -378,9 +375,9 @@ class KeyboardManagerBindingsShower(DebugWidget):
                 key = keystring
 
             if binding.type == libavg.avg.KEYDOWN:
-                key = '%s %s' % (six.unichr(8595), key)
+                key = '%s %s' % (chr(8595), key)
             else:
-                key = '%s %s' % (six.unichr(8593), key)
+                key = '%s %s' % (chr(8593), key)
 
             node = avg.WordsNode(
                     text='<span size="large"><b>%s</b></span>: %s' %
@@ -457,7 +454,7 @@ class KeyboardManagerBindingsShower(DebugWidget):
 
 class DebugPanel(avg.DivNode):
     def __init__(self, parent=None, fontsize=10, **kwargs):
-        super(DebugPanel, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
 
         avg.RectNode(size=self.size, opacity=0, fillopacity=0.3, fillcolor='ff0000',
@@ -562,7 +559,7 @@ class DebugPanel(avg.DivNode):
 class _DebugPanel(avg.DivNode):
 
     def __init__(self, parent=None, fontsize=10, **kwargs):
-        super(_DebugPanel, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
 
         self.__slots = []

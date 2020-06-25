@@ -27,7 +27,7 @@ from libavg.testcase import *
 class GestureTestCase(AVGTestCase):
 
     def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName)
+        super().__init__(testFuncName)
 
     def testTapRecognizer(self):
 

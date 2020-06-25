@@ -21,8 +21,6 @@
 # Current versions can be found at www.libavg.de
 #
 
-from __future__ import print_function
-
 from optparse import OptionParser
 import sys
 from libavg import avg
@@ -38,13 +36,8 @@ parser.add_option("-r", "--recursion", dest = "recursion", action = "store_true"
         help = "Recurse into subdirectories")
 options, args = parser.parse_args()
 
-def sortByName(a, b):
-    if a < b:
-        return -1
-    else:
-        return 1
 
-class OutputHandler(object):
+class OutputHandler:
 
     def __init__(self, args):
         self._node = avg.VideoNode()
@@ -75,7 +68,7 @@ class OutputHandler(object):
             except RuntimeError as err:
                 sys.stderr.write(str(err) + "\n")
                 self._node = avg.VideoNode()
-        self._fileNameList.sort(cmp=sortByName)
+        self._fileNameList.sort()
 
     def __getFilesInFolder(self, folder):
         folderFiles = []
@@ -95,7 +88,7 @@ class OutputHandler(object):
 class ConsoleOutputHandler(OutputHandler):
 
     def __init__(self, args):
-        super(ConsoleOutputHandler, self).__init__(args)
+        super().__init__(args)
         if not self._fileNameList:
             print("No valid video files found.")
             printHelp()
@@ -198,7 +191,7 @@ class ConsoleOutputHandler(OutputHandler):
 class XMLOutputHandler(OutputHandler):
 
     def __init__(self, args):
-        super(XMLOutputHandler, self).__init__(args)
+        super().__init__(args)
         self.__impl = minidom.getDOMImplementation()
         self.__doc = self.__impl.createDocument(None, "videodict", None)
         self.__rootElement = self.__doc.documentElement
@@ -232,7 +225,7 @@ class XMLOutputHandler(OutputHandler):
 class CSVOutputHandler(OutputHandler):
 
     def __init__(self, args):
-        super(CSVOutputHandler, self).__init__(args)
+        super().__init__(args)
 
     def output(self):
         print("File\tDuration(sec)\tNumber of Frames\tBitrate(b/s)\tVideo Codec\t" +

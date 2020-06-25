@@ -25,8 +25,6 @@
 import os
 import tempfile
 
-import six 
-
 import libavg
 from libavg import avg, player
 from libavg.app import settings
@@ -45,7 +43,7 @@ class TestApp(libavg.app.App):
         player.subscribe(player.ON_FRAME, self.__onFrame)
         player.setFramerate(10000)
         player.assumePixelsPerMM(1)
-        for k, v in six.iteritems(self.CUSTOM_SETTINGS):
+        for k, v in self.CUSTOM_SETTINGS.items():
             self.settings.set(k, v)
 
         if mainDiv is None:
@@ -226,7 +224,7 @@ class AppTestCase(AVGTestCase):
 
     def testKeyboardManagerText(self):
         tester = lambda: self.__emuKeyPress(53, "Ö", 'ö', libavg.avg.KEYMOD_NONE)
-        self.__testKeyboardManager(text=u'ö', modifiers=libavg.avg.KEYMOD_NONE,
+        self.__testKeyboardManager(text='ö', modifiers=libavg.avg.KEYMOD_NONE,
                 tester=tester)
 
     def __testKeyboardManager(self, scancode=None, keyname=None, text=None,

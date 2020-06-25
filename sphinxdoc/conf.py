@@ -41,8 +41,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'libavg'
-copyright = u'2014, Ulrich von Zadow'
+project = 'libavg'
+copyright = '2014, Ulrich von Zadow'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -183,8 +183,8 @@ htmlhelp_basename = 'libavgdoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'libavg.tex', u'libavg Documentation',
-   u'Ulrich von Zadow', 'manual'),
+  ('index', 'libavg.tex', 'libavg Documentation',
+   'Ulrich von Zadow', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -216,8 +216,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'libavg', u'libavg Documentation',
-     [u'Ulrich von Zadow'], 1)
+    ('index', 'libavg', 'libavg Documentation',
+     ['Ulrich von Zadow'], 1)
 ]
 
 inheritance_graph_attrs = dict(rankdir="TB")

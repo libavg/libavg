@@ -26,7 +26,7 @@ from libavg.testcase import *
 
 class FXTestCase(AVGTestCase):
     def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName)
+        super().__init__(testFuncName)
 
     def testImageNullFX(self):
         def activateFX():

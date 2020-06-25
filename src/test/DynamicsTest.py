@@ -25,7 +25,7 @@ from libavg.testcase import *
 
 class DynamicsTestCase(AVGTestCase):
     def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName)
+        super().__init__(testFuncName)
 
     def __runDynamicsTest(self, createFunc, testName, isVideo = False, 
             warnOnImageDiff = False):
@@ -324,7 +324,7 @@ class DynamicsTestCase(AVGTestCase):
 
             class CustomImageNode(avg.ImageNode):
                 def __init__(self, p, parent=None, **kwargs):
-                    avg.ImageNode.__init__(self, pos=p, href="rgb24-64x64.png", **kwargs)
+                    super().__init__(pos=p, href="rgb24-64x64.png", **kwargs)
                     self.registerInstance(self, parent)
 
                 def customMethod(self):
@@ -332,7 +332,7 @@ class DynamicsTestCase(AVGTestCase):
 
             class CustomDivNode(avg.DivNode):
                 def __init__(self, parent=None, **kwargs):
-                    avg.DivNode.__init__(self, **kwargs)
+                    super().__init__(**kwargs)
                     self.registerInstance(self, parent)
                     CustomImageNode((23,42), parent=self)
 
@@ -363,7 +363,7 @@ class DynamicsTestCase(AVGTestCase):
 
             class BrokenCustomNode(avg.ImageNode):
                 def __init__(self, p, parent=None, **kwargs):
-                    avg.ImageNode.__init__(self, pos=p, href="rgb24-64x64.png", **kwargs)
+                    super().__init__(pos=p, href="rgb24-64x64.png", **kwargs)
                     self.registerInstance(parent, parent)
 
             self.assertRaises(avg.Exception, lambda: BrokenCustomNode((23,42),

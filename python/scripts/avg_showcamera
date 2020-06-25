@@ -20,7 +20,6 @@
 #
 # Current versions can be found at www.libavg.de
 
-from __future__ import print_function
 import time
 from libavg import avg, player
 from libavg import parsecamargs

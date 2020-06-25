@@ -18,18 +18,16 @@
 #
 # Current versions can be found at www.libavg.de
 
-import six
-
 from libavg import avg, player
 
 
-class Orientation(object):
+class Orientation:
     VERTICAL = 0
     HORIZONTAL = 1
 
 
 def bmpFromSrc(src):
-    if isinstance(src, six.string_types):
+    if isinstance(src, str):
         return avg.Bitmap(src)
     elif isinstance(src, avg.Bitmap):
         return src
@@ -39,7 +37,7 @@ def bmpFromSrc(src):
 class _StretchNodeBase(avg.DivNode):
 
     def __init__(self, src=None, parent=None, **kwargs):
-        super(_StretchNodeBase, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
         if isinstance(src, avg.Bitmap):
             self._bmp = src
@@ -90,7 +88,7 @@ class _StretchNodeBase(avg.DivNode):
 class HStretchNode(_StretchNodeBase):
 
     def __init__(self, endsExtent, minExtent=-1, **kwargs):
-        super(HStretchNode, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         (self.__endsExtent, self.__minExtent) = self._checkExtents(endsExtent, minExtent)
 
@@ -121,7 +119,7 @@ class HStretchNode(_StretchNodeBase):
 class VStretchNode(_StretchNodeBase):
 
     def __init__(self, endsExtent, minExtent=-1, **kwargs):
-        super(VStretchNode, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         (self.__endsExtent, self.__minExtent) = self._checkExtents(endsExtent, minExtent)
 
@@ -152,7 +150,7 @@ class VStretchNode(_StretchNodeBase):
 class HVStretchNode(_StretchNodeBase):
 
     def __init__(self, endsExtent, minExtent=(-1,-1), **kwargs):
-        super(HVStretchNode, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         (hEndsExtent, hMinExtent) = self._checkExtents(endsExtent[0], minExtent[0])
         (vEndsExtent, vMinExtent) = self._checkExtents(endsExtent[1], minExtent[1])
@@ -217,7 +215,7 @@ class HVStretchNode(_StretchNodeBase):
 class SwitchNode(avg.DivNode):
 
     def __init__(self, nodeMap=None, visibleid=None, parent=None, **kwargs):
-        super(SwitchNode, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
 
         self.__nodeMap = None
@@ -232,7 +230,7 @@ class SwitchNode(avg.DivNode):
         if self.__nodeMap is not None:
             raise RuntimeError("SwitchNode.nodeMap can only be set once.")
         self.__nodeMap = nodeMap
-        for node in six.itervalues(self.__nodeMap):
+        for node in self.__nodeMap.values():
             if node:
                 # Only insert child if it hasn't been inserted yet.
                 try:
@@ -253,7 +251,7 @@ class SwitchNode(avg.DivNode):
         if not (visibleid in self.__nodeMap):
             raise RuntimeError("'%s' is not a registered id." % visibleid)
         self.__visibleid = visibleid
-        for node in six.itervalues(self.__nodeMap):
+        for node in self.__nodeMap.values():
             node.active = False
         self.__nodeMap[visibleid].active = True
 
@@ -261,7 +259,7 @@ class SwitchNode(avg.DivNode):
 
     def __setChildSizes(self, newSize):
         if self.__nodeMap:
-            for node in six.itervalues(self.__nodeMap):
+            for node in self.__nodeMap.values():
                 if node:
                     node.size = newSize
                     # Hack to support min. size in SwitchNodes containing StretchNodes

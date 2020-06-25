@@ -7,7 +7,7 @@ def startAnim():
     animObj.start()
 
 def createColorBar(y, startColor, endColor):
-    for i in xrange(11):
+    for i in range(11):
         color = avg.Color.mix(startColor, endColor, 1-(i/10.))
         avg.RectNode(pos=(i*20+1,y), size=(20,20), fillcolor=color, fillopacity=1.0,
                 parent=rootNode)

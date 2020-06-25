@@ -18,12 +18,11 @@
 # Current versions can be found at www.libavg.de
 #
 
-from six.moves import range
 from libavg import avg
 
 class RoundedRect(avg.PolygonNode):
     def __init__(self, size, radius, pos=(0,0), parent=None, **kwargs):
-        super(RoundedRect, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.__pos = avg.Point2D(pos)
         self.__size = avg.Point2D(size)
         self.__radius = radius
@@ -83,7 +82,7 @@ class RoundedRect(avg.PolygonNode):
 class PieSlice(avg.PolygonNode):
     def __init__(self, radius, startangle, endangle, pos=(0,0), parent=None,
             **kwargs):
-        super(PieSlice, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.__pos = avg.Point2D(pos)
         self.__radius = radius
         self.__startangle = startangle
@@ -146,7 +145,7 @@ class Arc(avg.PolyLineNode):
     # TODO: Code duplication with PieSlice
     def __init__(self, radius, startangle, endangle, pos=(0,0), parent=None,
             **kwargs):
-        super(Arc, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.__pos = avg.Point2D(pos)
         self.__radius = radius
         self.__startangle = startangle

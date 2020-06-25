@@ -20,8 +20,6 @@
 
 import os
 
-import six
-
 from libavg import avg, player
 
 from .app.touchvisualization import *
@@ -29,7 +27,7 @@ from .app.touchvisualization import *
 
 class KeysCaptionNode(avg.DivNode):
     def __init__(self, parent=None, **kwargs):
-        super(KeysCaptionNode, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
         
         self.sensitive = False
@@ -73,10 +71,10 @@ class KeysCaptionNode(avg.DivNode):
             self.opacity = 0
 
 
-class KeyBinding(object):
+class KeyBinding:
     def __init__(self, key, description, state, callback):
-        if not isinstance(key, six.text_type) and not isinstance(key, str):
-            raise TypeError('KeyBinding key should be either a string or unicode object')
+        if not isinstance(key, str):
+            raise TypeError('KeyBinding key should be a string')
 
         self.__key = key
         self.__description = description
@@ -109,16 +107,13 @@ class KeyBinding(object):
         if self.__state != state:
             return False
 
-        if isinstance(self.__key, six.text_type):
-            return self.__key == six.unichr(event.unicode)
-        else:
-            return self.__key == event.keystring
+        return self.__key == event.keystring
     
     def executeCallback(self):
         self.__callback()
 
 
-class KeyboardManager(object):
+class KeyboardManager:
     _instance = None
     TOGGLE_HELP = 63
     
@@ -177,11 +172,7 @@ class KeyboardManager(object):
         warnings.warn('libavg.KeyboardManager is deprecated, use '
                 'libavg.app.keyboardmanager instead')
 
-        if isinstance(key, six.text_type) and state != 'down':
-            raise RuntimeError('bindKey() with unicode keys '
-                    'can be used only with state=down')
-
-        if key == six.unichr(self.TOGGLE_HELP_UNICODE):
+        if key == self.TOGGLE_HELP:
             raise RuntimeError('%s key is reserved')
             
         keyObj = self.__findKeyByKeystring(key, state)
@@ -197,9 +188,6 @@ class KeyboardManager(object):
             self.__keyBindings.remove(keyObj)
         else:
             raise KeyError('Key %s not found' % key)
-
-    def bindUnicode(self, key, func, funcName, state='down'):
-        raise DeprecationWarning('Use bindKey() passing an unicode object as keystring')
 
     def __findKeyByEvent(self, event, state):
         for keyObj in self.__keyBindings:

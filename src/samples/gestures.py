@@ -23,7 +23,7 @@ def moveNodeOnScreen(node):
 
 class TextRect(avg.DivNode):
     def __init__(self, text, parent=None, **kwargs):
-        super(TextRect, self).__init__(size=(150,40), **kwargs)
+        super().__init__(size=(150,40), **kwargs)
         if parent:
             parent.appendChild(self)
 
@@ -46,7 +46,7 @@ class TextRect(avg.DivNode):
 
 class TransformNode(TextRect):
     def __init__(self, text, ignoreScale, ignoreRotation, friction=-1, **kwargs):
-        super(TransformNode, self).__init__(text, **kwargs)
+        super().__init__(text, **kwargs)
         self.__ignoreScale = ignoreScale
         self.__ignoreRotation = ignoreRotation
 
@@ -75,7 +75,7 @@ class TransformNode(TextRect):
 
 class TransformChildNode(avg.DivNode):
     def __init__(self, text, parent=None, **kwargs):
-        super(TransformChildNode, self).__init__( **kwargs)
+        super().__init__(**kwargs)
         if parent:
             parent.appendChild(self)
 
@@ -104,7 +104,7 @@ class TransformChildNode(avg.DivNode):
 
 class DragNode(TextRect):
     def __init__(self, text, friction=-1, **kwargs):
-        super(DragNode, self).__init__(text, **kwargs)
+        super().__init__(text, **kwargs)
 
         self.recognizer = gesture.DragRecognizer(
                 eventNode=self,
@@ -129,7 +129,7 @@ class DragNode(TextRect):
 
 class ConstrainedDragNode(TextRect):
     def __init__(self, text, friction=-1, **kwargs):
-        super(ConstrainedDragNode, self).__init__(text, **kwargs)
+        super().__init__(text, **kwargs)
 
         self.recognizer = gesture.DragRecognizer(
                 eventNode=self,
@@ -164,7 +164,7 @@ class ConstrainedDragNode(TextRect):
 
 class TapNode(TextRect):
     def __init__(self, text, isDoubleTap, **kwargs):
-        super(TapNode, self).__init__(text, **kwargs)
+        super().__init__(text, **kwargs)
 
         if isDoubleTap:
             self.recognizer = gesture.DoubletapRecognizer(node=self, 
@@ -192,7 +192,7 @@ class TapNode(TextRect):
 
 class SwipeNode(TextRect):
     def __init__(self, text, numContacts, **kwargs):
-        super(SwipeNode, self).__init__(text, **kwargs)
+        super().__init__(text, **kwargs)
 
         self.recognizer = gesture.SwipeRecognizer(node=self, minDist=25, 
                 numContacts=numContacts, direction=gesture.SwipeRecognizer.RIGHT,
@@ -216,7 +216,7 @@ class SwipeNode(TextRect):
 
 class HoldNode(TextRect):
     def __init__(self, text, **kwargs):
-        super(HoldNode, self).__init__(text, **kwargs)
+        super().__init__(text, **kwargs)
 
         self.recognizer = gesture.HoldRecognizer(node=self, 
                 possibleHandler=self.__onPossible, detectedHandler=self.__onDetected, 

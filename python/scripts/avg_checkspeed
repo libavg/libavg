@@ -22,7 +22,6 @@
 #
 # Original author of this file is Robert Parcus <betoparcus@gmail.com>
 
-from six.moves import range
 from libavg import *
 
 import random

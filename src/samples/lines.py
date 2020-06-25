@@ -47,7 +47,7 @@ class LinesDiv(app.MainDiv):
     def __calcPolyLine(self):
         pos = []
         texcoords = []
-        for i in xrange(20):
+        for i in range(20):
             xpos = (10.0*i)/100*self.lineLen
             pos.append((xpos, 130+10*math.sin(i*2)))
             texcoords.append(xpos/10)

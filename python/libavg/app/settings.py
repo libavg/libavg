@@ -22,18 +22,14 @@
 #
 # Original author of this file is OXullo Interecans <x at brainrapers dot org>
 
-from __future__ import print_function
-
 import sys
 import re
 import optparse
 
-import six
-
 import libavg
 
 
-class Option(object):
+class Option:
     def __init__(self, key, value, help=None):
         if not isinstance(key, str):
             raise ValueError('The type of %s key is not string (value=%s)' % (key, value))
@@ -86,7 +82,7 @@ class Option(object):
         return self.key.split('_', 1)
 
 
-class KargsExtender(object):
+class KargsExtender:
     def __init__(self, optionsKargs):
         self.__optionsKargs = optionsKargs
 
@@ -108,14 +104,14 @@ class KargsExtender(object):
 class HelpPrintingOptionParser(optparse.OptionParser):
     def error(self, *args, **kargs):
         self.print_help()
-        optparse.OptionParser.error(self, *args, **kargs)
+        super().error(*args, **kargs)
 
     def print_help(self):
-        optparse.OptionParser.print_help(self)
+        super().print_help()
         print()
         print('All options can also be set using the App.run() method.')
 
-class ArgvExtender(object):
+class ArgvExtender:
     def __init__(self, appVersionInfo, args=None):
         self.__appVersionInfo = appVersionInfo
         self.__parser = HelpPrintingOptionParser()
@@ -164,7 +160,7 @@ class ArgvExtender(object):
             print(' version: {0}'.format(self.__appVersionInfo))
             sys.exit(0)
 
-        for key, value in six.iteritems(parsedOptions.__dict__):
+        for key, value in parsedOptions.__dict__.items():
             if value is not None:
                 for option in optionsList:
                     if option.key == key:
@@ -195,7 +191,7 @@ class ArgvExtender(object):
         return groups
 
 
-class Settings(object):
+class Settings:
     def __init__(self, defaults=[]):
         if (type(defaults) not in (tuple, list) or
                 not all([isinstance(opt, Option) for opt in defaults])):

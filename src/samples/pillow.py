@@ -11,7 +11,7 @@ class MyMainDiv(app.MainDiv):
         self.toggleTouchVisualization()
         srcbmp = avg.Bitmap("rgb24-64x64.png")
         pixels = srcbmp.getPixels(False)
-        image = Image.frombytes("RGBA", (64,64), pixels)
+        image = Image.frombytes("RGBA", (64,64), pixels.tobytes())
         # Need to swap red and blue.
         b,g,r,a = image.split()
         image = Image.merge("RGBA", (r,g,b,a))

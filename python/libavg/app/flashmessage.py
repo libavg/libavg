@@ -29,7 +29,7 @@ Simple user notification API to report information to the user
 
 import libavg
 
-class FlashMessage(object):
+class FlashMessage:
     DEFAULT_TIMEOUT = 3000
     LINE_HEIGHT = 20
     BORDER = 2

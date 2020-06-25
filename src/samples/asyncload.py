@@ -15,8 +15,6 @@ Press 'f' to display the frame time graph, which should show no significant
 glitches while loading
 '''
 
-from __future__ import print_function
-
 import sys
 from libavg import avg, player, app
 

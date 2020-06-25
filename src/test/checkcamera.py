@@ -21,11 +21,7 @@
 #
 # Original author of this file is Robert Parcus <betoparcus@gmail.com>
 
-from __future__ import print_function
-
 from libavg import *
-
-import six
 
 import camcfgs
 import optparse
@@ -73,7 +69,7 @@ class CameraTestCase(AVGTestCase):
         self.cameraCfg = cameraCfg
         self.fmt = fmt
         self.testFuncArgs = testFuncArgs
-        AVGTestCase.__init__(self, testFuncName)
+        super().__init__(testFuncName)
 
     def testFormat(self):
         self.__dumpFormat()
@@ -108,7 +104,7 @@ class CameraTestCase(AVGTestCase):
             return actions
 
         def setDefaultParams():
-            for (paramName, val) in six.iteritems(cameraCfg.defaultParams):
+            for (paramName, val) in cameraCfg.defaultParams.items():
                 if paramName == "setWhitebalance":
                     self.cam.setWhitebalance(*val)
                 else:

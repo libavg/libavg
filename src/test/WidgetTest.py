@@ -25,7 +25,7 @@ from libavg.testcase import *
 
 class WidgetTestCase(AVGTestCase):
     def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName)
+        super().__init__(testFuncName)
 
     def testKeyboard(self):
         def createKbd(pos, shiftKey=None, feedbackImage=None):
@@ -149,18 +149,18 @@ class WidgetTestCase(AVGTestCase):
             self.assertEqual(ta.getText(), '')
 
         def testUnicode():
-            self.ta1.setText(u'some ùnìcöde')
+            self.ta1.setText('some ùnìcöde')
             self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
-            self.assertEqual(self.ta1.getText(), u'some ùnìcöd')
+            self.assertEqual(self.ta1.getText(), 'some ùnìcöd')
             self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[1])
             self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
-            self.assertEqual(self.ta1.getText(), u'some ùnìc')
-            self.ta1.onKeyDown(ord(u'Ä'))
-            self.assertEqual(self.ta1.getText(), u'some ùnìcÄ')
+            self.assertEqual(self.ta1.getText(), 'some ùnìc')
+            self.ta1.onKeyDown(ord('Ä'))
+            self.assertEqual(self.ta1.getText(), 'some ùnìcÄ')
 
         def testSpecialChars():
             clear(self.ta1)
-            self.ta1.onKeyDown(ord(u'&'))
+            self.ta1.onKeyDown(ord('&'))
             self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
             self.assertEqual(self.ta1.getText(), '')
 
@@ -169,7 +169,7 @@ class WidgetTestCase(AVGTestCase):
             self.ta2.setText('')
             while True:
                 self.assert_(len(text) < 20)
-                self.ta2.onKeyDown(ord(u'A'))
+                self.ta2.onKeyDown(ord('A'))
                 text += 'A'
                 if text != self.ta2.getText():
                     break

@@ -8,7 +8,7 @@ class WarpedImage(avg.ImageNode):
     def __init__(self, parent=None, **kwargs):
         kwargs["maxtilewidth"] = 4
         kwargs["maxtileheight"] = 4
-        super(WarpedImage, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
         self.__a = 0
         self.__b = 1

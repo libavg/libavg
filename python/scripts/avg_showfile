@@ -21,8 +21,6 @@
 # Current versions can be found at www.libavg.de
 #
 
-from __future__ import print_function
-
 import sys
 from libavg import player
 

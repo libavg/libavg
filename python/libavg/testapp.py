@@ -20,20 +20,17 @@
 # Current versions can be found at www.libavg.de
 #
 
-from __future__ import print_function
 import unittest
 
 import optparse
 import os
 import sys
 
-import six
-
 from libavg import avg, player
 from libavg import testcase
 
 
-class TestApp(object):
+class TestApp:
     EXIT_OK = 0
     EXIT_FAILURE = 1
         
@@ -189,5 +186,5 @@ class TestApp(object):
         player.setTimeout(0, player.stop)
         player.setFramerate(10000)
         player.play()
-        for cat, severity in six.iteritems(cats):
+        for cat, severity in cats.items():
             avg.logger.configureCategory(cat, severity)

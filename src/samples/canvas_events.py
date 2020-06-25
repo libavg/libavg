@@ -14,6 +14,6 @@ class MyMainDiv(app.MainDiv):
         self.img.subscribe(self.img.CURSOR_DOWN, self.onDown)
 
     def onDown(self, event):
-        print "down: ", event.pos
+        print("down: ", event.pos)
 
 app.App().run(MyMainDiv())

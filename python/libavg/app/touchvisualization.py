@@ -26,7 +26,7 @@ from libavg import avg, player
 class BaseTouchVisualization(avg.DivNode):
 
     def __init__(self, event, parent=None, **kwargs):
-        avg.DivNode.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
 
         event.contact.subscribe(avg.Contact.CURSOR_MOTION, self._onMotion)
@@ -58,7 +58,7 @@ class BaseTouchVisualization(avg.DivNode):
 class DebugTouchVisualization(BaseTouchVisualization):
 
     def __init__(self, event, **kwargs):
-        BaseTouchVisualization.__init__(self, event, **kwargs)
+        super().__init__(event, **kwargs)
         self.positions = [event.pos]
 
         if event.source == avg.Event.TOUCH:
@@ -95,10 +95,10 @@ class DebugTouchVisualization(BaseTouchVisualization):
     def unlink(self, kill=True):
         if self.motionPath:
             self.motionPath.unlink(True)
-        super(DebugTouchVisualization, self).unlink(kill)
+        super().unlink(kill)
 
     def _onMotion(self, event):
-        BaseTouchVisualization._onMotion(self, event)
+        super()._onMotion(event)
         self.positions.append(event.pos)
         if len(self.positions) > 100:
             self.positions.pop(0)
@@ -141,7 +141,7 @@ class TouchVisualization(BaseTouchVisualization):
     bmp = avg.Bitmap(mediadir+"/TouchFeedback.png")
 
     def __init__(self, event, **kwargs):
-        BaseTouchVisualization.__init__(self, event, **kwargs)
+        super().__init__(event, **kwargs)
 
         if event.source in self.sources:
             self.__circle = avg.ImageNode(parent=self)
@@ -153,13 +153,13 @@ class TouchVisualization(BaseTouchVisualization):
             self._abort()
 
     def _onMotion(self, event):
-        BaseTouchVisualization._onMotion(self, event)
+        super()._onMotion(event)
         self.__setRadius(self._radius)
 
     def _onUp(self, event):
         
         def gone(self):
-            BaseTouchVisualization._onUp(self, event)
+            super()._onUp(event)
             self.unlink(True)
             del self
 
@@ -176,7 +176,7 @@ class TouchVisualization(BaseTouchVisualization):
 class TouchVisualizationOverlay(avg.DivNode):
     def __init__(self, isDebug, visClass, rootNode=None, parent=None, 
             **kwargs):
-        super(TouchVisualizationOverlay, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
 
         self.sensitive = False
@@ -197,7 +197,7 @@ class TouchVisualizationOverlay(avg.DivNode):
             rootNode.unsubscribe(avg.Node.CURSOR_DOWN, self.__onTouchDown)
             rootNode.unsubscribe(avg.Node.HOVER_DOWN, self.__onTouchDown)
             rootNode.unsubscribe(avg.Node.TANGIBLE_DOWN, self.__onTouchDown)
-        super(TouchVisualizationOverlay, self).unlink(kill)
+        super().unlink(kill)
 
     def __onTouchDown(self, event):
         self.visClass(event, parent=self)

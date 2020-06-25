@@ -29,7 +29,7 @@ Multitouch emulation helper, supporting pinch gestures
 from libavg import avg, Point2D, player
 
 
-class MTemu(object):
+class MTemu:
     MOUSE_STATE_UP = 'MOUSE_STATE_UP'
     MOUSE_STATE_DOWN = 'MOUSE_STATE_DOWN'
 

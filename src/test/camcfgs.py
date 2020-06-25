@@ -20,7 +20,7 @@
 # Current versions can be found at www.libavg.de
 #
 
-class CameraTestCfg(object):
+class CameraTestCfg:
     def __init__(self, driver, device, unit, fw800, formats, illegalFormat, paramTests,
             defaultParams):
         self.driver = driver
@@ -33,13 +33,13 @@ class CameraTestCfg(object):
         self.paramTests = paramTests
         self.defaultParams = defaultParams
 
-class CameraFormatCfg(object):
+class CameraFormatCfg:
     def __init__(self, size, pixelformat, framerate):
         self.size = size
         self.pixelformat = pixelformat
         self.framerate = framerate
 
-class ParamTestCfg(object):
+class ParamTestCfg:
     def __init__(self, name, testValues, minMedDiff, medMaxDiff):
         self.name = name
         self.testValues = testValues

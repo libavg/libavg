@@ -20,8 +20,6 @@
 #
 # Current versions can be found at www.libavg.de
 
-from __future__ import print_function
-
 from libavg import avg, app, widget
 from libavg import parsecamargs
 
@@ -31,7 +29,7 @@ GUI_SIZE=(300, 526)
 class FXSlider(avg.DivNode):
     def __init__(self, row, minVal, maxVal, fxNode, fxAttrName, caption, isInt,
             parent=None, **kwargs):
-        super(FXSlider, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         if parent:
             parent.appendChild(self)
         avg.RectNode(pos=(0,8), size=(280,38), color="808080", strokewidth=2, parent=self)

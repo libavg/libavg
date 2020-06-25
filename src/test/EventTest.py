@@ -19,8 +19,6 @@
 # Current versions can be found at www.libavg.de
 #
 
-from __future__ import print_function
-
 from libavg import avg, player
 from libavg.testcase import *
 
@@ -49,7 +47,7 @@ def mainMouseDown(Event):
 
 class EventTestCase(AVGTestCase):
     def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName)
+        super().__init__(testFuncName)
 
     def testKeyEvents(self):
         def onKeyDown(event):
@@ -407,7 +405,7 @@ class EventTestCase(AVGTestCase):
 
     def testPublisherAutoDelete(self):
        
-        class TestSubscriber(object):
+        class TestSubscriber:
             def __init__(self):
                 self.__downCalled = False
 
@@ -448,7 +446,7 @@ class EventTestCase(AVGTestCase):
             INNER_EVENT = avg.Publisher.genMessageID()
 
             def __init__(self):
-                super(TestPublisher, self).__init__()
+                super().__init__()
                 self.publish(TestPublisher.OUTER_EVENT)
                 self.publish(TestPublisher.INNER_EVENT)
 

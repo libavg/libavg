@@ -77,7 +77,7 @@ class Slide(avg.ImageNode):
     HIDE_DONE = avg.Publisher.genMessageID()
 
     def __init__(self, parent=None, **kwargs):
-        super(Slide, self).__init__(opacity=0.0, **kwargs)
+        super().__init__(opacity=0.0, **kwargs)
         self.registerInstance(self, parent)
         self.publish(Slide.HIDE_DONE)
 

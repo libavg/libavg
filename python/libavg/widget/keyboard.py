@@ -25,16 +25,13 @@
 
 import os.path
 
-import six
-from six.moves import range
-
 from libavg import avg, player
 
 FEEDBACK_ZOOM_FACTOR = 1.0
 
 # XXX Merge with base.bmpFromSrc()
 def _bmpFromSrc(node, src):
-    if isinstance(src, six.string_types):
+    if isinstance(src, str):
         if os.path.isabs(src):
             effectiveSrc = src
         else:
@@ -60,7 +57,7 @@ class Key(avg.DivNode):
             self.__isCommand = keyDef[3]
         else:
             self.__isCommand = False
-        super(Key, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
 
         self.__sticky = sticky
@@ -144,7 +141,7 @@ class Keyboard(avg.DivNode):
 
     def __init__(self, bgSrc, downSrc, keyDefs, shiftKeyCode, altGrKeyCode=None,
             stickyShift=False, feedbackSrc=None, parent=None, **kwargs):
-        super(Keyboard, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
 
         self.__shiftKeyCode = shiftKeyCode

@@ -21,7 +21,7 @@ import weakref
 import types
 
 
-class methodref(object):
+class methodref:
     # From Python Cookbook
     """ Wraps any callable, most importantly a bound method, in a way that allows a bound
         method's object to be GC'ed, while providing the same interface as a normal weak

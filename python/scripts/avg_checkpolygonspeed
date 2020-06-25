@@ -22,9 +22,6 @@
 #
 # Original author of this file is Robert Parcus <betoparcus@gmail.com>
 
-from __future__ import print_function
-from six.moves import range
-
 from libavg import *
 
 import random
@@ -128,7 +125,7 @@ class SpeedDiv(app.MainDiv):
         alpha = math.radians(360.0 / (self.__optNumPoints/2))
         beta = alpha/2
         result = []
-        for i in range(self.__optNumPoints/2):
+        for i in range(self.__optNumPoints//2):
             result.append((r*math.cos(i*alpha) + offset[0],
                     r*math.sin(i*alpha) + offset[1]))
             result.append((r2*math.cos(i*alpha+beta) + offset[0],

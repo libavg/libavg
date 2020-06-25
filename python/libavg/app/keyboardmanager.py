@@ -25,8 +25,6 @@
 
 from collections import namedtuple
 
-import six
-
 from libavg import avg, player
 
 IGNORED_KEYMODS = avg.KEYMOD_NUM
@@ -38,7 +36,7 @@ LOGCAT = avg.logger.configureCategory('KEYBOARDMANAGER',
 class KeyboardManagerPublisher(avg.Publisher):
     BINDINGS_UPDATED = avg.Publisher.genMessageID()
     def __init__(self):
-        super(KeyboardManagerPublisher, self).__init__()
+        super().__init__()
         self.publish(self.BINDINGS_UPDATED)
 
     def notifyUpdate(self):

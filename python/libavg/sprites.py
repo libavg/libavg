@@ -26,7 +26,7 @@ import xml.dom.minidom as dom
 from libavg import avg, player
 
 
-class SpriteInfo(object):
+class SpriteInfo:
     def __init__(self, xmlNode):
         self.pos = avg.Point2D(int(xmlNode.attributes['x'].value),
                 int(xmlNode.attributes['y'].value))
@@ -34,7 +34,7 @@ class SpriteInfo(object):
                 int(xmlNode.attributes['height'].value))
 
 
-class Spritesheet(object):
+class Spritesheet:
     def __init__(self, dataFName):
         self.__dataFName = dataFName
         self.__spriteInfos = {}
@@ -65,7 +65,7 @@ class Spritesheet(object):
 
 class Sprite(avg.DivNode):
     def __init__(self, spritesheet, spriteName, parent=None, **kwargs):
-        super(Sprite, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
         self.crop = True
         self.__spritesheet = spritesheet
@@ -85,7 +85,7 @@ class AnimatedSprite(Sprite):
 
     def __init__(self, spritesheet, spriteName, loop=False, fps=30, parent=None,
             **kwargs):
-        super(AnimatedSprite, self).__init__(spritesheet, spriteName, parent, **kwargs)
+        super().__init__(spritesheet, spriteName, parent, **kwargs)
         self.publish(self.END_OF_ANIMATION)
 
         self.__fps = fps

@@ -12,11 +12,11 @@ class MainDiv(app.MainDiv):
         div.subscribe(div.CURSOR_MOTION, self.onDiv)
 
     def onDiv(self, event):
-        print "div"
+        print("div")
         self.node.color = "FF8000"
 
     def onWords(self, event):
-        print "words"
+        print("words")
         self.node.color = "00FF00"
 
 app.App().run(MainDiv())

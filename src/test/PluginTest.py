@@ -27,7 +27,7 @@ from libavg.testcase import *
 
 class PluginTestCase(AVGTestCase):
     def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName)
+        super().__init__(testFuncName)
 
     def testColorNodePlugin(self):
         def loadPlugin():

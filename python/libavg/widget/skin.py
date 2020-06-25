@@ -23,7 +23,6 @@ from libavg import avg
 import os, copy
 import xml.etree.ElementTree as ET
 
-import six
 
 class Skin:
 
@@ -47,7 +46,7 @@ class Skin:
                 self.fonts[fontid] = copy.copy(self.fonts[attrs["baseid"]])
                 font = self.fonts[fontid]
                 del attrs["baseid"]
-                for (key, value) in six.iteritems(attrs):
+                for (key, value) in attrs.items():
                     setattr(font, key, value)
             else:
                 kwargs = self.__extractArgs(attrs,
@@ -117,10 +116,10 @@ class Skin:
 
     def __extractArgs(self, attrs, pyArgNames=(), bmpArgNames={}, fontArgNames=()):
         kwargs = {}
-        for (key, value) in six.iteritems(attrs):
+        for (key, value) in attrs.items():
             if key in pyArgNames:
                 kwargs[key] = eval(value)
-            elif key in six.iterkeys(bmpArgNames):
+            elif key in bmpArgNames:
                 argkey = bmpArgNames[key]
                 kwargs[argkey] = avg.Bitmap(os.path.join(self.__mediaDir, value))
             elif key in fontArgNames:

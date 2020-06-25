@@ -28,7 +28,7 @@ from libavg.testcase import *
 
 class ImageTestCase(AVGTestCase):
     def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName)
+        super().__init__(testFuncName)
 
     def testImageHRef(self):
         def createXmlNode(pos):
@@ -65,11 +65,11 @@ class ImageTestCase(AVGTestCase):
             if self._isCurrentDirWriteable():
                 # Can't check unicode filenames into svn or the windows client breaks.
                 # So we rename the file locally.
-                shutil.copyfile("media/oe.png", u"media/ö.png")
+                shutil.copyfile("media/oe.png", "media/ö.png")
                 node = createXmlNode((16, 16))
                 root.appendChild(node)
-                node.href = u"ö.png"
-                os.remove(u"media/ö.png")
+                node.href = "ö.png"
+                os.remove("media/ö.png")
 
         def compareUnicode():
             if self._isCurrentDirWriteable():
@@ -234,9 +234,9 @@ class ImageTestCase(AVGTestCase):
             if self._isCurrentDirWriteable():
                 # Can't check unicode filenames into svn or the windows client breaks.
                 # So we rename the file locally.
-                shutil.copyfile("media/oe.png", u"media/ö.png")
-                avg.Bitmap(u"media/ö.png")
-                os.remove(u"media/ö.png")
+                shutil.copyfile("media/oe.png", "media/ö.png")
+                avg.Bitmap("media/ö.png")
+                os.remove("media/ö.png")
 
         def testGetPixel():
             bmp = avg.Bitmap('media/rgb24-65x65.png')

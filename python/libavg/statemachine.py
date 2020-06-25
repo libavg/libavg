@@ -18,17 +18,13 @@
 # Current versions can be found at www.libavg.de
 #
 
-from __future__ import print_function
-
-import six
-
 from .methodref import methodref
 
 import subprocess
 import os
 from libavg import avg
 
-class State(object):
+class State:
     def __init__(self, transitions, enterFunc, leaveFunc):
         self.transitions = {}
         for destState, transfunc in transitions.items():
@@ -37,7 +33,7 @@ class State(object):
         self.enterFunc = methodref(enterFunc)
         self.leaveFunc = methodref(leaveFunc)
 
-class StateMachine(object):
+class StateMachine:
     def __init__(self, name, startState):
         self.__states = {}
         self.__name = name
@@ -95,10 +91,10 @@ class StateMachine(object):
         return self.__curState
 
     def dump(self):
-        for oldStateName, state in six.iteritems(self.__states):
+        for oldStateName, state in self.__states.items():
             print(oldStateName, ("(enter: " + self.__getNiceFuncName(state.enterFunc)
                     + ", leave: " + self.__getNiceFuncName(state.leaveFunc) + "):"))
-            for newState, func in six.iteritems(state.transitions):
+            for newState, func in state.transitions.items():
                 print("  -->", newState, ":", self.__getNiceFuncName(func))
         print("Current state:", self.__curState)
 
@@ -127,9 +123,9 @@ class StateMachine(object):
         dotFile.write('    startstate [shape=point, height=0.2, width=0.2, label=""];\n')
         dotFile.write('    { rank=source; "startstate" };\n')
         writeTransition("startstate", self.__startState, None)
-        for stateName, state in six.iteritems(self.__states):
+        for stateName, state in self.__states.items():
             writeState(stateName, state)
-            for destState, func in six.iteritems(state.transitions):
+            for destState, func in state.transitions.items():
                 writeTransition(stateName, destState, func)
         dotFile.write('    "'+self.__curState+'" [style="rounded,bold"];\n')
         dotFile.write('}\n')
@@ -147,8 +143,8 @@ class StateMachine(object):
             return "None"
 
     def __doSanityCheck(self):
-        for stateName, state in six.iteritems(self.__states):
-            for transitionName in six.iterkeys(state.transitions):
+        for stateName, state in self.__states.items():
+            for transitionName in state.transitions.keys():
                 if not(transitionName in self.__states):
                     raise avg.Exception("StateMachine: transition " + stateName + " -> " +
                             transitionName + " has an unknown destination state.")

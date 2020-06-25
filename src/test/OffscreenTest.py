@@ -25,7 +25,7 @@ import gc
 
 class OffscreenTestCase(AVGTestCase):
     def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName)
+        super().__init__(testFuncName)
     
     def testCanvasBasics(self):
         def createCanvas(isFirst, canvasName, x):

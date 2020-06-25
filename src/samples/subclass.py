@@ -6,7 +6,7 @@ import libavg
 
 class TextRect(avg.DivNode):
     def __init__(self, text, parent=None, **kwargs):
-        super(TextRect, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
         self.rect = avg.RectNode(size=self.size, fillopacity=1, fillcolor="000000", 
                 color="FFFFFF", parent=self)

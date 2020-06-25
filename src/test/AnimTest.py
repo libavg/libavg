@@ -24,7 +24,7 @@ from libavg.testcase import *
 
 class AnimTestCase(AVGTestCase):
     def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName)
+        super().__init__(testFuncName)
 
     def initScene(self):
         root = self.loadEmptyScene()
@@ -455,7 +455,7 @@ class AnimTestCase(AVGTestCase):
                 ))
 
     def testNonNodeAttrAnim(self):
-        class GenericClass(object):
+        class GenericClass:
             def __init__(self):
                 self.numberValue = 0
                 self.pointValue = avg.Point2D(0.0, 0.0)

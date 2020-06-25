@@ -23,7 +23,7 @@ def switchNodesEnabled():
 
 class TapButton(gestures.TextRect):
     def __init__(self, text, **kwargs):
-        super(TapButton, self).__init__(text, **kwargs)
+        super().__init__(text, **kwargs)
 
         self.recognizer = gesture.TapRecognizer(node=self,
                     possibleHandler=self._onPossible, detectedHandler=self._onDetected,
@@ -43,25 +43,25 @@ class TapButton(gestures.TextRect):
 
 class AbortButton(TapButton):
     def __init__(self, text, **kwargs):
-        super(AbortButton, self).__init__(text, **kwargs)
+        super().__init__(text, **kwargs)
 
     def _onPossible(self):
-        super(AbortButton, self)._onPossible()
+        super()._onPossible()
         self.words.color = "000000"
 
     def _onDetected(self):
-        super(AbortButton, self)._onDetected()
+        super()._onDetected()
         abortAll()
         self.words.color = "FFFFFF"
 
     def _onFail(self):
-        super(AbortButton, self)._onFail()
+        super()._onFail()
         self.words.color = "FFFFFF"
 
 
 class EnableButton(TapButton):
     def __init__(self, text, **kwargs):
-        super(EnableButton, self).__init__(text, **kwargs)
+        super().__init__(text, **kwargs)
 
         self.words.color = "FF0000"
 
@@ -74,7 +74,7 @@ class EnableButton(TapButton):
             self.words.color = "00FF00"
 
     def _onDetected(self):
-        super(EnableButton, self)._onDetected()
+        super()._onDetected()
         switchNodesEnabled()
         self.changeText()
 

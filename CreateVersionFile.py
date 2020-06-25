@@ -23,8 +23,6 @@
 # The script generates a header file that contains versioning data for
 # the current build.
 
-from __future__ import print_function
-
 import os
 import sys
 import subprocess
@@ -35,8 +33,6 @@ import getpass
 import platform
 import datetime
 import pickle
-
-import six
 
 CHECK_FIELDS = ('releaseVersion', 'revision')
 OUTPUT_TEMPLATE = '''// version.h
@@ -132,7 +128,7 @@ def assembleVersionInfo(major, minor, micro):
     return locals()
 
 def dumpVersionInfo(versionInfo):
-    for k, v in six.iteritems(versionInfo):
+    for k, v in versionInfo.items():
         print('  %s: %s' % (k, v))
 
 def hasChanged(versionInfo):

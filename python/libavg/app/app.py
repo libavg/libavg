@@ -25,8 +25,6 @@
 import os
 import math
 
-import six
-
 import libavg
 from libavg import avg, Point2D, mtemu, player
 
@@ -43,7 +41,7 @@ class MainDiv(libavg.avg.DivNode):
 
     def __init__(self, **kargs):
         assert not 'parent' in kargs
-        super(MainDiv, self).__init__(**kargs)
+        super().__init__(**kargs)
         self.registerInstance(self, None)
         self.__touchVisOverlay = None
 
@@ -76,7 +74,7 @@ class MainDiv(libavg.avg.DivNode):
         pass
 
 
-class App(object):
+class App:
     def __init__(self):
         self._setupInstance()
 
@@ -175,7 +173,7 @@ class App(object):
         libavg.logger.configureCategory(libavg.logger.Category.APP,
                 libavg.logger.Severity.INFO)
         libavg.logger.info('Dumping objects count')
-        for key, value in six.iteritems(objects):
+        for key, value in objects.items():
             libavg.logger.info('  %-25s: %s' % (key, value))
 
         libavg.logger.configureCategory(libavg.logger.Category.APP, savedSeverity)

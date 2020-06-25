@@ -33,7 +33,7 @@ def getTempFileName():
 
 class PythonTestCase(AVGTestCase):
     def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName)
+        super().__init__(testFuncName)
 
     def testRoundedRect(self):
         def setPos():

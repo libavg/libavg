@@ -38,7 +38,7 @@ class Recognizer(avg.Publisher):
     def __init__(self, node, isContinuous, maxContacts, initialEvent,
             possibleHandler=None, failHandler=None, detectedHandler=None,
             endHandler=None):
-        super(Recognizer, self).__init__()
+        super().__init__()
 
         assert(node)
         self.__node = node
@@ -235,7 +235,7 @@ class TapRecognizer(Recognizer):
         if maxDist is None:
             maxDist = TapRecognizer.MAX_TAP_DIST
         self.__maxDist = maxDist
-        super(TapRecognizer, self).__init__(node, False, 1, initialEvent,
+        super().__init__(node, False, 1, initialEvent,
                 possibleHandler, failHandler, detectedHandler)
 
     def _handleDown(self, event):
@@ -261,7 +261,7 @@ class TapRecognizer(Recognizer):
         if self.getState() == "POSSIBLE":
             if self.__maxTime and downTime > self.__maxTime:
                 self._setFail(None)
-        super(TapRecognizer, self)._onFrame()
+        super()._onFrame()
 
 
 class DoubletapRecognizer(Recognizer):
@@ -284,18 +284,18 @@ class DoubletapRecognizer(Recognizer):
         self.__stateMachine.addState("DOWN2", ("IDLE",))
         #self.__stateMachine.traceChanges(True)
         self.__frameHandlerID = None
-        super(DoubletapRecognizer, self).__init__(node, False, 1, 
+        super().__init__(node, False, 1,
                 initialEvent, possibleHandler, failHandler, detectedHandler)
 
     def abort(self):
         if self.__stateMachine.state != "IDLE":
             self.__stateMachine.changeState("IDLE")
-        super(DoubletapRecognizer, self).abort()
+        super().abort()
 
     def enable(self, isEnabled):
         if self.__stateMachine.state != "IDLE":
             self.__stateMachine.changeState("IDLE")
-        super(DoubletapRecognizer, self).enable(isEnabled)
+        super().enable(isEnabled)
 
     def _handleDown(self, event):
         self.__startTime = player.getFrameTime()
@@ -368,7 +368,7 @@ class SwipeRecognizer(Recognizer):
         self.__directionTolerance = directionTolerance
         self.__minDist = minDist*player.getPixelsPerMM()
         self.__maxInterContactDist = maxContactDist*player.getPixelsPerMM()
-        super(SwipeRecognizer, self).__init__(node, False, numContacts, 
+        super().__init__(node, False, numContacts,
                 initialEvent, possibleHandler=possibleHandler, failHandler=failHandler, 
                 detectedHandler=detectedHandler)
 
@@ -436,7 +436,7 @@ class HoldRecognizer(Recognizer):
             endHandler = stopHandler
             warnings.warn(
                     'HoldRecognizer.stopHandler is deprecated, use endHandler instead')
-        super(HoldRecognizer, self).__init__(node, True, 1, initialEvent,
+        super().__init__(node, True, 1, initialEvent,
                 possibleHandler, failHandler, detectedHandler, endHandler)
 
     def _handleDown(self, event):
@@ -463,7 +463,7 @@ class HoldRecognizer(Recognizer):
         if self.getState() == "POSSIBLE":
             if downTime > self.__delay:
                 self._setDetected(self.__lastEvent)
-        super(HoldRecognizer, self)._onFrame()
+        super()._onFrame()
 
 
 class DragRecognizer(Recognizer):
@@ -507,7 +507,7 @@ class DragRecognizer(Recognizer):
         self.__isSliding = False
         self.__inertiaHandler = None
 
-        super(DragRecognizer, self).__init__(eventNode, True, 1, 
+        super().__init__(eventNode, True, 1,
                 initialEvent, possibleHandler=possibleHandler, failHandler=failHandler, 
                 detectedHandler=detectedHandler, endHandler=endHandler)
         self.subscribe(Recognizer.MOTION, moveHandler)
@@ -517,7 +517,7 @@ class DragRecognizer(Recognizer):
         if self.__inertiaHandler:
             self.__inertiaHandler.abort()
         self.__inertiaHandler = None
-        super(DragRecognizer, self).abort()
+        super().abort()
 
     def _handleDown(self, event):
         if not self._handleCoordSysNodeUnlinked():
@@ -609,7 +609,7 @@ class DragRecognizer(Recognizer):
             return True
 
 
-class Mat3x3(object):
+class Mat3x3:
     # Internal class. Will be removed again.
 
     def __init__(self, row0=(1, 0, 0), row1=(0, 1, 0), row2=(0, 0, 1)):
@@ -740,7 +740,7 @@ def calcKMeans(pts):
     return l1, l2
 
 
-class Transform(object):
+class Transform:
     def __init__(self, trans, rot=0, scale=1, pivot=(0,0)):
         self.trans = avg.Point2D(trans)
         self.rot = rot
@@ -791,7 +791,7 @@ class TransformRecognizer(Recognizer):
         self.__filters = {}
         self.__frameHandlerID = None
 
-        super(TransformRecognizer, self).__init__(eventNode, True, None, 
+        super().__init__(eventNode, True, None,
                 initialEvent, detectedHandler=detectedHandler, endHandler=endHandler)
         self.subscribe(Recognizer.MOTION, moveHandler)
         self.subscribe(Recognizer.UP, upHandler)
@@ -799,11 +799,11 @@ class TransformRecognizer(Recognizer):
     def enable(self, isEnabled):
         if bool(isEnabled) != self.isEnabled() and not(isEnabled):
             self.__abort()
-        super(TransformRecognizer, self).enable(isEnabled)
+        super().enable(isEnabled)
 
     def abort(self):
         self.__abort()
-        super(TransformRecognizer, self).abort()
+        super().abort()
 
     def _handleDown(self, event):
         numContacts = len(self._contacts)
@@ -852,7 +852,7 @@ class TransformRecognizer(Recognizer):
             self.enable(False)
             return True
         else:
-            return super(TransformRecognizer, self)._handleNodeGone()
+            return super()._handleNodeGone()
 
     def __onFrame(self):
         nodeGone = self._handleNodeGone()
@@ -943,7 +943,7 @@ class TransformRecognizer(Recognizer):
             self.__inertiaHandler = None
 
 
-class InertiaHandler(object):
+class InertiaHandler:
     def __init__(self, friction, moveHandler, stopHandler):
         self.__friction = friction
         self.__moveHandler = moveHandler

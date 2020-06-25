@@ -6,7 +6,7 @@ from libavg import app, avg
 class CaptionNode(avg.WordsNode):
     def __init__(self, pos, text, parent):
         pos = avg.Point2D(pos) + (32,70)
-        super(CaptionNode, self).__init__(pos=pos, text=text, alignment="center",
+        super().__init__(pos=pos, text=text, alignment="center",
                 fontsize=11, aagamma=2.0, width=64)
         self.registerInstance(self, parent)
 

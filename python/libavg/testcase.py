@@ -54,8 +54,8 @@ def flatten(l):
     return ltype(l)
 
 
-class SuppressOutput(object):
-    class Blackhole(object):
+class SuppressOutput:
+    class Blackhole:
         def write(self, *args):
             pass
 
@@ -70,7 +70,7 @@ class SuppressOutput(object):
         sys.stdout, sys.stderr = self.__savedStreams
 
 
-class MouseEmulator(object):
+class MouseEmulator:
     def __init__(self):
         self.btnStates = [False, False, False]
 
@@ -91,7 +91,7 @@ class AVGTestCase(unittest.TestCase):
     baselineImageResultDirectory = "baseline"
     
     def __init__(self, testFuncName):
-        unittest.TestCase.__init__(self, testFuncName)
+        super().__init__(testFuncName)
 
         player.enableGLErrorChecks(True)
         logger.configureCategory("MEMORY", logger.Severity.ERR)
@@ -293,7 +293,7 @@ def createAVGTestSuite(availableTests, AVGTestCaseClass, testSubset):
     return suite
 
 
-class NodeHandlerTester(object):
+class NodeHandlerTester:
     def __init__(self, testCase, node):
         self.__testCase = testCase
         self.reset()
@@ -341,7 +341,7 @@ class NodeHandlerTester(object):
         self.__messagesReceived.add(messageID)
     
 
-class MessageTester(object):
+class MessageTester:
 
     def __init__(self, publisher, messageIDs, testCase=None):
         for messageID in messageIDs:

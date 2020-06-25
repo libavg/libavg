@@ -25,7 +25,7 @@ from libavg import avg, app, player, filter, widget
 
 class LabledSlider(avg.DivNode):
     def __init__(self, label, sliderRange, formatStr, parent=None, **kwargs):
-        super(LabledSlider, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
         self.__formatStr = formatStr
 

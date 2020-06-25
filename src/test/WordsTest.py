@@ -22,22 +22,20 @@
 
 import platform
 
-import six
-
 from libavg import avg, player
 from libavg.testcase import *
 
 class WordsTestCase(AVGTestCase):
     def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName)
+        super().__init__(testFuncName)
    
     def testSimpleWords(self):
         def checkFont():
             self.assertEqual(node.variant, "bold")
     
         def checkUnicodeText():
-            node.text = u"föa"
-            avg.WordsNode(text=u"öäü", font="Bitstream Vera Sans")
+            node.text = "föa"
+            avg.WordsNode(text="öäü", font="Bitstream Vera Sans")
        
         fontList = avg.WordsNode.getFontFamilies()
         try:
@@ -102,25 +100,6 @@ class WordsTestCase(AVGTestCase):
                  lambda: self.compareImage("testFontStyle2"),
                 ))
 
-    def testUnicodeAttributes(self):
-
-        try:
-            fontStyle = avg.FontStyle(font=u"Bitstream Vera Sans", variant=u"Roman",
-                    alignment=u"left", wrapmode=u"word")
-            self.assert_(fontStyle.font == "Bitstream Vera Sans")
-            avg.WordsNode(fontstyle=fontStyle, text="Bitstream Vera Sans")
-
-        except avg.Exception as e:
-            msg = "Failed to create FontStyle object by using unicode strings as parameters"
-            self.fail(msg)
-
-        try:
-            avg.WordsNode(font=u"Bitstream Vera Sans", variant=u"Roman",
-                    text=u"Bold", alignment=u"left", wrapmode=u"word")
-        except avg.Exception:
-            msg = "Failed to create WordsNode object by using unicode strings as parameters"
-            self.fail(msg)
-
     def testBaseStyle(self):
         attrs = {"font": "Bitstream Vera Sans",
                  "variant": "Bold",
@@ -136,11 +115,11 @@ class WordsTestCase(AVGTestCase):
                  "hint": False}
         defaultStyle = avg.FontStyle()
         fontStyle1 = avg.FontStyle(basestyle=defaultStyle, **attrs)
-        for attrName in six.iterkeys(attrs):
+        for attrName in attrs.keys():
             self.assert_(getattr(fontStyle1, attrName) != getattr(defaultStyle, attrName))
             self.assert_(getattr(fontStyle1, attrName) == attrs[attrName])
         fontStyle2 = avg.FontStyle(basestyle=fontStyle1)
-        for attrName in six.iterkeys(attrs):
+        for attrName in attrs.keys():
             self.assert_(getattr(fontStyle2, attrName) == getattr(fontStyle1, attrName))
 
     def testGlyphPos(self):
@@ -155,7 +134,7 @@ class WordsTestCase(AVGTestCase):
         size = node.getGlyphSize(3)
         self.assert_(posAlmostEqual(size, (8, 18)))
         self.assertRaises(avg.Exception, lambda: node.getGlyphPos(4))
-        node.text=u"föa"
+        node.text="föa"
         self.assert_(posAlmostEqual(node.getGlyphPos(1), (4,0)))
         self.assert_(posAlmostEqual(node.getGlyphPos(2), (12,0)))
         self.assertRaises(avg.Exception, lambda: node.getGlyphPos(3))
@@ -397,8 +376,8 @@ class WordsTestCase(AVGTestCase):
         
         def setNBSP():
             words.width=100
-            words.text=(u"blindtext1\u00A0blindtext2\u00Ablindtext3 "+
-                    u"blindtext4\u00A0blindtext\u00A0blindtext\u00A0")
+            words.text=("blindtext1\u00A0blindtext2\u00Ablindtext3 "+
+                    "blindtext4\u00A0blindtext\u00A0blindtext\u00A0")
 
         root = self.loadEmptyScene()
         avg.WordsNode(pos=(1,1), fontsize=14, font="Bitstream Vera Sans",
@@ -446,7 +425,7 @@ class WordsTestCase(AVGTestCase):
             self.assertRaises(avg.Exception, cantRun)
         
         def assignNewTexts():
-            text = u'&ùùààxx>'
+            text = '&ùùààxx>'
             self.dictdnode.rawtextmode = True
             self.dictdnode.text = text
             self.xmldnode.text = text
@@ -671,7 +650,6 @@ def wordsTestSuite(tests):
             "testSimpleWords",
             "testRedrawOnDemand",
             "testFontStyle",
-            "testUnicodeAttributes",
             "testBaseStyle",
             "testGlyphPos",
             "testParaWords",

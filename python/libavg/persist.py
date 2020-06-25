@@ -22,19 +22,14 @@
 #
 # Original author of this file is OXullo Interecans <x at brainrapers dot org>
 
-from __future__ import print_function
-
 import os
 import time
-try: #Python 2
-    import cPickle as pickle
-except ImportError: #Python 3
-    import pickle
+import pickle
 
 import libavg
 
 
-class Persist(object):
+class Persist:
     def __init__(self, storeFile, initialData, validator=lambda v: True,
             autoCommit=False):
         self.__storeFile = storeFile
@@ -127,7 +122,7 @@ class UserPersistentData(Persist):
             if e.errno != errno.EEXIST:
                 raise
 
-        super(UserPersistentData, self).__init__(fullPath, *args, **kargs)
+        super().__init__(fullPath, *args, **kargs)
 
     def _getUserDataPath(self):
         if os.name == 'posix':

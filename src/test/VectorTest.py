@@ -19,13 +19,12 @@
 # Current versions can be found at www.libavg.de
 #
 
-from six.moves import range
 from libavg import avg, player
 from libavg.testcase import *
 
 class VectorTestCase(AVGTestCase):
     def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName)
+        super().__init__(testFuncName)
 
     def makeEmptyCanvas(self):
         root = self.loadEmptyScene()

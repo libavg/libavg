@@ -20,8 +20,7 @@
 #
 
 import logging
-
-import six
+import io
 
 from libavg import logger
 from libavg.testcase import *
@@ -29,11 +28,11 @@ from libavg.testcase import *
 
 class LoggerTestCase(AVGTestCase):
     def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName)
-        self.testMsg = u'福 means good fortune'
+        super().__init__(testFuncName)
+        self.testMsg = '福 means good fortune'
 
     def setUp(self):
-        self.stream = six.StringIO()
+        self.stream = io.StringIO()
         self.hdlr = logging.StreamHandler(self.stream)
         self.pyLogger = logging.getLogger(__name__)
         self.pyLogger.addHandler(self.hdlr)
@@ -64,12 +63,12 @@ class LoggerTestCase(AVGTestCase):
         self._assertNoMsg()
 
     def testConfigureCategory(self):
-        snowmanCategory = logger.configureCategory(u'☃ Category')
+        snowmanCategory = logger.configureCategory('☃ Category')
         logger.warning(self.testMsg, snowmanCategory)
         self._assertMsg()
 
     def testReconfigureCategory(self):
-        snowmanCategory = logger.configureCategory(u'☃ Category', logger.Severity.INFO)
+        snowmanCategory = logger.configureCategory('☃ Category', logger.Severity.INFO)
         logger.info(self.testMsg, snowmanCategory)
         self._assertMsg()
 

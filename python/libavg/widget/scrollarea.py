@@ -28,7 +28,7 @@ class ScrollPane(avg.DivNode):
 
     def __init__(self, contentNode, parent=None, **kwargs):
 
-        super(ScrollPane, self).__init__(crop=True, **kwargs)
+        super().__init__(crop=True, **kwargs)
         self.registerInstance(self, parent)
         
         self.appendChild(contentNode)
@@ -88,7 +88,7 @@ class ScrollArea(avg.DivNode):
             scrollBars=(Orientation.HORIZONTAL, Orientation.VERTICAL),
             parent=None, **kwargs):
 
-        super(ScrollArea, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
         self.cfg = skinObj.defaultScrollAreaCfg
 

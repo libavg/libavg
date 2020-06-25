@@ -27,7 +27,7 @@ import math
 # Human Factors in Computing Systems (CHI '12). Austin, Texas (May 5-12, 2012). New York:
 # ACM Press, pp. 2527-2530.
 
-class LowPassFilter(object):
+class LowPassFilter:
 
     def __init__(self, alpha):
         self.__setAlpha(alpha)
@@ -55,7 +55,7 @@ class LowPassFilter(object):
         return self.__y
 
 
-class OneEuroFilter(object):
+class OneEuroFilter:
 
     def __init__(self, mincutoff=1.0, beta=0.0, dcutoff=1.0):
         if mincutoff<=0:

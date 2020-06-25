@@ -31,7 +31,7 @@ class _ButtonBase(avg.DivNode):
     RELEASED = avg.Publisher.genMessageID()
 
     def __init__(self, parent=None, **kwargs):
-        super(_ButtonBase, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.registerInstance(self, parent)
         self.publish(self.PRESSED)
         self.publish(self.RELEASED)
@@ -66,7 +66,7 @@ class Button(_ButtonBase):
 
     def __init__(self, upNode, downNode, disabledNode=None, activeAreaNode=None, 
             enabled=True, fatFingerEnlarge=False, **kwargs):
-        super(Button, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         if disabledNode is None:
             disabledNode = upNode
@@ -153,7 +153,7 @@ class BmpButton(Button):
             disabledNode = avg.ImageNode(href=disabledSrc)
         else:
             disabledNode = None
-        super(BmpButton, self).__init__(upNode=upNode, downNode=downNode, 
+        super().__init__(upNode=upNode, downNode=downNode,
                 disabledNode=disabledNode, **kwargs)
 
 
@@ -173,7 +173,7 @@ class TextButton(Button):
         else:
             disabledNode = None
         
-        super(TextButton, self).__init__(upNode=upNode, downNode=downNode,
+        super().__init__(upNode=upNode, downNode=downNode,
                 disabledNode=disabledNode, **kwargs)
 
     def __createStateNode(self, size, cfg, bmpName, text, fontStyleName):
@@ -204,7 +204,7 @@ class ToggleButton(_ButtonBase):
     def __init__(self, uncheckedUpNode, uncheckedDownNode, checkedUpNode, checkedDownNode,
             uncheckedDisabledNode=None, checkedDisabledNode=None, activeAreaNode=None,
             enabled=True, fatFingerEnlarge=False, checked=False, **kwargs):
-        super(ToggleButton, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         nodeMap = {
             "UNCHECKED_UP": uncheckedUpNode, 
             "UNCHECKED_DOWN": uncheckedDownNode, 
@@ -376,7 +376,7 @@ class CheckBox(ToggleButton):
         checkedDownNode = self.__createImageNode(self.cfg["checkedDownBmp"])
         checkedDisabledNode = self.__createImageNode(self.cfg["checkedDisabledBmp"])
 
-        super(CheckBox, self).__init__(uncheckedUpNode=uncheckedUpNode,
+        super().__init__(uncheckedUpNode=uncheckedUpNode,
                 uncheckedDownNode=uncheckedDownNode, 
                 uncheckedDisabledNode=uncheckedDisabledNode,
                 checkedUpNode=checkedUpNode,
@@ -388,27 +388,27 @@ class CheckBox(ToggleButton):
 
     def _enterUncheckedUp(self):
         self.textNode.fontstyle = self.cfg["font"]
-        super(CheckBox, self)._enterUncheckedUp()
+        super()._enterUncheckedUp()
 
     def _enterUncheckedDown(self):
         self.textNode.fontstyle = self.cfg["downFont"]
-        super(CheckBox, self)._enterUncheckedDown()
+        super()._enterUncheckedDown()
 
     def _enterCheckedUp(self):
         self.textNode.fontstyle = self.cfg["font"]
-        super(CheckBox, self)._enterCheckedUp()
+        super()._enterCheckedUp()
 
     def _enterCheckedDown(self):
         self.textNode.fontstyle = self.cfg["downFont"]
-        super(CheckBox, self)._enterCheckedDown()
+        super()._enterCheckedDown()
 
     def _enterUncheckedDisabled(self):
         self.textNode.fontstyle = self.cfg["disabledFont"]
-        super(CheckBox, self)._enterUncheckedDisabled()
+        super()._enterUncheckedDisabled()
 
     def _enterCheckedDisabled(self):
         self.textNode.fontstyle = self.cfg["disabledFont"]
-        super(CheckBox, self)._enterCheckedDisabled()
+        super()._enterCheckedDisabled()
 
     def __createImageNode(self, bmp):
         node = avg.ImageNode()
@@ -433,7 +433,7 @@ class BmpToggleButton(ToggleButton):
         else:
             checkedDisabledNode = None
 
-        super(BmpToggleButton, self).__init__(uncheckedUpNode=uncheckedUpNode,
+        super().__init__(uncheckedUpNode=uncheckedUpNode,
                 uncheckedDownNode=uncheckedDownNode, 
                 checkedUpNode=checkedUpNode,
                 checkedDownNode=checkedDownNode,
