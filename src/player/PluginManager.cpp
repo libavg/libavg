@@ -184,11 +184,7 @@ void PluginManager::registerPlugin(void* handle, const std::string& sPluginName)
 
         //TODO: Discuss –– maybe we shouldn't add plugins to the __builtins__ but rather
         //have users ```import PLUGIN```explicitly
-        #if PY_MAJOR_VERSION < 3
-        PyObject* pyBuiltin = PyImport_AddModule("__builtin__");
-        #else
         PyObject* pyBuiltin = PyImport_AddModule("builtins");
-        #endif
         int success =  PyModule_AddObject(pyBuiltin, sPluginName.c_str(), plugin);
         AVG_ASSERT(success == 0);
 

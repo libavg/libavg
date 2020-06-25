@@ -394,37 +394,6 @@ struct UTF8String_from_unicode
     }
 };
 
-#if PY_MAJOR_VERSION < 3
-
-struct UTF8String_from_string
-{
-    UTF8String_from_string()
-    {
-        boost::python::converter::registry::push_back(
-                &convertible,
-                &construct,
-                boost::python::type_id<UTF8String>());
-    }
-
-    static void* convertible(PyObject* obj_ptr)
-    {
-        if (!PyString_Check(obj_ptr)) return 0;
-        return obj_ptr;
-    }
-
-    static void construct(PyObject* obj_ptr,
-            boost::python::converter::rvalue_from_python_stage1_data* data)
-    {
-        const char * psz = PyString_AsString(obj_ptr);
-        void* storage = (
-                (boost::python::converter::rvalue_from_python_storage<UTF8String>*)data)
-                        ->storage.bytes;
-        new (storage) UTF8String(psz);
-        data->convertible = storage;
-    }
-};
-#endif
-
 void exportMessages(object& nodeClass, const string& sClassName)
 {
     PublisherDefinitionPtr pPubDef = PublisherDefinitionRegistry::get()
@@ -464,9 +433,6 @@ void export_base()
     // string
     to_python_converter<UTF8String, UTF8String_to_unicode>();
     UTF8String_from_unicode();
-    #if PY_MAJOR_VERSION < 3
-    UTF8String_from_string();
-    #endif
 
     // Exceptions
     PyObject* pExceptionTypeObj = createExceptionClass("Exception");

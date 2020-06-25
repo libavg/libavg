@@ -57,11 +57,7 @@ void avgDeprecationWarning(const string& sVersion, const string& sOldEntryPoint,
 
         PyFrameObject* pFrame = PyEval_GetFrame();
         int lineNo = PyCode_Addr2Line(pFrame->f_code, pFrame->f_lasti);
-        #if PY_MAJOR_VERSION < 3
-        string sFName = getFilenamePart(PyString_AS_STRING(pFrame->f_code->co_filename));
-        #else
         string sFName = getFilenamePart(PyUnicode_AS_DATA(pFrame->f_code->co_filename));
-        #endif
         string sMsg = sFName + ":" + toString(lineNo) + ": ";
         sMsg += string(sOldEntryPoint) + " deprecated since version " +
                 string(sVersion)+".";

@@ -112,12 +112,5 @@ BOOST_PYTHON_MODULE(collisiondetector)
 
 AVG_PLUGIN_API PyObject* registerPlugin()
 {
-
-#if PY_MAJOR_VERSION < 3
-    initcollisiondetector();
-    PyObject* pyCollisionDetectorModule = PyImport_ImportModule("collisiondetector");
-#else
-    PyObject* pyCollisionDetectorModule = PyInit_collisiondetector(); // created by BOOST_PYTHON_MODULE
-#endif
-    return pyCollisionDetectorModule;
+    return PyInit_collisiondetector(); // created by BOOST_PYTHON_MODULE
 }

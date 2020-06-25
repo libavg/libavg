@@ -85,28 +85,16 @@ struct Pixel32_to_python_tuple {
 static bp::object Bitmap_getPixels(Bitmap& bitmap, bool bCopyData = true) {
     unsigned char* pBuffer = bitmap.getPixels();
     int buffSize = bitmap.getMemNeeded();
+    // TODO: both paths return the same for Python3 - correct?
     if (bCopyData) {
-#if PY_MAJOR_VERSION < 3
-        bp::object pyBuffer(handle<>(PyBuffer_New(buffSize)));
-        void* pTargetBuffer;
-        Py_ssize_t pyBuffSize = buffSize;
-        PyObject_AsWriteBuffer(pyBuffer.ptr(), &pTargetBuffer, &pyBuffSize);
-        memcpy(pTargetBuffer, pBuffer, buffSize);
-        return pyBuffer;
-#else
-        //[todo] - Check pBuffer ownership
+        // TODO: Check pBuffer ownership
         PyObject* py_memView =
             PyMemoryView_FromMemory((char*)pBuffer, buffSize, PyBUF_READ);
         return bp::object(handle<>(py_memView));
-#endif
     } else {
-#if PY_MAJOR_VERSION < 3
-        return bp::object(handle<>(PyBuffer_FromMemory(pBuffer, buffSize)));
-#else
         PyObject* py_memView =
             PyMemoryView_FromMemory((char*)pBuffer, buffSize, PyBUF_READ);
         return bp::object(handle<>(py_memView));
-#endif
     }
 }
 
@@ -122,29 +110,6 @@ static void Bitmap_setPixels(Bitmap& bitmap, PyObject* exporter, int stride=0)
         const unsigned char* pBuf = reinterpret_cast<unsigned char*>(bufferView.buf);
         bitmap.setPixels(pBuf, stride);
         PyBuffer_Release(&bufferView);
-#if PY_MAJOR_VERSION < 3
-    }
-    else if (PyBuffer_Check(exporter)) {
-        PyTypeObject* pType = exporter->ob_type;
-        PyBufferProcs* pProcs = pType->tp_as_buffer;
-        AVG_ASSERT(pProcs);
-        Py_ssize_t numBytes;
-        Py_ssize_t numSegments = pProcs->bf_getsegcount(exporter, &numBytes);
-        if (numBytes != bitmap.getMemNeeded()) {
-            throw Exception(
-                AVG_ERR_INVALID_ARGS,
-                "Second parameter to Bitmap.setPixels must fit bitmap size.");
-        }
-        // TODO: check if bitmap size is correct
-        unsigned char* pDestPixels = bitmap.getPixels();
-        for (unsigned i = 0; i < numSegments; ++i) {
-            void* pSrcPixels;
-            long bytesInSegment =
-                pProcs->bf_getreadbuffer(exporter, i, &pSrcPixels);
-            memcpy(pDestPixels, pSrcPixels, bytesInSegment);
-            pDestPixels += bytesInSegment;
-        }
-#endif
     } else {
         throw Exception(AVG_ERR_INVALID_ARGS,
                         "Second parameter to Bitmap.setPixels must support the "
