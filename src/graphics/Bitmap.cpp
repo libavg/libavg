@@ -750,7 +750,7 @@ Pixel32 Bitmap::getPythonPixel(const glm::vec2& pos)
         default:
             cerr << getPixelFormat() << endl;
             AVG_ASSERT(false);
-            return Pixel32();
+            return Pixel32(0, 0, 0, 0);
     }
 }
 

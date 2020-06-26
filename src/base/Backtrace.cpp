@@ -90,8 +90,8 @@ void getBacktrace(vector<string>& sFuncs)
             sFuncName = pszDemangledFuncName;
             free(pszDemangledFuncName);
         }
-        char szLineNum[10];
-        sprintf(szLineNum, "%3d", i);
+        char szLineNum[12];
+        snprintf(szLineNum, 11, "%3d", i);
         sFuncs.push_back(string(szLineNum)+" "+sFuncName);
     }
     free(ppszLines);

@@ -134,7 +134,7 @@ void VideoWriterThread::open()
     m_pOutputFormatContext->oformat = m_pOutputFormat;
 
     strncpy(m_pOutputFormatContext->filename, m_sFilename.c_str(),
-            sizeof(m_pOutputFormatContext->filename));
+            sizeof(m_pOutputFormatContext->filename) - 1);
 
     if (m_pOutputFormat->video_codec != AV_CODEC_ID_NONE) {
         setupVideoStream();
