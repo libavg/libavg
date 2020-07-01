@@ -23,6 +23,7 @@ endif()
 
 link_libraries(base)
 add_executable(testbase testbase.cpp)
+set_target_properties(testbase PROPERTIES ENABLE_EXPORTS TRUE) # cmake >= 3.4 (CMP0065) - required for Backtrace
 add_test(NAME testbase
     COMMAND ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest/testbase
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest)

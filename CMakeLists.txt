@@ -1,4 +1,6 @@
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules" )
+cmake_minimum_required(VERSION 3.5)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
 include(CheckCXXCompilerFlag)
 
 function(set_cxx_version)
@@ -17,8 +19,6 @@ function(set_cxx_version)
 endfunction(set_cxx_version)
 
 project(libavg)
-cmake_minimum_required(VERSION 2.8)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 # libavg release version
 set(AVG_VERSION_MAJOR 1)
