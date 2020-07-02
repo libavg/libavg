@@ -14,6 +14,10 @@ target_include_directories(base
     PUBLIC SYSTEM ${Boost_INCLUDE_DIRS})
 target_link_libraries(base
     PUBLIC tess ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${LIBXML2_LDFLAGS})
+if(${PLATFORM_LINUX})
+    # for some reason a dependency to boost-python is added on Debian 9/10 (breaks linking w/o python libs)
+    target_link_libraries(base PUBLIC ${PYTHON_LIBRARIES})
+endif()
 if (RT_LIBRARY)
     target_include_directories(base
         PUBLIC SYSTEM ${RT_INCLUDE_DIR})
