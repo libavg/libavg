@@ -32,6 +32,10 @@ target_compile_options(player
 
 link_libraries(player)
 add_executable(testplayer testplayer.cpp)
+if(${PLATFORM_LINUX})
+    # add -lpthread (done by boost-thread on most systems, but missing on some)
+    target_link_libraries(testplayer PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+endif()
 add_test(NAME testplayer
     COMMAND ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest/testplayer
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest)

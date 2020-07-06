@@ -13,7 +13,11 @@ target_compile_options(base
 target_include_directories(base
     PUBLIC SYSTEM ${Boost_INCLUDE_DIRS})
 target_link_libraries(base
-    PUBLIC tess ${PYTHON_LIBRARIES} ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${LIBXML2_LDFLAGS})
+    PUBLIC tess ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${LIBXML2_LDFLAGS})
+if(${PLATFORM_LINUX})
+    # for some reason a dependency to boost-python is added on some systems (breaks linking w/o python libs)
+    target_link_libraries(base PUBLIC ${PYTHON_LIBRARIES})
+endif()
 if (RT_LIBRARY)
     target_include_directories(base
         PUBLIC SYSTEM ${RT_INCLUDE_DIR})
@@ -23,6 +27,7 @@ endif()
 
 link_libraries(base)
 add_executable(testbase testbase.cpp)
+set_target_properties(testbase PROPERTIES ENABLE_EXPORTS TRUE) # cmake >= 3.4 (CMP0065) - required for Backtrace
 add_test(NAME testbase
     COMMAND ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest/testbase
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/python/libavg/test/cpptest)

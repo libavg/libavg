@@ -62,7 +62,7 @@ SDLWindow::SDLWindow(const DisplayParams& dp, const WindowParams& wp, GLConfig g
     }
     unsigned int flags = SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL;
     if (dp.isFullscreen()) {
-        flags |= SDL_WINDOW_FULLSCREEN;
+        flags |= SDL_WINDOW_FULLSCREEN | SDL_WINDOW_BORDERLESS;
     }
     if (!wp.m_bHasWindowFrame) {
         flags |= SDL_WINDOW_BORDERLESS;
