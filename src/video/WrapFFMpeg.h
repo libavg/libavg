@@ -51,16 +51,6 @@ extern "C" {
 #include <libavutil/opt.h>
 #include <libavutil/error.h>
 
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(54, 25, 00)
-  #define AV_CODEC_ID_MPEG1VIDEO CODEC_ID_MPEG1VIDEO
-  #define AV_CODEC_ID_MPEG2VIDEO CODEC_ID_MPEG2VIDEO
-  #define AV_CODEC_ID_H264 CODEC_ID_H264
-  #define AV_CODEC_ID_WMV3 CODEC_ID_WMV3
-  #define AV_CODEC_ID_VC1 CODEC_ID_VC1
-  #define AV_CODEC_ID_MJPEG CODEC_ID_MJPEG
-  #define AV_CODEC_ID_NONE CODEC_ID_NONE
-#endif
-
 #ifndef URL_WRONLY
         #define url_fopen avio_open
         #define url_fclose avio_close
@@ -68,9 +58,6 @@ extern "C" {
 #endif
 #include <libswresample/swresample.h>
 #include <libswresample/version.h>
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55,28,1)
-#define av_frame_alloc  avcodec_alloc_frame
-#endif
 }
 
 // Old ffmpeg has PixelFormat, new ffmpeg uses AVPixelFormat.
@@ -80,21 +67,6 @@ extern "C" {
     // In this case, PixelFormat is #defined and collides with avg::PixelFormat.
     // AVPixelFormat is also defined.
     #undef PixelFormat
-#endif
-#ifndef AV_PIX_FMT_NE
-    // Old version, no AVPixelFormat defined.
-    // ::PixelFormat is a typedef, so no collision with avg::PixelFormat.
-    #define AVPixelFormat ::PixelFormat
-    #define AV_PIX_FMT_NONE PIX_FMT_NONE
-    #define AV_PIX_FMT_RGB24 PIX_FMT_RGB24
-    #define AV_PIX_FMT_RGB32 PIX_FMT_RGB32
-    #define AV_PIX_FMT_BGR24 PIX_FMT_BGR24
-    #define AV_PIX_FMT_RGBA PIX_FMT_RGBA
-    #define AV_PIX_FMT_BGRA PIX_FMT_BGRA
-    #define AV_PIX_FMT_YUV420P PIX_FMT_YUV420P
-    #define AV_PIX_FMT_YUVJ420P PIX_FMT_YUVJ420P
-    #define AV_PIX_FMT_YUVA420P PIX_FMT_YUVA420P
-    #define AV_PIX_FMT_YUYV422 PIX_FMT_YUYV422
 #endif
 
 namespace avg

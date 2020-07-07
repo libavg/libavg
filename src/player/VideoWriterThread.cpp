@@ -27,17 +27,9 @@
 #include "../base/StringHelper.h"
 #include "../video/VideoDecoder.h"
 
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(55, 18, 102)
-    typedef CodecID AVCodecID;
-#endif
-
 using namespace std;
 
 namespace avg {
-
-#if LIBAVCODEC_VERSION_INT <= AV_VERSION_INT(54, 0, 0)
-const unsigned int VIDEO_BUFFER_SIZE = 400000;
-#endif
 
 const AVPixelFormat STREAM_PIXEL_FORMAT = AV_PIX_FMT_YUVJ420P;
 
@@ -95,9 +87,6 @@ void VideoWriterThread::close()
         }
 
         av_free(m_pOutputFormatContext);
-#if LIBAVCODEC_VERSION_INT <= AV_VERSION_INT(54, 0, 0)
-        av_free(m_pVideoBuffer);
-#endif
         av_free(m_pConvertedFrame);
         av_free(m_pPictureBuffer);
         sws_freeContext(m_pFrameConversionContext);
@@ -146,13 +135,6 @@ void VideoWriterThread::open()
 //    av_dump_format(m_pOutputFormatContext, 0, m_sFilename.c_str(), 1);
 
     openVideoCodec();
-
-#if LIBAVCODEC_VERSION_INT <= AV_VERSION_INT(54, 0, 0)
-    m_pVideoBuffer = NULL;
-    if (!(m_pOutputFormatContext->oformat->flags & AVFMT_RAWPICTURE)) {
-        m_pVideoBuffer = (unsigned char*)(av_malloc(VIDEO_BUFFER_SIZE));
-    }
-#endif
 
     if (!(m_pOutputFormat->flags & AVFMT_NOFILE)) {
         int retVal = avio_open(&m_pOutputFormatContext->pb, m_sFilename.c_str(),
@@ -286,9 +268,7 @@ void VideoWriterThread::writeFrame(AVFrame* pFrame)
     AVCodecContext* pCodecContext = m_pVideoStream->codec;
     AVPacket packet = { 0 };
     int ret;
-    bool bGotOutput;
 
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(54, 0, 0)
     av_init_packet(&packet);
     int got_output = 0;
     ret = avcodec_encode_video2(pCodecContext, &packet, pFrame, &got_output);
@@ -297,28 +277,7 @@ void VideoWriterThread::writeFrame(AVFrame* pFrame)
         packet.pts = av_rescale_q(pCodecContext->coded_frame->pts,
                 pCodecContext->time_base, m_pVideoStream->time_base);
     }
-    bGotOutput = (got_output != 0);
-#else
-    int out_size = avcodec_encode_video(pCodecContext, m_pVideoBuffer,
-            VIDEO_BUFFER_SIZE, pFrame);
-    if (out_size > 0) {
-        av_init_packet(&packet);
-
-        if ((pCodecContext->coded_frame->pts) != (long long)AV_NOPTS_VALUE) {
-            packet.pts = av_rescale_q(pCodecContext->coded_frame->pts,
-                    pCodecContext->time_base, m_pVideoStream->time_base);
-        }
-
-        if (pCodecContext->coded_frame->key_frame) {
-            packet.flags |= AV_PKT_FLAG_KEY;
-        }
-        packet.stream_index = m_pVideoStream->index;
-        packet.data = m_pVideoBuffer;
-        packet.size = out_size;
-    }
-    bGotOutput = (out_size > 0);
-#endif
-    if (bGotOutput) {
+    if (got_output) {
         /* write the compressed frame in the media file */
         ret = av_interleaved_write_frame(m_pOutputFormatContext, &packet);
         av_free_packet(&packet);

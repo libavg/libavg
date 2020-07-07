@@ -27,9 +27,7 @@
 #include "../base/TimeSource.h"
 #include "../base/ScopeTimer.h"
 
-#if AVUTIL_VERSION_INT > AV_VERSION_INT(52, 0, 0)
 #include <libavutil/samplefmt.h>
-#endif
 
 #ifndef AVCODEC_MAX_AUDIO_FRAME_SIZE
     #define AVCODEC_MAX_AUDIO_FRAME_SIZE 192000
@@ -159,7 +157,6 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
                     m_InputSampleFormat != AV_SAMPLE_FMT_S16 ||
                     m_pStream->codec->channels != m_AP.m_Channels);
             bool bIsPlanar = false;
-#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(51, 27, 0)
             bIsPlanar = av_sample_fmt_is_planar((AVSampleFormat)m_InputSampleFormat);
             if (bIsPlanar) {
                 char* pPackedData = (char*)av_malloc(AVCODEC_MAX_AUDIO_FRAME_SIZE +
@@ -171,7 +168,6 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
                 av_free(pPackedData);
                 bNeedsResample = false;
             }
-#endif
             if (bNeedsResample) {
                 pBuffer = resampleAudio(pDecodedData, framesDecoded,
                         m_InputSampleFormat);
@@ -183,12 +179,7 @@ void AudioDecoderThread::decodePacket(AVPacket* pPacket)
             pushAudioMsg(pBuffer, m_LastFrameTime);
         }
     }
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(55, 45,101)
     av_frame_free(&pDecodedFrame);
-#elif LIBAVCODEC_VERSION_MAJOR > 53
-    avcodec_free_frame(&pDecodedFrame);
-    delete pDecodedFrame;
-#endif
     delete pTempPacket;
 }
 

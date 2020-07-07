@@ -69,11 +69,6 @@ float getStreamFPS(AVStream* pStream)
     if (pStream->avg_frame_rate.den != 0) {
         fps = float(av_q2d(pStream->avg_frame_rate));
     }
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(54, 25, 0)
-    if (fps == 0 && pStream->r_frame_rate.den != 0) {
-        fps = float(av_q2d(pStream->r_frame_rate));
-    }
-#endif
     if (fps == 0) { 
         float duration = float(pStream->duration)*float(av_q2d(pStream->time_base));
         fps = pStream->nb_frames/duration;
