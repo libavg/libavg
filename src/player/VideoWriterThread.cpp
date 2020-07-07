@@ -273,21 +273,21 @@ void VideoWriterThread::writeFrame(AVFrame* pFrame)
     int got_output = 0;
     ret = avcodec_encode_video2(pCodecContext, &packet, pFrame, &got_output);
     AVG_ASSERT(ret >= 0);
-    if ((pCodecContext->coded_frame->pts) != (long long)AV_NOPTS_VALUE) {
-        packet.pts = av_rescale_q(pCodecContext->coded_frame->pts,
+    if (!got_output) {
+        return;
+    }
+    if ((packet.pts) != (long long)AV_NOPTS_VALUE) {
+        packet.pts = av_rescale_q(packet.pts,
                 pCodecContext->time_base, m_pVideoStream->time_base);
     }
-    if (got_output) {
-        /* write the compressed frame in the media file */
-        ret = av_interleaved_write_frame(m_pOutputFormatContext, &packet);
-        av_free_packet(&packet);
-        if (ret != 0) {
-            AVG_TRACE(Logger::category::VIDEO, Logger::severity::ERROR,
-                    getAVErrorString(ret));
-        }
-        AVG_ASSERT(ret == 0);
+    /* write the compressed frame in the media file */
+    ret = av_interleaved_write_frame(m_pOutputFormatContext, &packet);
+    av_free_packet(&packet);
+    if (ret != 0) {
+        AVG_TRACE(Logger::category::VIDEO, Logger::severity::ERROR,
+                getAVErrorString(ret));
     }
-
+    AVG_ASSERT(ret == 0);
 }
 
 }
