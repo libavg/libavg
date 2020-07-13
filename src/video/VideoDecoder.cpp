@@ -399,6 +399,7 @@ PixelFormat VideoDecoder::calcPixelFormat(bool bUseYCbCr)
         }
     }
     bool bAlpha = (pContext->pix_fmt == AV_PIX_FMT_BGRA ||
+            pContext->pix_fmt == AV_PIX_FMT_ARGB ||
             pContext->pix_fmt == AV_PIX_FMT_YUVA420P);
     return BitmapLoader::get()->getDefaultPixelFormat(bAlpha);
 }
