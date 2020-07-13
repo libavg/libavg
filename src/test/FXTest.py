@@ -97,10 +97,11 @@ class FXTestCase(AVGTestCase):
 
     def testWordsNullFX(self):
         root = self.loadEmptyScene()
-        node = avg.WordsNode(parent=root, text="testtext", font="Bitstream Vera Sans")
+        node = avg.WordsNode(parent=root, text="testtext",
+                font="Bitstream Vera Sans", variant="Roman")
         node.setEffect(avg.NullFXNode())
         avg.WordsNode(parent=root, text="testtext", pos=(0,20),
-                font="Bitstream Vera Sans")
+                font="Bitstream Vera Sans", variant="Roman")
         self.start(True,
                 (lambda: self.compareImage("testWordsNullFX"),
                 ))
@@ -323,7 +324,7 @@ class FXTestCase(AVGTestCase):
 
         root = self.loadEmptyScene()
         node = avg.WordsNode(parent=root, pos=(10,10), text="testtext", 
-                font="Bitstream Vera Sans")
+                font="Bitstream Vera Sans", variant="Roman")
         effect = avg.ShadowFXNode()
         setParams((0,0), 1.5, 1.5, "FF0000")
         self.start(True,
@@ -376,7 +377,7 @@ class FXTestCase(AVGTestCase):
     def testWordsIntensity(self):
         root = self.loadEmptyScene()
         avg.WordsNode(parent=root, fontsize=24, font="Bitstream Vera Sans",
-                intensity=(0.5,0.5,0.5), text="brightness",
+                variant="Roman", intensity=(0.5,0.5,0.5), text="brightness",
                 width=140)
         self.start(True,
                 (lambda: self.compareImage("testWordsIntensity"),
