@@ -50,6 +50,7 @@ setup(name='libavg',
     package_data={
         '': listDataFiles(os.path.join('libavg', 'data')) +
             listDataFiles(os.path.join('libavg', 'shaders')) +
+            listDataFiles(os.path.join('libavg', 'plugin')) +
             listDataFiles(os.path.join('libavg', 'test')) +
             ['avg.so', ]
     },

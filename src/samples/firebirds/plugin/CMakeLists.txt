@@ -24,3 +24,13 @@ elseif (${PLATFORM_MACOSX})
     target_link_libraries(${PLUGIN_NAME} -bundle -flat_namespace "-undefined suppress")
     target_link_libraries(${PLUGIN_NAME} ${LIBXML2_LDFLAGS} ${PLUGIN_LIBS})
 endif()
+
+set(plugin_dir "${CMAKE_BINARY_DIR}/python/libavg/plugin/")
+add_custom_command(TARGET collisiondetector POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${plugin_dir}"
+    )
+add_custom_command(TARGET collisiondetector POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_CURRENT_BINARY_DIR}/collisiondetector${CMAKE_SHARED_MODULE_SUFFIX}"
+            "${plugin_dir}"
+    )
