@@ -126,7 +126,7 @@ class WordsTestCase(AVGTestCase):
         def posAlmostEqual(pos1, pos2):
             return math.fabs(pos1[0]-pos2[0]) <= 2 and math.fabs(pos1[1]-pos2[1]) <= 2
         
-        node = avg.WordsNode(text="Bold", font="Bitstream Vera Sans")
+        node = avg.WordsNode(text="Bold", font="Bitstream Vera Sans", variant="Roman")
         self.assertEqual(node.getGlyphPos(0), (0,0))
         size = node.getGlyphSize(0)
         self.assert_(posAlmostEqual(size, (10, 18)))
@@ -145,17 +145,17 @@ class WordsTestCase(AVGTestCase):
         avg.LineNode(pos1=(119.5, 0.5), pos2=(119.5, 50), color="FF0000", parent=root)
         avg.LineNode(pos1=(74.5,60), pos2=(74.5, 110), color="FF0000", parent=root)
         avg.WordsNode(id="para", pos=(1,1), fontsize=12, width=70,
-                font="Bitstream Vera Sans", text="Left-justified paragraph.", 
+                font="Bitstream Vera Sans", variant="Roman", text="Left-justified paragraph.",
                 parent=root)
-        avg.WordsNode(id="paracenter", pos=(120,1), fontsize=12, width=70, 
-                font="Bitstream Vera Sans", text="Centered paragraph", 
+        avg.WordsNode(id="paracenter", pos=(120,1), fontsize=12, width=70,
+                font="Bitstream Vera Sans", variant="Roman", text="Centered paragraph",
                 alignment="center", parent=root)
         avg.WordsNode(id="pararight", pos=(75,60), fontsize=12, width=70,
-                font="Bitstream Vera Sans", alignment="right",
+                font="Bitstream Vera Sans", variant="Roman", alignment="right",
                 text="Right-justified paragraph.<i>l</i>",
                 parent=root)
         avg.WordsNode(id="paralinespacing", pos=(80,60), fontsize=12, width=70,
-                font="Bitstream Vera Sans", linespacing=-4,
+                font="Bitstream Vera Sans", variant="Roman", linespacing=-4,
                 text="Paragraph with custom line spacing.",
                 parent=root)
         self.start(True, [lambda: self.compareImage("testParaWords")])
@@ -353,7 +353,7 @@ class WordsTestCase(AVGTestCase):
        
         root = self.loadEmptyScene()
         words = avg.WordsNode(pos=(1,1), fontsize=12, font="Bitstream Vera Sans",
-                text="foo", parent=root)
+                variant="Roman", text="foo", parent=root)
         self.start(True, 
                 (lambda: self.compareImage("testDynamicWords1"),
                  changeText,
@@ -381,17 +381,17 @@ class WordsTestCase(AVGTestCase):
 
         root = self.loadEmptyScene()
         avg.WordsNode(pos=(1,1), fontsize=14, font="Bitstream Vera Sans",
-                text="一二三四五六七八九", parent=root)
+                variant="Roman", text="一二三四五六七八九", parent=root)
         words = avg.WordsNode(pos=(1,24), fontsize=12, font="Bitstream Vera Sans",
-                text="foo", parent=root)
+                variant="Roman", text="foo", parent=root)
         root.appendChild(
                 player.createNode("""
-                    <words x="1" y="48" fontsize="12" font="Bitstream Vera Sans">
+                    <words x="1" y="48" fontsize="12" font="Bitstream Vera Sans" variant="Roman">
                             &amp;
                     </words>
                 """))
-        avg.WordsNode(pos=(12,48), fontsize=12, font="Bitstream Vera Sans", text="&amp;",
-                rawtextmode=True, parent=root)
+        avg.WordsNode(pos=(12,48), fontsize=12, font="Bitstream Vera Sans",
+                variant="Roman", text="&amp;", rawtextmode=True, parent=root)
 
         self.start(True, 
                 (lambda: self.compareImage("testI18NWords1"),
@@ -434,13 +434,14 @@ class WordsTestCase(AVGTestCase):
 
         root = self.loadEmptyScene()
         attribNode = avg.WordsNode(text="ùnicòdé <b>bold</b>",
-                fontsize=12, pos=(1,5), font="Bitstream Vera Sans", parent=root)
+                fontsize=12, pos=(1,5), font="Bitstream Vera Sans", variant="Roman",
+                parent=root)
         valNode = player.createNode("""
-            <words id="nodeval" fontsize="10" x="1" y="25" font="Bitstream Vera Sans"><b>bold</b> ùnicòdé  &lt;</words>""")
+            <words id="nodeval" fontsize="10" x="1" y="25" font="Bitstream Vera Sans" variant="Roman"><b>bold</b> ùnicòdé  &lt;</words>""")
         root.appendChild(valNode)
         root.appendChild(
                 player.createNode("""
-                        <words x="1" y="45" fontsize="15" font="Bitstream Vera Sans">
+                        <words x="1" y="45" fontsize="15" font="Bitstream Vera Sans" variant="Roman">
                             &amp;
                         </words>"""))
 
@@ -571,7 +572,7 @@ class WordsTestCase(AVGTestCase):
     
     def testGetLineExtents(self):        
         textNode = avg.WordsNode(fontsize = 100,
-                                font = "Bitstream Vera Sans",
+                                font = "Bitstream Vera Sans", variant="roman",
                                 text = "bla <br/> blabli <br/> blabliblabla")
         self.assertEqual(textNode.getLineExtents(0), (184,117))
         self.assertEqual(textNode.getLineExtents(1), (303,117))
@@ -603,6 +604,7 @@ class WordsTestCase(AVGTestCase):
                 parent=root,
                 fontsize = 10,
                 font = "Bitstream Vera Sans",
+                variant = "Roman",
                 text = text)
         
         def testSize(p1, p2):

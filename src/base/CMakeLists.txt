@@ -14,10 +14,11 @@ target_include_directories(base
     PUBLIC SYSTEM ${Boost_INCLUDE_DIRS})
 target_link_libraries(base
     PUBLIC tess ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${LIBXML2_LDFLAGS})
-if(${PLATFORM_LINUX})
-    # for some reason a dependency to boost-python is added on some systems (breaks linking w/o python libs)
-    target_link_libraries(base PUBLIC ${PYTHON_LIBRARIES})
-endif()
+# a dependency to boost-python is added on some systems (e.g. Debian, Arch Linux,
+# macOS), which breaks linking (Linux) or runtime loading (macOS) w/o python libs here
+target_link_libraries(base
+    PUBLIC ${PYTHON_LIBRARIES})
+
 if (RT_LIBRARY)
     target_include_directories(base
         PUBLIC SYSTEM ${RT_INCLUDE_DIR})

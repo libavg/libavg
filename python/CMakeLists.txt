@@ -10,7 +10,7 @@ endfunction()
 # with -UPYTHON_INTERPRETER
 find_program(PYTHON_INTERPRETER python)
 
-message(STATUS "Using python intepreter: ${PYTHON_INTERPRETER}")
+message(STATUS "Using python interpreter: ${PYTHON_INTERPRETER}")
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in" "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
 

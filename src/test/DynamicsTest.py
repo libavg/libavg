@@ -151,6 +151,7 @@ class DynamicsTestCase(AVGTestCase):
             else:
                 node = player.createNode("words", {"text":"test"})
             node.font="Bitstream Vera Sans"
+            node.variant="Roman"
             node.fontsize=12
             node.width=200
             return node
