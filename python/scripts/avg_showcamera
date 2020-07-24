@@ -56,10 +56,10 @@ class ShowCamera(app.MainDiv):
             if (len(infoList) <= 0):
                 print("No camera available!")
             for info in infoList:
-                print("")
+                print()
                 print("##################",info.driver,"##################")
                 print("Device ID:", info.deviceID)
-                print("")
+                print()
                 print("----------------- FORMATS ------------------")
                 formatsList = list()
                 formatsList = info.imageFormats
@@ -67,21 +67,21 @@ class ShowCamera(app.MainDiv):
                     print("++++")
                     print("Pixelformat:", imageFormat.pixelFormat)
                     print("Resolution:", imageFormat.size)
-                    print("Framerates: |",)
+                    print("Framerates: | ", end="")
                     framerateList = list()
                     framerateList = imageFormat.framerates
                     for framerate in framerateList:
-                        print(framerate, "|",)
-                    print("")
-                print("")
+                        print(framerate, "| ", end="")
+                    print()
+                print()
                 print("----------------- CONTROLS -----------------")
                 controlsList = list()
                 controlsList = info.controls
                 for control in controlsList:
                     print("++++", control.controlName)
-                    print("Min:" , control.min, "| Max:", control.max)
-                    print("| Default:", control.default)
-                print("")
+                    print("Min:" , control.min, "| Max:", control.max, end="")
+                    print(" | Default:", control.default)
+                print()
             exit(0)
 
         if options.resetbus:
