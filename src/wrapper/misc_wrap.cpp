@@ -144,6 +144,7 @@ void export_misc()
         .add_property("framerate", &VideoWriter::getFramerate)
         .add_property("qmin", &VideoWriter::getQMin)
         .add_property("qmax", &VideoWriter::getQMax)
+        .add_property("synctoplayback", &VideoWriter::getSyncToPlayback)
     ;
 
     BitmapPtr (SVG::*renderElement1)(const UTF8String&) = &SVG::renderElement;

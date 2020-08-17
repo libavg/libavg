@@ -59,6 +59,7 @@ class AVG_API VideoWriter : public IFrameEndListener, IPlaybackEndListener
         int getFramerate() const;
         int getQMin() const;
         int getQMax() const;
+        bool getSyncToPlayback() const;
 
         virtual void onFrameEnd();
         virtual void onPlaybackEnd();
