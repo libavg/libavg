@@ -33,14 +33,22 @@ SVGElement::SVGElement(RsvgHandle* pRSVG, const UTF8String& sFilename,
         const UTF8String& sElementID, bool bUnescapeIllustratorIDs)
 {
     m_sUnescapedID = unescapeID(pRSVG, sFilename, sElementID, bUnescapeIllustratorIDs); 
-    
+
+#if LIBRSVG_CHECK_VERSION(2, 46, 0)
+    const RsvgRectangle viewport {0.0, 0.0, 0.0, 0.0};
+    RsvgRectangle geom;
+    rsvg_handle_get_geometry_for_layer(pRSVG, m_sUnescapedID.c_str(), &viewport, &geom, 0, 0);
+    // we use rounded values here for backward (render) compatibility with older librsvg
+    m_Pos = glm::vec2((int)geom.x, (int)geom.y);
+    m_Size = glm::vec2((int)geom.width + 1, (int)geom.height + 1);
+#else
     RsvgPositionData pos;
     rsvg_handle_get_position_sub(pRSVG, &pos, m_sUnescapedID.c_str());
     m_Pos = glm::vec2(pos.x, pos.y);
-    
     RsvgDimensionData dim;
     rsvg_handle_get_dimensions_sub(pRSVG, &dim, m_sUnescapedID.c_str());
     m_Size = glm::vec2(dim.width+1, dim.height+1);
+#endif
 }
 
 const UTF8String& SVGElement::getUnescapedID() const
