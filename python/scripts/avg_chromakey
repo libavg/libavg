@@ -110,7 +110,7 @@ class Chromakey(app.MainDiv):
         self.__guiDiv = avg.DivNode(pos=(self.__optWidth+10,10), parent=self)
 
         self.__colorWords = avg.WordsNode(pos=(0,14), parent=self.__guiDiv)
-        self.__colorWords.text = "Key Color: "+self.__filter.color
+        self.__colorWords.text = "Key Color: %s" % self.__filter.color
         self.__colorRect = avg.RectNode(pos=(200,12), size=(20, 20), 
                 fillcolor=self.__filter.color, fillopacity=1, 
                 color="FFFFFF", parent=self.__guiDiv)
