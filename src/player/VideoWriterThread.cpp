@@ -204,6 +204,9 @@ AVFrame* VideoWriterThread::createFrame(AVPixelFormat pixelFormat, IntPoint size
     m_pPictureBuffer = static_cast<unsigned char*>(av_malloc(memNeeded));
     avpicture_fill(reinterpret_cast<AVPicture*>(pPicture),
             m_pPictureBuffer, pixelFormat, size.x, size.y);
+    pPicture->format = pixelFormat;
+    pPicture->width = size.x;
+    pPicture->height = size.y;
 
     return pPicture;
 }
@@ -264,6 +267,7 @@ static ProfilingZoneID ProfilingZoneWriteFrame(" Write frame", true);
 void VideoWriterThread::writeFrame(AVFrame* pFrame)
 {
     ScopeTimer timer(ProfilingZoneWriteFrame);
+    pFrame->pts = m_FramesWritten;
     m_FramesWritten++;
     AVCodecContext* pCodecContext = m_pVideoStream->codec;
     AVPacket packet = { 0 };

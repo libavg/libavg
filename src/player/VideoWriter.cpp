@@ -174,6 +174,11 @@ int VideoWriter::getQMax() const
     return m_QMax;
 }
 
+bool VideoWriter::getSyncToPlayback() const
+{
+    return m_bSyncToPlayback;
+}
+
 void VideoWriter::onFrameEnd()
 {
     // The VideoWriter handles OffscreenCanvas and MainCanvas differently:

@@ -552,6 +552,11 @@ class AVTestCase(AVGTestCase):
         def startWriter(fps, syncToPlayback):
             self.videoWriter = avg.VideoWriter(canvas, "test.mov", fps, 3, 5, 
                     syncToPlayback)
+            self.assertEqual(self.videoWriter.filename, "test.mov")
+            self.assertEqual(self.videoWriter.framerate, fps)
+            self.assertEqual(self.videoWriter.qmin, 3)
+            self.assertEqual(self.videoWriter.qmax, 5)
+            self.assertEqual(self.videoWriter.synctoplayback, syncToPlayback)
 
         def stopWriter():
             self.videoWriter.stop()

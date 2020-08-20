@@ -136,6 +136,7 @@ void export_misc()
         .def(init<CanvasPtr, const std::string&, int, int, int, bool>())
         .def(init<CanvasPtr, const std::string&, int, int, int>())
         .def(init<CanvasPtr, const std::string&, int>())
+        .def(init<CanvasPtr, const std::string&>())
         .def("stop", &VideoWriter::stop)
         .def("pause", &VideoWriter::pause)
         .def("play", &VideoWriter::play)
@@ -143,6 +144,7 @@ void export_misc()
         .add_property("framerate", &VideoWriter::getFramerate)
         .add_property("qmin", &VideoWriter::getQMin)
         .add_property("qmax", &VideoWriter::getQMax)
+        .add_property("synctoplayback", &VideoWriter::getSyncToPlayback)
     ;
 
     BitmapPtr (SVG::*renderElement1)(const UTF8String&) = &SVG::renderElement;
