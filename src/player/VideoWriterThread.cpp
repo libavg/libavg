@@ -164,6 +164,8 @@ void VideoWriterThread::open()
 void VideoWriterThread::setupVideoStream()
 {
     m_pVideoStream = avformat_new_stream(m_pOutputFormatContext, 0);
+    m_pVideoStream->time_base.num = 1;
+    m_pVideoStream->time_base.den = m_FrameRate;
 
     AVCodecContext* pCodecContext = m_pVideoStream->codec;
     pCodecContext->codec_id = static_cast<AVCodecID>(m_pOutputFormat->video_codec);
@@ -287,10 +289,7 @@ void VideoWriterThread::writeFrame(AVFrame* pFrame)
     if (!got_output) {
         return;
     }
-    if ((packet.pts) != (long long)AV_NOPTS_VALUE) {
-        packet.pts = av_rescale_q(packet.pts,
-                pCodecContext->time_base, m_pVideoStream->time_base);
-    }
+    av_packet_rescale_ts(&packet, pCodecContext->time_base, m_pVideoStream->time_base);
     /* write the compressed frame in the media file */
     ret = av_interleaved_write_frame(m_pOutputFormatContext, &packet);
     av_free_packet(&packet);
