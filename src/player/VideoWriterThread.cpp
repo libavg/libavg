@@ -117,6 +117,10 @@ void VideoWriterThread::open()
     av_register_all(); // TODO: make sure this is only done once.
 //    av_log_set_level(AV_LOG_DEBUG);
     m_pOutputFormat = av_guess_format(0, m_sFilename.c_str(), 0);
+    if (m_pOutputFormat == NULL) {
+        throw Exception(AVG_ERR_VIDEO_INIT_FAILED,
+                string("Could not guess format for output file: '") + m_sFilename + "'");
+    }
     m_pOutputFormat->video_codec = AV_CODEC_ID_MJPEG;
 
     m_pOutputFormatContext = avformat_alloc_context();
@@ -125,9 +129,7 @@ void VideoWriterThread::open()
     strncpy(m_pOutputFormatContext->filename, m_sFilename.c_str(),
             sizeof(m_pOutputFormatContext->filename) - 1);
 
-    if (m_pOutputFormat->video_codec != AV_CODEC_ID_NONE) {
-        setupVideoStream();
-    }
+    setupVideoStream();
 
     float muxMaxDelay = 0.7;
     m_pOutputFormatContext->max_delay = int(muxMaxDelay * AV_TIME_BASE);
@@ -151,7 +153,12 @@ void VideoWriterThread::open()
 
     m_pConvertedFrame = createFrame(STREAM_PIXEL_FORMAT, m_Size);
 
-    avformat_write_header(m_pOutputFormatContext, 0);
+    if (avformat_write_header(m_pOutputFormatContext, 0) < 0) {
+        throw Exception(AVG_ERR_VIDEO_INIT_FAILED,
+                string("Could not write header to output file: '") + m_sFilename + "'");
+    }
+
+//    av_dump_format(m_pOutputFormatContext, 0, m_sFilename.c_str(), 1);
 }
 
 void VideoWriterThread::setupVideoStream()
