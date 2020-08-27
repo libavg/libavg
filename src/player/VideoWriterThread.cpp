@@ -31,7 +31,12 @@ using namespace std;
 
 namespace avg {
 
+// NOTE: AV_PIX_FMT_YUVJ420P is deprecated (AV_PIX_FMT_YUV420P with JPEG color
+//       range should be used instead), but the MJPEG codec doesn't support
+//       AV_PIX_FMT_YUV420P yet. Both formats are planar YUV 4:2:0 12bpp.
+const AVPixelFormat FRAME_PIXEL_FORMAT = AV_PIX_FMT_YUV420P;
 const AVPixelFormat STREAM_PIXEL_FORMAT = AV_PIX_FMT_YUVJ420P;
+
 
 VideoWriterThread::VideoWriterThread(CQueue& cmdQueue, const string& sFilename,
         IntPoint size, int frameRate, int qMin, int qMax)
@@ -148,10 +153,20 @@ void VideoWriterThread::open()
     }
 
     m_pFrameConversionContext = sws_getContext(m_Size.x, m_Size.y,
-            AV_PIX_FMT_RGB32, m_Size.x, m_Size.y, STREAM_PIXEL_FORMAT,
+            AV_PIX_FMT_RGB32, m_Size.x, m_Size.y, FRAME_PIXEL_FORMAT,
             SWS_BILINEAR, NULL, NULL, NULL);
+    int srcTable[4], unused[4];
+    int srcRange, dstRange, brightness, contrast, saturation;
+    sws_getColorspaceDetails(m_pFrameConversionContext,
+            (int**)&srcTable, &srcRange, (int**)&unused, &dstRange,
+            &brightness, &contrast, &saturation);
+    const int* dstTable = sws_getCoefficients(SWS_CS_DEFAULT);
+    dstRange = 1; // JPEG YUV color range
+    sws_setColorspaceDetails(m_pFrameConversionContext,
+            srcTable, srcRange, dstTable, dstRange,
+            brightness, contrast, saturation);
 
-    m_pConvertedFrame = createFrame(STREAM_PIXEL_FORMAT, m_Size);
+    m_pConvertedFrame = createFrame(FRAME_PIXEL_FORMAT, m_Size);
 
     if (avformat_write_header(m_pOutputFormatContext, 0) < 0) {
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED,
