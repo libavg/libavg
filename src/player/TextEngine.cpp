@@ -78,6 +78,8 @@ TextEngine::~TextEngine()
 
 void TextEngine::init()
 {
+    initFonts();
+
     m_pFontMap = PANGO_FT2_FONT_MAP(pango_ft2_font_map_new());
     pango_ft2_font_map_set_resolution(m_pFontMap, 72, 72);
     if (m_bHint) {
@@ -96,8 +98,6 @@ void TextEngine::init()
     pango_context_set_language(m_pPangoContext,
             pango_language_from_string ("en_US"));
     pango_context_set_base_dir(m_pPangoContext, PANGO_DIRECTION_LTR);
-
-    initFonts();
 
     string sOldLang = "";
     getEnv("LC_CTYPE", sOldLang);
@@ -274,6 +274,18 @@ void TextEngine::initFonts()
     {
         FcConfigAppFontAddDir(pConfig, (const FcChar8 *)it->c_str());
     }
+    /*
+    FcStrList * pFontDirs = FcConfigGetFontDirs(pConfig);
+    FcChar8 * pDir;
+    do {
+        pDir = FcStrListNext(pFontDirs);
+        if (pDir) {
+            cerr << "  + " << pDir << endl;
+        }
+    } while (pDir);
+    */
+    //FcFontSet * pFontSets = FcConfigGetFonts(pConfig, FcSetApplication);
+    //FcFontSetPrint(pFontSets);
     /*
        FcStrList * pCacheDirs = FcConfigGetCacheDirs(pConfig);
        FcChar8 * pDir;
