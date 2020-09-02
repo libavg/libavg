@@ -96,6 +96,8 @@ void SDLTouchInputDevice::onTouchEvent(SDLWindow* pWindow, const SDL_Event& sdlE
     IntPoint winSize(Player::get()->getRootNode()->getSize());
 #ifdef _WIN32
     IntPoint pos = normPos * glm::vec2(winSize);
+#elif SDL_VERSION_ATLEAST(2, 0, 7)
+    IntPoint pos = normPos * glm::vec2(winSize);
 #else
     IntPoint pos = normPos;
 #endif

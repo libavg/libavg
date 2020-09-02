@@ -31,7 +31,12 @@ using namespace std;
 
 namespace avg {
 
+// NOTE: AV_PIX_FMT_YUVJ420P is deprecated (AV_PIX_FMT_YUV420P with JPEG color
+//       range should be used instead), but the MJPEG codec doesn't support
+//       AV_PIX_FMT_YUV420P yet. Both formats are planar YUV 4:2:0 12bpp.
+const AVPixelFormat FRAME_PIXEL_FORMAT = AV_PIX_FMT_YUV420P;
 const AVPixelFormat STREAM_PIXEL_FORMAT = AV_PIX_FMT_YUVJ420P;
+
 
 VideoWriterThread::VideoWriterThread(CQueue& cmdQueue, const string& sFilename,
         IntPoint size, int frameRate, int qMin, int qMax)
@@ -117,6 +122,10 @@ void VideoWriterThread::open()
     av_register_all(); // TODO: make sure this is only done once.
 //    av_log_set_level(AV_LOG_DEBUG);
     m_pOutputFormat = av_guess_format(0, m_sFilename.c_str(), 0);
+    if (m_pOutputFormat == NULL) {
+        throw Exception(AVG_ERR_VIDEO_INIT_FAILED,
+                string("Could not guess format for output file: '") + m_sFilename + "'");
+    }
     m_pOutputFormat->video_codec = AV_CODEC_ID_MJPEG;
 
     m_pOutputFormatContext = avformat_alloc_context();
@@ -125,9 +134,7 @@ void VideoWriterThread::open()
     strncpy(m_pOutputFormatContext->filename, m_sFilename.c_str(),
             sizeof(m_pOutputFormatContext->filename) - 1);
 
-    if (m_pOutputFormat->video_codec != AV_CODEC_ID_NONE) {
-        setupVideoStream();
-    }
+    setupVideoStream();
 
     float muxMaxDelay = 0.7;
     m_pOutputFormatContext->max_delay = int(muxMaxDelay * AV_TIME_BASE);
@@ -146,17 +153,34 @@ void VideoWriterThread::open()
     }
 
     m_pFrameConversionContext = sws_getContext(m_Size.x, m_Size.y,
-            AV_PIX_FMT_RGB32, m_Size.x, m_Size.y, STREAM_PIXEL_FORMAT,
+            AV_PIX_FMT_RGB32, m_Size.x, m_Size.y, FRAME_PIXEL_FORMAT,
             SWS_BILINEAR, NULL, NULL, NULL);
+    int srcTable[4], unused[4];
+    int srcRange, dstRange, brightness, contrast, saturation;
+    sws_getColorspaceDetails(m_pFrameConversionContext,
+            (int**)&srcTable, &srcRange, (int**)&unused, &dstRange,
+            &brightness, &contrast, &saturation);
+    const int* dstTable = sws_getCoefficients(SWS_CS_DEFAULT);
+    dstRange = 1; // JPEG YUV color range
+    sws_setColorspaceDetails(m_pFrameConversionContext,
+            srcTable, srcRange, dstTable, dstRange,
+            brightness, contrast, saturation);
 
-    m_pConvertedFrame = createFrame(STREAM_PIXEL_FORMAT, m_Size);
+    m_pConvertedFrame = createFrame(FRAME_PIXEL_FORMAT, m_Size);
 
-    avformat_write_header(m_pOutputFormatContext, 0);
+    if (avformat_write_header(m_pOutputFormatContext, 0) < 0) {
+        throw Exception(AVG_ERR_VIDEO_INIT_FAILED,
+                string("Could not write header to output file: '") + m_sFilename + "'");
+    }
+
+//    av_dump_format(m_pOutputFormatContext, 0, m_sFilename.c_str(), 1);
 }
 
 void VideoWriterThread::setupVideoStream()
 {
     m_pVideoStream = avformat_new_stream(m_pOutputFormatContext, 0);
+    m_pVideoStream->time_base.num = 1;
+    m_pVideoStream->time_base.den = m_FrameRate;
 
     AVCodecContext* pCodecContext = m_pVideoStream->codec;
     pCodecContext->codec_id = static_cast<AVCodecID>(m_pOutputFormat->video_codec);
@@ -280,10 +304,7 @@ void VideoWriterThread::writeFrame(AVFrame* pFrame)
     if (!got_output) {
         return;
     }
-    if ((packet.pts) != (long long)AV_NOPTS_VALUE) {
-        packet.pts = av_rescale_q(packet.pts,
-                pCodecContext->time_base, m_pVideoStream->time_base);
-    }
+    av_packet_rescale_ts(&packet, pCodecContext->time_base, m_pVideoStream->time_base);
     /* write the compressed frame in the media file */
     ret = av_interleaved_write_frame(m_pOutputFormatContext, &packet);
     av_free_packet(&packet);

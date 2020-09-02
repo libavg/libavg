@@ -75,11 +75,11 @@ float getStreamFPS(AVStream* pStream)
     }
     AVG_ASSERT(fps < 10000);
 /*
-    cerr << "getStreamFPS: fps= " << fps << endl;
-    cerr << "    r_frame_rate num: " << m_pVStream->r_frame_rate.num << ", den: " << m_pVStream->r_frame_rate.den << endl;
-    cerr << "    avg_frame_rate: num: " << m_pVStream->avg_frame_rate.num << ", den: " << m_pVStream->avg_frame_rate.den << endl;
-    cerr << "    numFrames= " << getNumFrames() << ", duration= " 
-                << getDuration(SS_VIDEO) << endl;
+    cerr << "getStreamFPS: fps=" << fps << endl;
+    cerr << "    r_frame_rate: num=" << pStream->r_frame_rate.num << ", den=" << pStream->r_frame_rate.den << endl;
+    cerr << "    avg_frame_rate: num=" << pStream->avg_frame_rate.num << ", den=" << pStream->avg_frame_rate.den << endl;
+    cerr << "    time_base: num=" << pStream->time_base.num << ", den=" << pStream->time_base.den << endl;
+    cerr << "    nb_frames=" << pStream->nb_frames << ", duration=" << pStream->duration << endl;
 */
     return fps;
 }
