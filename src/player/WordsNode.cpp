@@ -565,6 +565,9 @@ void WordsNode::updateLayout()
 #endif
             pango_layout_set_text(m_pLayout, m_sText.c_str(), -1);
         }
+#if PANGO_VERSION >= PANGO_VERSION_ENCODE(1,44,0)
+        pango_attr_list_insert(pAttrList, pango_attr_insert_hyphens_new(FALSE));
+#endif
         pango_layout_set_attributes(m_pLayout, pAttrList);
         pango_attr_list_unref(pAttrList);
 
