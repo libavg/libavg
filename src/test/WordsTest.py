@@ -248,7 +248,7 @@ class WordsTestCase(AVGTestCase):
             node.setMaskBitmap(avg.Bitmap("media/mask2.png"))
 
         root = self.loadEmptyScene()
-        node = avg.WordsNode(fontsize=8, linespacing=-4, font="Bitstream Vera Sans",
+        node = avg.WordsNode(fontsize=8, linespacing=-3.25, font="Bitstream Vera Sans",
                 variant="roman", width=160,
                 text="Ich bin nur ein kleiner Blindtext. Wenn ich gross bin, will ich \
                     Ulysses von James Joyce werden. Aber jetzt lohnt es sich noch nicht, \

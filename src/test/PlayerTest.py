@@ -316,7 +316,8 @@ class PlayerTestCase(AVGTestCase):
     def testWordsOutlines(self):
         root = self.loadEmptyScene()
         root.elementoutlinecolor = "FFFFFF"
-        avg.WordsNode(pos=(40,40), alignment="center", text="test", parent=root)
+        avg.WordsNode(pos=(40,40), alignment="center", text="test",
+                font="Bitstream Vera Sans", variant="roman", parent=root)
         self.start(True, [lambda: self.compareImage("testWordsOutlines")])
 
     def testError(self):

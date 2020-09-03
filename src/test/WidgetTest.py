@@ -167,10 +167,12 @@ class WidgetTestCase(AVGTestCase):
         def checkSingleLine():
             text = ''
             self.ta2.setText('')
+            keycode = ord('A')
             while True:
                 self.assert_(len(text) < 20)
-                self.ta2.onKeyDown(ord(u'A'))
-                text += 'A'
+                self.ta2.onKeyDown(keycode)
+                text += chr(keycode)
+                keycode += 1
                 if text != self.ta2.getText():
                     break
 
@@ -768,10 +770,11 @@ class WidgetTestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_MOTION, 150, 5),
                  lambda: self.messageTester.assertState(
                         [widget.MediaControl.SEEK_MOTION,]),
-                 lambda: self.compareImage("testMediaControl4"),
+                 lambda: self.compareImage("testMediaControl6"),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 150, 5),
                  lambda: self.messageTester.assertState(
                         [widget.MediaControl.SEEK_RELEASED,]),
+                 lambda: self.compareImage("testMediaControl4"),
                 ))
 
     def testScrollArea(self):
