@@ -284,24 +284,24 @@ class WordsTestCase(AVGTestCase):
             hint = root.getChild(1)
             posNoHint = noHint.getGlyphPos(6)
             posHint = hint.getGlyphPos(6)
-            self.assertNotEqual(posNoHint, posHint)
+            self.assertEqual(posNoHint, posHint)
             noHint.hint = True
             hint.hint = False
-            self.assertEqual(posNoHint, hint.getGlyphPos(6))
-            self.assertEqual(posHint, noHint.getGlyphPos(6))
+            self.assertEqual(posHint, hint.getGlyphPos(6))
+            self.assertEqual(posNoHint, noHint.getGlyphPos(6))
 
-        if platform.system() == "Linux":
-            self.skip("Linux support requires modified font config")
-        else:
-            root = self.loadEmptyScene()
-            avg.WordsNode(pos=(1,1), fontsize=12, font="Bitstream Vera Sans",
-                    variant="roman", hint=False, text="Lorem ipsum dolor (no hinting)",
-                    parent=root)
-            avg.WordsNode(pos=(1,15), fontsize=12, font="Bitstream Vera Sans",
-                    variant="roman", hint=True, text="Lorem ipsum dolor (hinting)",
-                    parent=root)
-            self.start(True, [checkPositions])
-
+        root = self.loadEmptyScene()
+        avg.WordsNode(pos=(1,1), fontsize=12, font="Bitstream Vera Sans",
+                variant="roman", hint=False, text="Lorem ipsum dolor (no hinting)",
+                parent=root)
+        avg.WordsNode(pos=(1,15), fontsize=12, font="Bitstream Vera Sans",
+                variant="roman", hint=True, text="Lorem ipsum dolor (hinting)",
+                parent=root)
+        self.start(True,
+            (lambda: self.compareImage("testHinting1"),
+             checkPositions,  # toggles hinting
+             lambda: self.compareImage("testHinting2"),
+            ))
 
     def testSpanWords(self):
         def setTextAttrib():
