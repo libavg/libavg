@@ -41,7 +41,7 @@ class TouchApp(app.MainDiv):
             pass
 
     def __onDown(self, event):
-#        if event.source == avg.MOUSE:
+#        if event.source == avg.Event.MOUSE:
 #            print event.type, event.button
 #        else:
 #            print event.type

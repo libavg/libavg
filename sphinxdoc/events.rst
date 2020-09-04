@@ -77,7 +77,7 @@ Input Handling
             .. deprecated:: 1.8
                 Use the message interface instead.
 
-            Registers event handlers that get called when CURSORMOTION and CURSORUP 
+            Registers event handlers that get called when :py:const:`CURSOR_MOTION` and :py:const:`CURSOR_UP`
             events for this :py:class:`Contact` occur. Event handlers can be unregistered
             using :py:meth:`disconnectListener`. They are automatically unregistered
             after the up event. The :py:attr:`id` returned is unique for this contact.
@@ -177,9 +177,9 @@ Input Handling
 
         .. py:attribute:: type
 
-            One of :py:const:`KEYUP`, :py:const:`KEYDOWN`, :py:const:`CURSORMOTION`,
-            :py:const:`CURSORUP`, :py:const:`CURSORDOWN`, :py:const:`CURSOROVER` 
-            or :py:const:`CURSOROUT`. Read-only.
+            One of :py:const:`KEY_UP`, :py:const:`KEY_DOWN`, :py:const:`CURSOR_MOTION`,
+            :py:const:`CURSOR_UP`, :py:const:`CURSOR_DOWN`, :py:const:`CURSOR_OVER`
+            or :py:const:`CURSOR_OUT`. Read-only.
 
         .. py:attribute:: when
 
@@ -307,7 +307,7 @@ Input Handling
             ranges from :py:const:`-pi` to :py:const:`pi`, with 0 being the positive x
             axis. Angles increase in a clockwise fashion.
 
-            For :py:const:`CURSORUP` events, the angle is always approximated.
+            For :py:const:`CURSOR_UP` events, the angle is always approximated.
 
         .. py:attribute:: majoraxis
 

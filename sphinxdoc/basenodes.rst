@@ -262,9 +262,9 @@ This section describes the base classes for all node classes that libavg provide
 
             :param type:
             
-                One of the event types :py:const:`KEYUP`, :py:const:`KEYDOWN`, 
-                :py:const:`CURSORMOTION`, :py:const:`CURSORUP`, :py:const:`CURSORDOWN`, 
-                :py:const:`CURSOROVER` or :py:const:`CURSOROUT`.
+                One of the event types :py:const:`KEY_UP`, :py:const:`KEY_DOWN`,
+                :py:const:`CURSOR_MOTION`, :py:const:`CURSOR_UP`, :py:const:`CURSOR_DOWN`,
+                :py:const:`CURSOR_OVER` or :py:const:`CURSOR_OUT`.
 
             :param source:
 
@@ -368,9 +368,9 @@ This section describes the base classes for all node classes that libavg provide
 
             :param type:
             
-                One of the event types :py:const:`KEYUP`, :py:const:`KEYDOWN`, 
-                :py:const:`CURSORMOTION`, :py:const:`CURSORUP`, :py:const:`CURSORDOWN`, 
-                :py:const:`CURSOROVER` or :py:const:`CURSOROUT`.
+                One of the event types :py:const:`KEY_UP`, :py:const:`KEY_DOWN`,
+                :py:const:`CURSOR_MOTION`, :py:const:`CURSOR_UP`, :py:const:`CURSOR_DOWN`,
+                :py:const:`CURSOR_OVER` or :py:const:`CURSOR_OUT`.
 
             :param source:
 

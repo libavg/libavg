@@ -60,17 +60,17 @@ def init():
 
 def bindKeyDown(scancode=None, keyname=None, text=None, handler=None, help=None,
         modifiers=avg.KEYMOD_NONE):
-    _bindKey(scancode, keyname, text, handler, help, modifiers, avg.KEYDOWN)
+    _bindKey(scancode, keyname, text, handler, help, modifiers, avg.Event.KEY_DOWN)
 
 def bindKeyUp(scancode=None, keyname=None, handler=None, help=None,
         modifiers=avg.KEYMOD_NONE):
-    _bindKey(scancode, keyname, None, handler, help, modifiers, avg.KEYUP)
+    _bindKey(scancode, keyname, None, handler, help, modifiers, avg.Event.KEY_UP)
 
 def unbindKeyDown(scancode=None, keyname=None, text=None, modifiers=avg.KEYMOD_NONE):
-    _unbindKey(scancode, keyname, text, modifiers, avg.KEYDOWN)
+    _unbindKey(scancode, keyname, text, modifiers, avg.Event.KEY_DOWN)
 
 def unbindKeyUp(scancode=None, keyname=None, modifiers=avg.KEYMOD_NONE):
-    _unbindKey(scancode, keyname, None, modifiers, avg.KEYUP)
+    _unbindKey(scancode, keyname, None, modifiers, avg.Event.KEY_UP)
 
 def unbindAll():
     global _keyBindings, _keyBindingsStack

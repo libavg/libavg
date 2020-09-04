@@ -376,7 +376,7 @@ class KeyboardManagerBindingsShower(DebugWidget):
             else:
                 key = keystring
 
-            if binding.type == libavg.avg.KEYDOWN:
+            if binding.type == libavg.avg.Event.KEY_DOWN:
                 key = '%s %s' % (unichr(8595), key)
             else:
                 key = '%s %s' % (unichr(8593), key)

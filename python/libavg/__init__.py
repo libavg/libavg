@@ -13,8 +13,6 @@ del system
 from avg import *
 player = avg.Player.get()
 
-from enumcompat import *
-
 import textarea
 import statemachine
 import utils, methodref

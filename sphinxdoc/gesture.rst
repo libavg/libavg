@@ -88,7 +88,7 @@ The namespace libavg.gesture exposes a group of configurable gesture recognizers
             .. py:method:: Recognizer.MOTION(offset)
 
                 Emitted when the drag should cause a position change. This usually happens
-                in response to a :py:const:`CURSORMOTION` event, but may also happen
+                in response to a :py:const:`CURSOR_MOTION` event, but may also happen
                 because of inertia.
 
                 :param avg.Point2D offset: 
@@ -328,7 +328,7 @@ The namespace libavg.gesture exposes a group of configurable gesture recognizers
             .. py:method:: Recognizer.MOTION(transform)
 
                 Emitted whenever the transform changes. This usually happens
-                in response to one or more :py:const:`CURSORMOTION` events, but may also
+                in response to one or more :py:const:`CURSOR_MOTION` events, but may also
                 happen because of inertia.
 
                 :param Transform transform:
