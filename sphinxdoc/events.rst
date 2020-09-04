@@ -77,10 +77,11 @@ Input Handling
             .. deprecated:: 1.8
                 Use the message interface instead.
 
-            Registers event handlers that get called when :py:const:`CURSOR_MOTION` and :py:const:`CURSOR_UP`
-            events for this :py:class:`Contact` occur. Event handlers can be unregistered
-            using :py:meth:`disconnectListener`. They are automatically unregistered
-            after the up event. The :py:attr:`id` returned is unique for this contact.
+            Registers event handlers that get called when :py:const:`Event.CURSOR_MOTION`
+            and :py:const:`Event.CURSOR_UP` events for this :py:class:`Contact` occur.
+            Event handlers can be unregistered using :py:meth:`disconnectListener`.
+            They are automatically unregistered after the up event.
+            The :py:attr:`id` returned is unique for this contact.
 
         .. py:method:: disconnectListener(id)
 
