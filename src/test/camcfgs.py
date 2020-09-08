@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 # libavg - Media Playback Engine.
 # Copyright (C) 2003-2020 Ulrich von Zadow
 #
@@ -18,7 +19,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Current versions can be found at www.libavg.de
-#
+
 
 class CameraTestCfg(object):
     def __init__(self, driver, device, unit, fw800, formats, illegalFormat, paramTests,

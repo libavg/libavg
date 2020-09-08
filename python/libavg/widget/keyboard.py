@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
+
 # libavg - Media Playback Engine.
 # Copyright (C) 2003-2020 Ulrich von Zadow
 #
@@ -21,7 +21,6 @@
 # Current versions can be found at www.libavg.de
 #
 # Original author of this module: Thomas Schott <scotty at c-base dot org>
-#
 
 import os.path
 

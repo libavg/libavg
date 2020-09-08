@@ -22,7 +22,6 @@
 #
 # Original author of this file is OXullo Interecans <x at brainrapers dot org>
 
-
 import os
 import time
 import cPickle as pickle

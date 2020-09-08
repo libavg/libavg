@@ -20,7 +20,7 @@
 #
 # Current versions can be found at www.libavg.de
 #
-# Original author of this file: Thomas Schott <scotty@c-base.org>
+# Original author of this file: Thomas Schott <scotty at c-base dot org>
 
 # See the LICENSE file for license information regarding the media
 # used by this sample.

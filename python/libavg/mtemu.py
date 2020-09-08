@@ -19,6 +19,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Current versions can be found at www.libavg.de
+#
 # Original author of this file is Sebastian Maulbeck
 # <sm (at) archimedes-solutions (dot) de>
 
