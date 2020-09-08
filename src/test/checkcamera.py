@@ -76,8 +76,8 @@ class CameraTestCase(AVGTestCase):
         self.loadEmptyScene()
         self.__openCamera()
         self.actions = [None, None]
-        avg.player.setOnFrameHandler(self.__onFrame)
-        avg.player.play()
+        player.setOnFrameHandler(self.__onFrame)
+        player.play()
         self.assertEqual(self.cam.framenum, 2)
         self.cam = None
 
@@ -158,10 +158,10 @@ class CameraTestCase(AVGTestCase):
         self.loadEmptyScene()
         self.__openCamera()
         self.actions = buildParamActionList(testCfg)
-        avg.player.setOnFrameHandler(self.__onFrame)
+        player.setOnFrameHandler(self.__onFrame)
         self.averages = []
         self.camBmps = []
-        avg.player.play()
+        player.play()
         self.cam = None
 
     def __openCamera(self):
@@ -170,7 +170,7 @@ class CameraTestCase(AVGTestCase):
                 fw800=self.cameraCfg.fw800, framerate=self.fmt.framerate,
                 capturewidth=self.fmt.size[0], captureheight=self.fmt.size[1],
                 pixelformat=self.fmt.pixelformat,
-                parent=avg.player.getRootNode())
+                parent=player.getRootNode())
         self.cam.play()
         self.lastCameraFrame = -1
         self.assert_(self.cam.isAvailable())
@@ -181,7 +181,7 @@ class CameraTestCase(AVGTestCase):
         if self.cam.framenum != self.lastCameraFrame:
             self.lastCameraFrame += 1
             if len(self.actions) == self.lastCameraFrame:
-                avg.player.stop()
+                player.stop()
             else:
                 action = self.actions[self.lastCameraFrame]
                 if action is not None:
