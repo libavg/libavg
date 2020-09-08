@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2020 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -26,7 +26,7 @@
 #pragma warning(disable: 4800)
 
 // {455A53B7-FC34-4960-94CE-A17A0B23F807}
-DEFINE_GUID(CLSID_libavgGrabber, 
+DEFINE_GUID(CLSID_libavgGrabber,
 0x455a53b7, 0xfc34, 0x4960, 0x94, 0xce, 0xa1, 0x7a, 0xb, 0x23, 0xf8, 0x7);
 
 namespace avg {
@@ -39,7 +39,7 @@ public:
 
     HRESULT Alloc();
     void ReallyFree();
-    STDMETHODIMP SetProperties(ALLOCATOR_PROPERTIES* pRequest, 
+    STDMETHODIMP SetProperties(ALLOCATOR_PROPERTIES* pRequest,
             ALLOCATOR_PROPERTIES* pActual);
 
 protected:
@@ -76,12 +76,12 @@ private:
 };
 
 CSampleGrabber::CSampleGrabber(IUnknown * pOuter, HRESULT * phr)
-    : CTransInPlaceFilter(TEXT("libavg sample grabber"), (IUnknown*) pOuter, 
+    : CTransInPlaceFilter(TEXT("libavg sample grabber"), (IUnknown*) pOuter,
               CLSID_libavgGrabber, phr, false),
       m_pCallback(NULL)
 {
     m_pInput = (CTransInPlaceInputPin*) new CSampleGrabberInPin(this, phr);
-    
+
     IPin *pOutput = GetPin(1);
 }
 
@@ -89,7 +89,7 @@ STDMETHODIMP CSampleGrabber::NonDelegatingQueryInterface(REFIID riid, void** ppv
 {
     AVG_ASSERT(ppv);
 
-    if (riid == IID_IlibavgGrabber) {                
+    if (riid == IID_IlibavgGrabber) {
         return GetInterface((IlibavgGrabber *)this, ppv);
     } else {
         return CTransInPlaceFilter::NonDelegatingQueryInterface(riid, ppv);
@@ -160,7 +160,7 @@ void STDMETHODCALLTYPE CSampleGrabber::SetCallback(IDSSampleCallback* pCallback)
     m_pCallback = pCallback;
 }
 
-CSampleGrabberInPin::CSampleGrabberInPin(CTransInPlaceFilter* pFilter, HRESULT* pHr) 
+CSampleGrabberInPin::CSampleGrabberInPin(CTransInPlaceFilter* pFilter, HRESULT* pHr)
     : CTransInPlaceInputPin(TEXT("SampleGrabberInputPin\0"), pFilter, pHr, L"Input\0"),
       m_pPrivateAllocator(NULL),
       m_pBuffer(NULL),
@@ -190,7 +190,7 @@ HRESULT CSampleGrabberInPin::GetMediaType(int iPosition, CMediaType* pMediaType)
     return S_OK;
 }
 
-STDMETHODIMP CSampleGrabberInPin::EnumMediaTypes(IEnumMediaTypes** ppEnum) 
+STDMETHODIMP CSampleGrabberInPin::EnumMediaTypes(IEnumMediaTypes** ppEnum)
 {
     AVG_ASSERT(ppEnum);
     ValidateReadWritePtr(ppEnum, sizeof(IEnumMediaTypes *));

@@ -1,5 +1,5 @@
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2020 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _DSCamera_H_
-#define _DSCamera_H_
+#ifndef _DSCamera_H
+#define _DSCamera_H
 
 #include "IDSSampleCallback.h"
 
@@ -54,11 +54,11 @@ public:
 
     virtual BitmapPtr getImage(bool bWait);
 
-    virtual const std::string& getDevice() const; 
-    virtual const std::string& getDriverName() const; 
+    virtual const std::string& getDevice() const;
+    virtual const std::string& getDriverName() const;
 
     virtual int getFeature(CameraFeature feature) const;
-    virtual void setFeature(CameraFeature feature, int value, 
+    virtual void setFeature(CameraFeature feature, int value,
             bool bIgnoreOldValue=false);
     virtual void setFeatureOneShot(CameraFeature feature);
     virtual int getWhitebalanceU() const;
