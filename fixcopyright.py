@@ -56,7 +56,7 @@ def handleFile(path):
         print 'skipping', path
 
 
-for ext in ("h", "c", "cpp", "py"):
+for ext in ("h", "c", "cpp", "py"):  # TODO: include python/scripts/*
     cmd = 'find . -name "*.'+ext+'" -not -wholename "'+__file__+'"'
     files = os.popen(cmd).readlines()
     for f in files:
