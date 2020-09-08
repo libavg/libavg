@@ -18,6 +18,7 @@
 //
 //  Current versions can be found at www.libavg.de
 //
+
 #ifndef _EGLContext_H_
 #define _EGLContext_H_
 

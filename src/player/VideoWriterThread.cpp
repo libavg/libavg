@@ -1,4 +1,3 @@
-
 //
 //  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2020 Ulrich von Zadow

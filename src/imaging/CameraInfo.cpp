@@ -19,6 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 //  V4L2/libavg compliance by 02L > Outside Standing Level
+//
 
 #include "CameraInfo.h"
 

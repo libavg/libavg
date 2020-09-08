@@ -1,6 +1,5 @@
-
 //
-//  libavg - Media Playback Engine. 
+//  libavg - Media Playback Engine.
 //  Copyright (C) 2003-2020 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -19,7 +18,6 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-
 
 #include "SDLWindow.h"
 
