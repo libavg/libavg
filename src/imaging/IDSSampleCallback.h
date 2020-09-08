@@ -1,6 +1,6 @@
 //
-//  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2014 Ulrich von Zadow
+//  libavg - Media Playback Engine.
+//  Copyright (C) 2003-2020 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -19,14 +19,14 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _IDSSampleCallback_H_
-#define _IDSSampleCallback_H_
+#ifndef _IDSSampleCallback_H
+#define _IDSSampleCallback_H
 
 struct IMediaSample;
 
 namespace avg {
 
-class IDSSampleCallback 
+class IDSSampleCallback
 {
 public:
     virtual void onSample(IMediaSample * pSample)=0;

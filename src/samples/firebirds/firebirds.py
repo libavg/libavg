@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # libavg - Media Playback Engine.
-# Copyright (C) 2012-2013 Ulrich von Zadow
+# Copyright (C) 2012-2020 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -20,7 +20,7 @@
 #
 # Current versions can be found at www.libavg.de
 #
-# Original author of this file: Thomas Schott <scotty@c-base.org>
+# Original author of this file: Thomas Schott <scotty at c-base dot org>
 
 # See the LICENSE file for license information regarding the media
 # used by this sample.

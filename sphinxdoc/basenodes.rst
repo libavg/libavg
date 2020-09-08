@@ -261,10 +261,11 @@ This section describes the base classes for all node classes that libavg provide
             :py:meth:`connectEventHandler`, call :py:meth:`disconnectEventHandler`.
 
             :param type:
-            
-                One of the event types :py:const:`KEYUP`, :py:const:`KEYDOWN`, 
-                :py:const:`CURSORMOTION`, :py:const:`CURSORUP`, :py:const:`CURSORDOWN`, 
-                :py:const:`CURSOROVER` or :py:const:`CURSOROUT`.
+
+                One of the event types :py:const:`Event.KEY_UP`, :py:const:`Event.KEY_DOWN`,
+                :py:const:`Event.CURSOR_MOTION`, :py:const:`Event.CURSOR_UP`,
+                :py:const:`Event.CURSOR_DOWN`, :py:const:`Event.CURSOR_OVER` or
+                :py:const:`Event.CURSOR_OUT`.
 
             :param source:
 
@@ -367,10 +368,11 @@ This section describes the base classes for all node classes that libavg provide
             other event handlers from this type/source-combination. 
 
             :param type:
-            
-                One of the event types :py:const:`KEYUP`, :py:const:`KEYDOWN`, 
-                :py:const:`CURSORMOTION`, :py:const:`CURSORUP`, :py:const:`CURSORDOWN`, 
-                :py:const:`CURSOROVER` or :py:const:`CURSOROUT`.
+
+            One of the event types :py:const:`Event.KEY_UP`, :py:const:`Event.KEY_DOWN`,
+            :py:const:`Event.CURSOR_MOTION`, :py:const:`Event.CURSOR_UP`,
+            :py:const:`Event.CURSOR_DOWN`, :py:const:`Event.CURSOR_OVER` or
+            :py:const:`Event.CURSOR_OUT`.
 
             :param source:
 

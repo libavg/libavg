@@ -1,5 +1,8 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2014 Ulrich von Zadow
+# Copyright (C) 2003-2020 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -18,7 +21,6 @@
 # Current versions can be found at www.libavg.de
 #
 # Original author of this file is Martin Heistermann <mh at sponc dot de>
-#
 
 import os
 

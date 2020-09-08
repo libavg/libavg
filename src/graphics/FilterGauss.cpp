@@ -1,6 +1,6 @@
 //
-//  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2014 Ulrich von Zadow
+//  libavg - Media Playback Engine.
+//  Copyright (C) 2003-2020 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -33,7 +33,7 @@
 using namespace std;
 
 namespace avg {
-    
+
 FilterGauss::FilterGauss(float radius)
     : m_Radius(radius)
 {
@@ -48,7 +48,7 @@ BitmapPtr FilterGauss::apply(BitmapPtr pBmpSrc)
 {
     AVG_ASSERT(pBmpSrc->getPixelFormat() == I8);
     int intRadius = int(ceil(m_Radius));
-    
+
     // Convolve in x-direction
     IntPoint tempSize(pBmpSrc->getSize().x-2*intRadius, pBmpSrc->getSize().y);
     BitmapPtr pTempBmp = BitmapPtr(new Bitmap(tempSize, I8, pBmpSrc->getName()));
@@ -62,11 +62,11 @@ BitmapPtr FilterGauss::apply(BitmapPtr pBmpSrc)
         switch (intRadius) {
             case 3:
                 for (int x = 0; x < tempSize.x; ++x) {
-                    *pTempPixel = (*(pSrcPixel-3)*m_Kernel[0] + 
+                    *pTempPixel = (*(pSrcPixel-3)*m_Kernel[0] +
                             *(pSrcPixel-2)*m_Kernel[1] +
-                            *(pSrcPixel-1)*m_Kernel[2] + 
+                            *(pSrcPixel-1)*m_Kernel[2] +
                             *(pSrcPixel)*m_Kernel[3] +
-                            *(pSrcPixel+1)*m_Kernel[4] + 
+                            *(pSrcPixel+1)*m_Kernel[4] +
                             *(pSrcPixel+2)*m_Kernel[5] +
                             *(pSrcPixel+3)*m_Kernel[6])/256;
                     ++pSrcPixel;
@@ -76,9 +76,9 @@ BitmapPtr FilterGauss::apply(BitmapPtr pBmpSrc)
             case 2:
                 for (int x = 0; x < tempSize.x; ++x) {
                     *pTempPixel = (*(pSrcPixel-2)*m_Kernel[0] +
-                            *(pSrcPixel-1)*m_Kernel[1] + 
+                            *(pSrcPixel-1)*m_Kernel[1] +
                             *(pSrcPixel)*m_Kernel[2] +
-                            *(pSrcPixel+1)*m_Kernel[3] + 
+                            *(pSrcPixel+1)*m_Kernel[3] +
                             *(pSrcPixel+2)*m_Kernel[4])/256;
                     ++pSrcPixel;
                     ++pTempPixel;
@@ -86,7 +86,7 @@ BitmapPtr FilterGauss::apply(BitmapPtr pBmpSrc)
                 break;
             case 1:
                 for (int x = 0; x < tempSize.x; ++x) {
-                    *pTempPixel = (*(pSrcPixel-1)*m_Kernel[0] + 
+                    *pTempPixel = (*(pSrcPixel-1)*m_Kernel[0] +
                             *(pSrcPixel)*m_Kernel[1] +
                             *(pSrcPixel+1)*m_Kernel[2])/256;
                     ++pSrcPixel;
@@ -124,9 +124,9 @@ BitmapPtr FilterGauss::apply(BitmapPtr pBmpSrc)
                 for (int x = 0; x < destSize.x; ++x) {
                     *pDestPixel = (*(pTempPixel-3*tempStride)*m_Kernel[0] +
                             *(pTempPixel-2*tempStride)*m_Kernel[1] +
-                            *(pTempPixel-1*tempStride)*m_Kernel[2] + 
+                            *(pTempPixel-1*tempStride)*m_Kernel[2] +
                             *(pTempPixel)*m_Kernel[3] +
-                            *(pTempPixel+1*tempStride)*m_Kernel[4] + 
+                            *(pTempPixel+1*tempStride)*m_Kernel[4] +
                             *(pTempPixel+2*tempStride)*m_Kernel[5] +
                             *(pTempPixel+3*tempStride)*m_Kernel[6])/256;
                     ++pTempPixel;
@@ -136,9 +136,9 @@ BitmapPtr FilterGauss::apply(BitmapPtr pBmpSrc)
             case 2:
                 for (int x = 0; x < destSize.x; ++x) {
                     *pDestPixel = (*(pTempPixel-2*tempStride)*m_Kernel[0] +
-                            *(pTempPixel-1*tempStride)*m_Kernel[1] + 
+                            *(pTempPixel-1*tempStride)*m_Kernel[1] +
                             *(pTempPixel)*m_Kernel[2] +
-                            *(pTempPixel+1*tempStride)*m_Kernel[3] + 
+                            *(pTempPixel+1*tempStride)*m_Kernel[3] +
                             *(pTempPixel+2*tempStride)*m_Kernel[4])/256;
                     ++pTempPixel;
                     ++pDestPixel;
@@ -146,7 +146,7 @@ BitmapPtr FilterGauss::apply(BitmapPtr pBmpSrc)
                 break;
             case 1:
                 for (int x = 0; x < destSize.x; ++x) {
-                    *pDestPixel = (*(pTempPixel-1*tempStride)*m_Kernel[0] + 
+                    *pDestPixel = (*(pTempPixel-1*tempStride)*m_Kernel[0] +
                             *(pTempPixel)*m_Kernel[1] +
                             *(pTempPixel+1*tempStride)*m_Kernel[2])/256;
                     ++pTempPixel;

@@ -1,6 +1,6 @@
 //
-//  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2014 Ulrich von Zadow
+//  libavg - Media Playback Engine.
+//  Copyright (C) 2003-2020 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -18,6 +18,7 @@
 //
 //  Current versions can be found at www.libavg.de
 //
+
 #ifndef _BCMDisplay_H_
 #define _BCMDisplay_H_
 

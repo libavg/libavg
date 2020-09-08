@@ -1,6 +1,6 @@
 //
 //  libavg - Media Playback Engine.
-//  Copyright (C) 2003-2014 Ulrich von Zadow
+//  Copyright (C) 2003-2020 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -19,6 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 //  V4L2/libavg compliance by 02L > Outside Standing Level
+//
 
 #include "CameraInfo.h"
 

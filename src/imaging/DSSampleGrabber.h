@@ -1,6 +1,6 @@
 //
-//  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2014 Ulrich von Zadow
+//  libavg - Media Playback Engine.
+//  Copyright (C) 2003-2020 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _DSSampleGrabber_H_
-#define _DSSampleGrabber_H_
+#ifndef _DSSampleGrabber_H
+#define _DSSampleGrabber_H
 
 #include "IDSSampleCallback.h"
 
@@ -41,7 +41,7 @@
 #include <dshowbase/transip.h>
 
 // {87F09DC5-12BC-479d-A20F-21133C613037}
-DEFINE_GUID(IID_IlibavgGrabber, 
+DEFINE_GUID(IID_IlibavgGrabber,
 0x87f09dc5, 0x12bc, 0x479d, 0xa2, 0xf, 0x21, 0x13, 0x3c, 0x61, 0x30, 0x37);
 
 namespace avg {
@@ -52,7 +52,7 @@ IlibavgGrabber : public IUnknown
 public:
     virtual void STDMETHODCALLTYPE SetCallback(IDSSampleCallback* pCallback) = 0;
 };
-        
+
 class CSampleGrabberInPin;
 
 class CSampleGrabber : public CTransInPlaceFilter, IlibavgGrabber
@@ -73,11 +73,11 @@ protected:
     HRESULT CheckInputType(const CMediaType* pmt);
     HRESULT Transform(IMediaSample* pms);
 
-    // override this so we can return S_FALSE directly. 
+    // override this so we can return S_FALSE directly.
     // The base class CTransInPlace
-    // Transform( ) method is called by it's 
+    // Transform( ) method is called by it's
     // Receive( ) method. There is no way
-    // to get Transform( ) to return an S_FALSE value 
+    // to get Transform( ) to return an S_FALSE value
     // (which means "stop giving me data"),
     // to Receive( ) and get Receive( ) to return S_FALSE as well.
     HRESULT Receive(IMediaSample* pms);

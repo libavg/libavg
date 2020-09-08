@@ -1,6 +1,8 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2014 Ulrich von Zadow
+# Copyright (C) 2003-2020 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,7 +19,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Current versions can be found at www.libavg.de
-#
 
 from libavg import avg, textarea, widget, player
 from libavg.testcase import *
@@ -167,10 +168,12 @@ class WidgetTestCase(AVGTestCase):
         def checkSingleLine():
             text = ''
             self.ta2.setText('')
+            keycode = ord('A')
             while True:
                 self.assert_(len(text) < 20)
-                self.ta2.onKeyDown(ord('A'))
-                text += 'A'
+                self.ta2.onKeyDown(keycode)
+                text += chr(keycode)
+                keycode += 1
                 if text != self.ta2.getText():
                     break
 
@@ -768,10 +771,11 @@ class WidgetTestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_MOTION, 150, 5),
                  lambda: self.messageTester.assertState(
                         [widget.MediaControl.SEEK_MOTION,]),
-                 lambda: self.compareImage("testMediaControl4"),
+                 lambda: self.compareImage("testMediaControl6"),
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 150, 5),
                  lambda: self.messageTester.assertState(
                         [widget.MediaControl.SEEK_RELEASED,]),
+                 lambda: self.compareImage("testMediaControl4"),
                 ))
 
     def testScrollArea(self):

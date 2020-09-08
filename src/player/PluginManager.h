@@ -1,6 +1,6 @@
 //
-//  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2014 Ulrich von Zadow
+//  libavg - Media Playback Engine.
+//  Copyright (C) 2003-2020 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -20,6 +20,7 @@
 //
 //  Original author of this file is Jan Boelsche (regular.gonzales@googlemail.com).
 //
+
 #ifndef _PluginManager_H_
 #define _PluginManager_H_
 

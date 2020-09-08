@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2014 Ulrich von Zadow
+# Copyright (C) 2003-2020 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -374,7 +374,7 @@ class KeyboardManagerBindingsShower(DebugWidget):
             else:
                 key = keystring
 
-            if binding.type == libavg.avg.KEYDOWN:
+            if binding.type == libavg.avg.Event.KEY_DOWN:
                 key = '%s %s' % (chr(8595), key)
             else:
                 key = '%s %s' % (chr(8593), key)

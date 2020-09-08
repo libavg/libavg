@@ -1,6 +1,6 @@
 //
-//  libavg - Media Playback Engine. 
-//  Copyright (C) 2003-2014 Ulrich von Zadow
+//  libavg - Media Playback Engine.
+//  Copyright (C) 2003-2020 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -192,7 +192,10 @@ void ConfigMgr::getGammaOption(const string& sSubsys,
     if (psOption == 0) {
         return;
     }
+    const string sOldLocale(setlocale(LC_NUMERIC, NULL));
+    setlocale(LC_NUMERIC, "C");
     int rc = sscanf(psOption->c_str(), "%f,%f,%f", Val, Val+1, Val+2);
+    setlocale(LC_NUMERIC, sOldLocale.c_str());
     if (rc < 3) {
         AVG_LOG_ERROR(m_sFName << ": Unrecognized value for option "<<sName<<": " 
                 << *psOption << ". Must be three comma-separated numbers. Aborting.");
@@ -208,7 +211,10 @@ glm::vec2 ConfigMgr::getSizeOption(const string& sSubsys,
         return glm::vec2(0, 0);
     }
     float val[2];
+    const string sOldLocale(setlocale(LC_NUMERIC, NULL));
+    setlocale(LC_NUMERIC, "C");
     int rc = sscanf(psOption->c_str(), "%f,%f", val, val+1);
+    setlocale(LC_NUMERIC, sOldLocale.c_str());
     if (rc < 2) {
         AVG_LOG_ERROR(m_sFName << ": Unrecognized value for option " << sName << ": "
                 << *psOption << ". Must be 2 comma-separated numbers(x, y). Aborting.");
