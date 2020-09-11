@@ -14,7 +14,7 @@ message(STATUS "Using python interpreter: ${PYTHON_INTERPRETER}")
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in" "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
 
-add_custom_target(python-build ALL DEPENDS avg
+add_custom_target(python-build ALL DEPENDS avg colorplugin collisiondetector
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:avg>"
             "${CMAKE_CURRENT_BINARY_DIR}/libavg/")
 
