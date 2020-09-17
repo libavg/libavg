@@ -33,7 +33,7 @@
 #include "../base/CubicSpline.h"
 #include "../base/GeomHelper.h"
 
-#include "../glm/gtx/vector_angle.hpp"
+#include "../thirdparty/glm/gtx/vector_angle.hpp"
 
 #include <vector>
 #include <sstream>

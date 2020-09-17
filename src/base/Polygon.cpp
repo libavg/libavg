@@ -4,7 +4,7 @@
 #include "Polygon.h"
 #include "Exception.h"
 
-#include "../tess/tesselator.h"
+#include "../thirdparty/tess/tesselator.h"
 #include "Exception.h"
 
 #include <stdio.h>

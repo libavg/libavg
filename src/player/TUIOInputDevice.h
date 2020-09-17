@@ -25,10 +25,10 @@
 #include "../api.h"
 #include "MultitouchInputDevice.h"
 #include "Event.h"
-#include "../oscpack/UdpSocket.h"
-#include "../oscpack/PacketListener.h"
-#include "../oscpack/OscReceivedElements.h"
-#include "../oscpack/OscPrintReceivedElements.h"
+#include "../thirdparty/oscpack/UdpSocket.h"
+#include "../thirdparty/oscpack/PacketListener.h"
+#include "../thirdparty/oscpack/OscReceivedElements.h"
+#include "../thirdparty/oscpack/OscPrintReceivedElements.h"
 #include "../graphics/Bitmap.h"
 
 #ifdef WIN32

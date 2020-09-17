@@ -35,7 +35,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "../glm/gtc/matrix_transform.hpp"
+#include "../thirdparty/glm/gtc/matrix_transform.hpp"
 
 using namespace std;
 

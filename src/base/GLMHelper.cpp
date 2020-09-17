@@ -22,7 +22,7 @@
 #include "GLMHelper.h"
 #include "StringHelper.h"
 
-#include "../glm/gtx/rotate_vector.hpp"
+#include "../thirdparty/glm/gtx/rotate_vector.hpp"
 
 using namespace std;
 

@@ -23,7 +23,7 @@
 #define _CubicSpline_H_
 
 #include "../api.h"
-#include "../glm/glm.hpp"
+#include "../thirdparty/glm/glm.hpp"
 
 #include <boost/shared_ptr.hpp>
 #include <vector>
