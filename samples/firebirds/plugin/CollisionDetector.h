@@ -26,8 +26,8 @@
 
 #define AVG_PLUGIN
 
-#include "../../src/wrapper/WrapHelper.h"
-#include "../../src/graphics/Bitmap.h"
+#include "../../../src/wrapper/WrapHelper.h"
+#include "../../../src/graphics/Bitmap.h"
 
 
 namespace avg {
