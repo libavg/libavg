@@ -513,32 +513,35 @@ Misc. Classes
 
         .. py:attribute:: full
 
-        Full string containing a compact form of branch and revision number (if the
-        build doesn't come from an exported tree)
+        Full string containing a compact form of release, branch and revision
 
         .. py:attribute:: release
 
-        String representation in the form `major.minor.micro`
+        String representation in the form `major.minor.micro[.extra]`
 
         .. py:attribute:: major
 
-        Integer component of the release version (major)
+        Major component of the release version
 
         .. py:attribute:: minor
 
-        Integer component of the release version (minor)
+        Minor component of the release version
 
         .. py:attribute:: micro
 
-        Integer component of the release version (micro)
+        Micro component of the release version
+
+        .. py:attribute:: extra
+
+        Extra component of the release version (optional)
 
         .. py:attribute:: revision
 
-        Revision number, if applicable, or 0
+        Revision number (git commit hash)
 
-        .. py:attribute:: branchurl
+        .. py:attribute:: branch
 
-        Full URL path that represents the branch root, if applicable, or empty string
+        Git branch name of the build
 
         .. py:attribute:: builder
 
