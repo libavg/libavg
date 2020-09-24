@@ -46,6 +46,7 @@ OUTPUT_TEMPLATE = '''// version.h
 #define AVG_VERSION_MAJOR       "%(major)s"
 #define AVG_VERSION_MINOR       "%(minor)s"
 #define AVG_VERSION_MICRO       "%(micro)s"
+#define AVG_VERSION_EXTRA       "%(extra)s"
 '''
 TOPDIR = os.path.dirname(os.path.abspath(__file__))
 INPUT_FILE = os.path.join(TOPDIR, 'CMakeLists.txt')
@@ -93,31 +94,35 @@ def getBuilder():
     return '%s@%s %s' % (user, hostname, platform.platform())
 
 def extractComponentFromCmakeLists(text, component):
-    match = re.search(r'%s\s([A-Za-z0-9\.]+)\s*\)' % component, text, re.M)
+    match = re.search(r'%s\s([A-Za-z0-9]*)\s*\)' % component, text, re.M)
     if match:
-        return match.group(1)
-    else:
-        err('Cannot identify %s version component in %s' % (component, INPUT_FILE))
-        sys.exit(1)
-    
+        value = match.group(1)
+        if value or (value == '' and component == 'AVG_VERSION_EXTRA'):
+            return value
+    err('Cannot identify %s version component in %s' % (component, INPUT_FILE))
+    sys.exit(1)
+
 def getVersionComponents():
     f = open(INPUT_FILE)
     contents = f.read()
     f.close()
-    
+
     major = extractComponentFromCmakeLists(contents, 'AVG_VERSION_MAJOR')
     minor = extractComponentFromCmakeLists(contents, 'AVG_VERSION_MINOR')
     micro = extractComponentFromCmakeLists(contents, 'AVG_VERSION_MICRO')
-    
-    return (major, minor, micro)
-    
-def assembleVersionInfo(major, minor, micro):
+    extra = extractComponentFromCmakeLists(contents, 'AVG_VERSION_EXTRA')
+
+    return (major, minor, micro, extra)
+
+def assembleVersionInfo(major, minor, micro, extra):
     releaseVersion = '%s.%s.%s' % (major, minor, micro)
+    if extra:
+        releaseVersion = '%s.%s' % (releaseVersion, extra)
     revision = getCommitHash()
     branch = getBranchName()
     builder = getBuilder()
     buildtime = datetime.datetime.now().isoformat()
-    
+
     if revision and branch:
         fullVersion = '%s-%s/%s' % (releaseVersion, branch, revision)
     elif revision:

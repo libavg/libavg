@@ -239,10 +239,11 @@ BOOST_PYTHON_MODULE(avg)
             .add_property("major", &VersionInfo::getMajor)
             .add_property("minor", &VersionInfo::getMinor)
             .add_property("micro", &VersionInfo::getMicro)
+            .add_property("extra", &VersionInfo::getExtra)
             .add_property("revision", &VersionInfo::getRevision)
             .add_property("builder", &VersionInfo::getBuilder)
             .add_property("buildtime", &VersionInfo::getBuildTime)
-            ;
+        ;
     } catch (const exception& e) {
         PyErr_SetString(PyExc_RuntimeError, e.what());
         throw error_already_set();

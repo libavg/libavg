@@ -59,6 +59,11 @@ const std::string VersionInfo::getMicro()
     return AVG_VERSION_MICRO;
 }
 
+const std::string VersionInfo::getExtra()
+{
+    return AVG_VERSION_EXTRA;
+}
+
 const std::string VersionInfo::getRevision()
 {
     return AVG_VERSION_REVISION;
