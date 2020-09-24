@@ -25,11 +25,11 @@
 #include "../api.h"
 
 #define GLM_FORCE_RADIANS
-#include "../glm/fwd.hpp"
-#include "../glm/gtc/matrix_transform.hpp"
-#include "../glm/gtc/type_ptr.hpp"
-#include "../glm/gtx/io.hpp"
-#include "../glm/gtx/raw_data.hpp"
+#include "../thirdparty/glm/fwd.hpp"
+#include "../thirdparty/glm/gtc/matrix_transform.hpp"
+#include "../thirdparty/glm/gtc/type_ptr.hpp"
+#include "../thirdparty/glm/gtx/io.hpp"
+#include "../thirdparty/glm/gtx/raw_data.hpp"
 
 #include <iostream>
 #include <vector>

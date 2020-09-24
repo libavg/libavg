@@ -21,10 +21,14 @@ endfunction(set_cxx_version)
 project(libavg)
 
 # libavg release version
-set(AVG_VERSION_MAJOR 1)
-set(AVG_VERSION_MINOR 8)
-set(AVG_VERSION_MICRO 2)
+set(AVG_VERSION_MAJOR 2)
+set(AVG_VERSION_MINOR 0)
+set(AVG_VERSION_MICRO 0)
+set(AVG_VERSION_EXTRA dev0) # optional
 set(AVG_VERSION_RELEASE "${AVG_VERSION_MAJOR}.${AVG_VERSION_MINOR}.${AVG_VERSION_MICRO}")
+if(DEFINED AVG_VERSION_EXTRA)
+    set(AVG_VERSION_RELEASE "${AVG_VERSION_RELEASE}.${AVG_VERSION_EXTRA}")
+endif()
 
 message(STATUS "libavg v${AVG_VERSION_RELEASE}")
 
@@ -179,4 +183,5 @@ configure_file(
     "${PROJECT_BINARY_DIR}/src/avgconfig.h")
 include_directories("${PROJECT_BINARY_DIR}/src")
 add_subdirectory(src)
+add_subdirectory(samples)
 add_subdirectory(python)

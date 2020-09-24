@@ -29,7 +29,7 @@
 #include "../base/Polygon.h"
 #include "../graphics/VertexData.h"
 
-#include "../glm/gtx/norm.hpp"
+#include "../thirdparty/glm/gtx/norm.hpp"
 
 #include <iostream>
 #include <sstream>

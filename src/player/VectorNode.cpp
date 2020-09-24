@@ -40,7 +40,7 @@
 #include "../graphics/Filterfliprgb.h"
 #include "../graphics/WrapMode.h"
 
-#include "../glm/gtx/norm.hpp"
+#include "../thirdparty/glm/gtx/norm.hpp"
 
 #include <iostream>
 #include <sstream>

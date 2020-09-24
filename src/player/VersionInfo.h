@@ -37,10 +37,10 @@ class AVG_API VersionInfo
         const std::string getMajor();
         const std::string getMinor();
         const std::string getMicro();
+        const std::string getExtra();
         const std::string getRevision();
 };
 
 }
 
 #endif 
-

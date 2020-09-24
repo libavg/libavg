@@ -13,15 +13,13 @@ install(DIRECTORY ./
 install(FILES ${CMAKE_BINARY_DIR}/src/avgconfig.h ${CMAKE_BINARY_DIR}/src/version.h
         DESTINATION include/libavg)
 
-add_subdirectory(tess)
+add_subdirectory(thirdparty)
 add_subdirectory(test)
 add_subdirectory(base)
 add_subdirectory(graphics)
 add_subdirectory(imaging)
-add_subdirectory(oscpack)
 add_subdirectory(audio)
 add_subdirectory(video)
 add_subdirectory(player)
 add_subdirectory(anim)
 add_subdirectory(wrapper)
-add_subdirectory(samples)

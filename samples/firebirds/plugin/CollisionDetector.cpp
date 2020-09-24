@@ -23,7 +23,7 @@
 
 #include "CollisionDetector.h"
 
-#include "../../../base/ScopeTimer.h"
+#include "../../../src/base/ScopeTimer.h"
 
 namespace avg {
 

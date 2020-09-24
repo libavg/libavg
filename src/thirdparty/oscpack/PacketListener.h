@@ -30,7 +30,7 @@
 #ifndef INCLUDED_PACKETLISTENER_H
 #define INCLUDED_PACKETLISTENER_H
 
-#include "../api.h"
+#include "../../api.h"
 
 class IpEndpointName;
 
