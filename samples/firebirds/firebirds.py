@@ -311,7 +311,7 @@ class ScoreCounter(avg.DivNode):
             y = s % 10 * -34
             if img.y != y:
                 avg.LinearAnim(img, 'y', 250, img.y, y).start()
-            s /= 10
+            s //= 10
 
 
 class GunControl(avg.DivNode):
