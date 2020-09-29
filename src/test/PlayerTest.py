@@ -809,7 +809,7 @@ class PlayerTestCase(AVGTestCase):
         self.assertRaises(avg.Exception, lambda: svgFile.renderElement("missing_id"))
 
         # unescapeIllustratorIDs
-        svgIllustratorFile = avg.SVG("illustratorRect.svg", True)
+        svgIllustratorFile = avg.SVG("media/illustratorRect.svg", True)
         svgIllustratorFile.getElementSize("pos_rect")
 
         # createImageNode
