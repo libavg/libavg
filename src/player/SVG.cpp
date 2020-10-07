@@ -53,9 +53,11 @@ using namespace std;
 
 namespace avg {
 
-SVG::SVG(const UTF8String& sFilename, bool bUnescapeIllustratorIDs)
+SVG::SVG(const UTF8String& sFilename,
+        bool bUnescapeIllustratorIDs, bool bUseLogicalBbox)
     : m_sFilename(sFilename),
-      m_bUnescapeIllustratorIDs(bUnescapeIllustratorIDs)
+      m_bUnescapeIllustratorIDs(bUnescapeIllustratorIDs),
+      m_bUseLogicalBbox(bUseLogicalBbox)
 {
     GError* pErr = 0;
     m_pRSVG = rsvg_handle_new_from_file(m_sFilename.c_str(), &pErr);
@@ -168,7 +170,7 @@ SVGElementPtr SVG::getElement(const UTF8String& sElementID)
     map<UTF8String, SVGElementPtr>::iterator pos = m_ElementMap.find(sElementID);
     if (pos == m_ElementMap.end()) {
         SVGElementPtr pElement(new SVGElement(m_pRSVG, m_sFilename, sElementID, 
-                m_bUnescapeIllustratorIDs));
+                m_bUnescapeIllustratorIDs, m_bUseLogicalBbox));
         m_ElementMap[sElementID] = pElement;
         return pElement;
     } else {

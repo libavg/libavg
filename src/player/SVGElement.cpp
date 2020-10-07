@@ -30,14 +30,20 @@ using namespace std;
 namespace avg {
 
 SVGElement::SVGElement(RsvgHandle* pRSVG, const UTF8String& sFilename, 
-        const UTF8String& sElementID, bool bUnescapeIllustratorIDs)
+        const UTF8String& sElementID,
+        bool bUnescapeIllustratorIDs, bool bUseLogicalBbox)
 {
     m_sUnescapedID = unescapeID(pRSVG, sFilename, sElementID, bUnescapeIllustratorIDs); 
 
 #if LIBRSVG_CHECK_VERSION(2, 46, 0)
     const RsvgRectangle viewport {0.0, 0.0, 0.0, 0.0};
     RsvgRectangle geom;
-    rsvg_handle_get_geometry_for_layer(pRSVG, m_sUnescapedID.c_str(), &viewport, &geom, 0, 0);
+    if (bUseLogicalBbox) {
+        rsvg_handle_get_geometry_for_layer(pRSVG, m_sUnescapedID.c_str(), &viewport, 0, &geom, 0);
+    }
+    else {
+        rsvg_handle_get_geometry_for_layer(pRSVG, m_sUnescapedID.c_str(), &viewport, &geom, 0, 0);
+    }
     // we use rounded values here for backward (render) compatibility with older librsvg
     m_Pos = glm::vec2((int)geom.x, (int)geom.y);
     m_Size = glm::vec2((int)geom.width + 1, (int)geom.height + 1);

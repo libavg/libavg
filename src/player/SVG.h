@@ -44,7 +44,8 @@ typedef boost::shared_ptr<Node> NodePtr;
 class SVG
 {
 public:
-    SVG(const UTF8String& sFilename, bool bUnescapeIllustratorIDs=false);
+    SVG(const UTF8String& sFilename,
+            bool bUnescapeIllustratorIDs=false, bool bUseLogicalBbox=false);
     virtual ~SVG();
 
     BitmapPtr renderElement(const UTF8String& sElementID);
@@ -69,6 +70,7 @@ private:
     std::map<UTF8String, SVGElementPtr> m_ElementMap;
     UTF8String m_sFilename;
     bool m_bUnescapeIllustratorIDs;
+    bool m_bUseLogicalBbox;
     RsvgHandle* m_pRSVG;
 };
 
