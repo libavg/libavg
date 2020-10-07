@@ -820,10 +820,10 @@ Misc. Classes
 .. automodule:: libavg.clicktest
     :no-members:
 
-    .. autoclass:: ClickTest([mouse=False, maxTouches=10, probabilities=(0.5, 0.1, 0.2)])
+    .. autoclass:: ClickTest([mouse=False, maxTouches=10, probabilities=(0.5, 0.1, 0.2), visualize=True])
 
-        A mouse and touch click test that generates and visualizes random
-        (fake) events.
+        A mouse and touch click test that generates and optionally visualizes
+        random (fake) events.
 
         :param bool mouse: If true, mouse events are generated.
 
@@ -840,3 +840,5 @@ Misc. Classes
             * [0]: :py:const:`Event.CURSOR_DOWN`
             * [1]: :py:const:`Event.CURSOR_UP`
             * [2]: :py:const:`Event.CURSOR_MOTION`
+
+        :param bool visualize: If true, event positions and motion paths are rendered.
