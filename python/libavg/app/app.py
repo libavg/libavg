@@ -27,7 +27,7 @@ import os
 import math
 
 import libavg
-from libavg import avg, Point2D, mtemu, player
+from libavg import avg, player, Point2D, mtemu, clicktest
 
 import settings
 from settings import Option
@@ -86,6 +86,7 @@ class App(object):
         self._resolution = None
         self._windowSize = None
         self._mtEmu = None
+        self._clickTest = None
 
         self._setupSettings()
 
@@ -119,11 +120,13 @@ class App(object):
         try:
             self._runLoop()
         except Exception, e:
+            self._stopClickTest()
             self._teardownKeyboardManager()
             raise
 
         mainDiv.onExit()
 
+        self._stopClickTest()
         self._teardownKeyboardManager()
 
         return 0
@@ -217,7 +220,7 @@ class App(object):
             for catPair in catMap.split(' '):
                 cat, strLevel = catPair.split(':')
                 level = getattr(avg.logger.Severity, strLevel)
-        
+
                 libavg.avg.logger.configureCategory(cat, level)
 
     def _setupRootNode(self):
@@ -313,7 +316,7 @@ class App(object):
 
     def _applyResolution(self):
         if self.settings.get('app_windowconfig') == '':
-            
+
             fullscreen = self.settings.getBoolean('app_fullscreen')
 
             if fullscreen:
@@ -362,6 +365,12 @@ class App(object):
                 help='Toggle multitouch emulation',
                 modifiers=libavg.avg.KEYMOD_CTRL)
 
+        keyboardmanager.bindKeyDown(
+                keyname='C',
+                handler=self._toggleClickTest,
+                help='Toggle click test',
+                modifiers=libavg.avg.KEYMOD_CTRL)
+
         self.debugPanel.setupKeys()
 
     def _toggleMtEmulation(self):
@@ -391,6 +400,18 @@ class App(object):
 
             del self._mtEmu
             self._mtEmu = None
+
+    def _toggleClickTest(self):
+        if not self._clickTest:
+            self._clickTest = clicktest.ClickTest()
+            self._clickTest.start()
+        else:
+            self._stopClickTest()
+
+    def _stopClickTest(self):
+        if self._clickTest:
+            self._clickTest.stop()
+            self._clickTest = None
 
     def _teardownKeyboardManager(self):
         keyboardmanager.unbindAll()
