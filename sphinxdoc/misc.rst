@@ -815,3 +815,28 @@ Misc. Classes
         .. py:method:: pause()
 
             Stops playback.
+
+
+.. automodule:: libavg.clicktest
+    :no-members:
+
+    .. autoclass:: ClickTest([mouse=False, maxTouches=10, probabilities=(0.5, 0.1, 0.2)])
+
+        A mouse and touch click test that generates and visualizes random
+        (fake) events.
+
+        :param bool mouse: If true, mouse events are generated.
+
+        :param int maxTouches:
+
+            The maximal number of simultaneous touches. Set to 1 for single
+            touch, to 0 to disable touch generation.
+
+        :param tuple probabilities:
+
+            Probabilities for random event generation per frame.
+            All probabilities in range [0.0, 1.0].
+
+            * [0]: :py:const:`Event.CURSOR_DOWN`
+            * [1]: :py:const:`Event.CURSOR_UP`
+            * [2]: :py:const:`Event.CURSOR_MOTION`
