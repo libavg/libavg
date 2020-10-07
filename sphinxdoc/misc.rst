@@ -825,7 +825,7 @@ Misc. Classes
         A mouse and touch click test that generates and optionally visualizes
         random (fake) events.
 
-        :param bool mouse: If true, mouse events are generated.
+        :param bool mouse: If :py:const:`True`, mouse events are generated.
 
         :param int maxTouches:
 
@@ -841,4 +841,4 @@ Misc. Classes
             * [1]: :py:const:`Event.CURSOR_UP`
             * [2]: :py:const:`Event.CURSOR_MOTION`
 
-        :param bool visualize: If true, event positions and motion paths are rendered.
+        :param bool visualize: If :py:const:`True`, event positions and motion paths are rendered.
