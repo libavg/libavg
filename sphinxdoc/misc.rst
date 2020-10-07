@@ -269,8 +269,6 @@ Misc. Classes
             import libavg
             libavg.logger
 
-
-
         **Logging**
 
         .. py:method:: log(message, category, severity)
@@ -308,7 +306,7 @@ Misc. Classes
 
             Shortcut to :py:meth:`log` with **severity=** :py:const:`Logger.Severity.DBG`.
 
-       **Configuration**
+        **Configuration**
 
         .. py:method:: addSink(logger)
 
@@ -339,7 +337,6 @@ Misc. Classes
 
             Returns a dict with **category** as key and **severity** as value
 
-
         The Logger can also be configured using :envvar:`AVG_LOG_CATEGORIES` with
         the format:
 
@@ -359,9 +356,7 @@ Misc. Classes
         Default categories are :py:const:`NONE`, :py:const:`APP` and
         :py:const:`DEPREC`. They are set to the defaultSeverity.
 
-
-
-       **Categories:**
+        **Categories:**
 
             :py:const:`APP`
                 Reserved for application-level messages issued by python code.
@@ -390,7 +385,7 @@ Misc. Classes
             :py:const:`VIDEO`
                 Audio/Video related messages.
 
-       **Severities**
+        **Severities**
 
             :py:const:`CRIT` Critical
 
