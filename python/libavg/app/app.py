@@ -379,7 +379,9 @@ class App(object):
             keyboardmanager.bindKeyDown(
                     keyname='Shift',
                     handler=self._mtEmu.enableDualTouch,
-                    help='Enable pinch gesture emulation')
+                    help='Enable pinch gesture emulation',
+                    # NOTE: modifier required because Shift itself is a modifier
+                    modifiers=libavg.avg.KEYMOD_SHIFT)
             keyboardmanager.bindKeyUp(
                     keyname='Shift',
                     handler=self._mtEmu.disableDualTouch,
