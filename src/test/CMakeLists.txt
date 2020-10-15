@@ -24,7 +24,6 @@ set(test_files
     checkpoly.py
     avgwindowconfig.xml
     image.avg
-    illustratorRect.svg
     )
 
 set(test_directories

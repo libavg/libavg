@@ -791,38 +791,78 @@ class PlayerTestCase(AVGTestCase):
                 ))
 
     def testSVG(self):
-        svgFile = avg.SVG("media/rect.svg", False)
+        def testInkBbox(fileName):
+            svg = avg.SVG(fileName)
+            bmp = svg.renderElement("rect")
+            self.compareBitmapToFile(bmp, "testSvgBmp")
+            self.assertEqual(svg.getElementPos("rect"), avg.Point2D(0,0))
+            self.assertEqual(svg.getElementSize("rect"), avg.Point2D(22,12))
+            bmp = svg.renderElement("pos_rect")
+            self.compareBitmapToFile(bmp, "testSvgPosBmp")
+            self.assertEqual(svg.getElementPos("pos_rect"), avg.Point2D(4,14))
+            self.assertEqual(svg.getElementSize("pos_rect"), avg.Point2D(10,14))
+            bmp = svg.renderElement("rect", 5)
+            self.compareBitmapToFile(bmp, "testSvgScaleBmp1")
+            bmp = svg.renderElement("rect", (20,20))
+            self.compareBitmapToFile(bmp, "testSvgScaleBmp2")
 
-        # renderElement
-        bmp = svgFile.renderElement("rect")
-        self.compareBitmapToFile(bmp, "testSvgBmp")
-        self.assertEqual(svgFile.getElementSize("rect"), avg.Point2D(22,12))
-        bmp = svgFile.renderElement("pos_rect")
-        self.compareBitmapToFile(bmp, "testSvgPosBmp")
-        bmp = svgFile.renderElement("rect", 5)
-        self.compareBitmapToFile(bmp, "testSvgScaleBmp1")
-        bmp = svgFile.renderElement("rect", (20,20))
-        self.compareBitmapToFile(bmp, "testSvgScaleBmp2")
+        def testLogicalBbox(fileName):  # NOTE: fails for librsvg<2.46
+            svg = avg.SVG(fileName, False, True)
+            bmp = svg.renderElement("rect")
+            self.compareBitmapToFile(bmp, "testSvgLogicalBmp")
+            self.assertEqual(svg.getElementPos("rect"), avg.Point2D(1,1))
+            self.assertEqual(svg.getElementSize("rect"), avg.Point2D(21,11))
+            bmp = svg.renderElement("pos_rect")
+            self.compareBitmapToFile(bmp, "testSvgPosLogicalBmp")
+            self.assertEqual(svg.getElementPos("pos_rect"), avg.Point2D(5,15))
+            self.assertEqual(svg.getElementSize("pos_rect"), avg.Point2D(9,13))
+            bmp = svg.renderElement("rect", 5)
+            self.compareBitmapToFile(bmp, "testSvgScaleLogicalBmp1")
+            bmp = svg.renderElement("rect", (20,20))
+            self.compareBitmapToFile(bmp, "testSvgScaleLogicalBmp2")
+
+        # renderElement, getElement[Pos|Size]
+        testInkBbox("media/rect.svg")
+        testInkBbox("media/rect_size.svg")
+        testInkBbox("media/rect_size_viewbox.svg")
+        testLogicalBbox("media/rect.svg")
+        testLogicalBbox("media/rect_size.svg")
+        testLogicalBbox("media/rect_size_viewbox.svg")
+
+        # unescapeIllustratorIDs
+        svgIllustratorFile = avg.SVG("media/illustratorRect.svg", True)
+        svgIllustratorFile.getElementSize("pos_rect")
+
+        svgInk = avg.SVG("media/rect.svg", False)
+        svgLogical = avg.SVG("media/rect.svg", False, True)
 
         # error handling
         self.assertRaises(avg.Exception, lambda: avg.SVG("filedoesntexist.svg", False))
-        self.assertRaises(avg.Exception, lambda: svgFile.renderElement("missing_id"))
+        self.assertRaises(avg.Exception, lambda: svgInk.renderElement("missing_id"))
 
-        # unescapeIllustratorIDs
-        svgIllustratorFile = avg.SVG("illustratorRect.svg", True)
-        svgIllustratorFile.getElementSize("pos_rect")
-
-        # createImageNode
+        # createImageNode, NOTE: logical tests fail for librsvg<2.46
         root = self.loadEmptyScene()
+        inkDiv = avg.DivNode(parent=root)
         self.start(False,
-                (lambda: svgFile.createImageNode("rect", {"pos":(10,10), "parent":root}),
+                (lambda: svgInk.createImageNode("rect",
+                        {"pos": (10,10), "parent": inkDiv}),
                  lambda: self.compareImage("testSvgNode"),
-                 lambda: svgFile.createImageNode("rect", {"pos":(5,5), "parent":root},
-                        5),
+                 lambda: svgInk.createImageNode("rect",
+                        {"pos": (5,5), "parent": inkDiv}, 5),
                  lambda: self.compareImage("testSvgScaledNode1"),
-                 lambda: svgFile.createImageNode("rect", {"pos":(1,1), "parent":root},
-                        (40,40)),
-                 lambda: self.compareImage("testSvgScaledNode2")
+                 lambda: svgInk.createImageNode("rect",
+                        {"pos": (1,1), "parent": inkDiv}, (40,40)),
+                 lambda: self.compareImage("testSvgScaledNode2"),
+                 lambda: inkDiv.unlink(True),
+                 lambda: svgLogical.createImageNode("rect",
+                        {"pos": (10,10), "parent": root}),
+                 lambda: self.compareImage("testSvgLogicalNode"),
+                 lambda: svgLogical.createImageNode("rect",
+                        {"pos": (10,10), "parent": root}, 5),
+                 lambda: self.compareImage("testSvgScaledLogicalNode1"),
+                 lambda: svgLogical.createImageNode("rect",
+                        {"pos": (10,10), "parent": root}, (40,40)),
+                 lambda: self.compareImage("testSvgScaledLogicalNode2")
                 ))
 
     def testGetConfigOption(self):

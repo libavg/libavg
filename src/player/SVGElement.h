@@ -38,7 +38,8 @@ class SVGElement
 {
 public:
     SVGElement(RsvgHandle* pRSVG, const UTF8String& sFilename,
-            const UTF8String& sElementID, bool bUnescapeIllustratorIDs);
+            const UTF8String& sElementID,
+            bool bUnescapeIllustratorIDs, bool bUseLogicalBbox);
 
     const UTF8String& getUnescapedID() const;
     const glm::vec2& getPos() const;

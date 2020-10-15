@@ -69,4 +69,9 @@ const std::string VersionInfo::getRevision()
     return AVG_VERSION_REVISION;
 }
 
+const std::string VersionInfo::getBranch()
+{
+    return AVG_VERSION_BRANCH;
+}
+
 }

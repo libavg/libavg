@@ -241,6 +241,7 @@ BOOST_PYTHON_MODULE(avg)
             .add_property("micro", &VersionInfo::getMicro)
             .add_property("extra", &VersionInfo::getExtra)
             .add_property("revision", &VersionInfo::getRevision)
+            .add_property("branch", &VersionInfo::getBranch)
             .add_property("builder", &VersionInfo::getBuilder)
             .add_property("buildtime", &VersionInfo::getBuildTime)
         ;
