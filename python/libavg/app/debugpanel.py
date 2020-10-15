@@ -640,7 +640,7 @@ class _DebugPanel(avg.DivNode):
         for childID in xrange(0, self.getNumChildren()):
             child = self.getChild(childID)
             height += child.height
-        self.height = height
+        self.__size = (self.__size[0], height)
         self.reorderWidgets()
 
     def updateWidgets(self):
