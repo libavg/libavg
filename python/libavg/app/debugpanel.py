@@ -246,9 +246,8 @@ class Table(avg.DivNode):
 class ObjectDumpWidget(DebugWidget):
     CAPTION = 'Objects count'
 
-    def __init__(self, parent=None, **kwargs):
+    def __init__(self, **kwargs):
         super(ObjectDumpWidget, self).__init__(**kwargs)
-        self.registerInstance(self, parent)
         self.tableContainer = Table(parent=self, size=(self.width, self.SLOT_HEIGHT))
         self.tableDivs = defaultdict(lambda: TableRow(parent=self.tableContainer))
 
@@ -295,7 +294,6 @@ class ObjectDumpWidget(DebugWidget):
 class GraphWidget(DebugWidget):
     def __init__(self, **kwargs):
         super(GraphWidget, self).__init__(**kwargs)
-        self.registerInstance(self, None)
         self.__graph = None
 
     def onShow(self):
@@ -353,7 +351,6 @@ class KeyboardManagerBindingsShower(DebugWidget):
 
     def __init__(self, *args, **kwargs):
         super(KeyboardManagerBindingsShower, self).__init__(**kwargs)
-        self.registerInstance(self, None)
         self.keybindingWordNodes = []
         kbmgr.publisher.subscribe(kbmgr.publisher.BINDINGS_UPDATED, self.update)
 
