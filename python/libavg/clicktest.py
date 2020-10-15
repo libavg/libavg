@@ -28,7 +28,7 @@ from libavg import avg, player, Point2D
 logger = logging.getLogger(__name__)
 
 
-class ClickTest(object):
+class ClickTest:
     def __init__(self, mouse=False, maxTouches=10, probabilities=(0.5, 0.1, 0.2),
             visualize=True):
         self._mouse = bool(mouse)
@@ -48,7 +48,7 @@ class ClickTest(object):
 
         self._contacts = [
             _TouchContact(self._probabilities, self._visualize)
-            for _ in xrange(self._maxTouches)
+            for _ in range(self._maxTouches)
         ]
         if self._mouse:
             self._contacts.append(_MouseContact(self._probabilities, self._visualize))
@@ -67,7 +67,7 @@ class ClickTest(object):
         logger.info('click test stopped')
 
 
-class _Contact(object):
+class _Contact:
     def __init__(self, probabilities, visualize):
         self._downProbability, self._upProbability, self._moveProbability = probabilities
         rootNode = player.getRootNode()
@@ -132,7 +132,7 @@ class _Contact(object):
 
 class _MouseContact(_Contact):
     def _down(self):
-        super(_MouseContact, self)._down()
+        super()._down()
         x, y = self._pos
         self._testHelper.fakeMouseEvent(
             avg.Event.CURSOR_DOWN, True, False, False, int(x), int(y), 1
@@ -140,13 +140,13 @@ class _MouseContact(_Contact):
 
     def _up(self):
         x, y = self._pos
-        super(_MouseContact, self)._up()
+        super()._up()
         self._testHelper.fakeMouseEvent(
             avg.Event.CURSOR_UP, True, False, False, int(x), int(y), 1
         )
 
     def _move(self):
-        super(_MouseContact, self)._move()
+        super()._move()
         x, y = self._pos
         self._testHelper.fakeMouseEvent(
             avg.Event.CURSOR_MOTION, True, False, False, int(x), int(y), 0
@@ -163,12 +163,12 @@ class _TouchContact(_Contact):
         return nextID
 
     def __init__(self, *args):
-        super(_TouchContact, self).__init__(*args)
+        super().__init__(*args)
         self._id = None
 
     def _down(self):
         assert self._id is None
-        super(_TouchContact, self)._down()
+        super()._down()
         self._id = self._getNextID()
         self._testHelper.fakeTouchEvent(
             self._id, avg.Event.CURSOR_DOWN, avg.Event.TOUCH, self._pos
@@ -177,7 +177,7 @@ class _TouchContact(_Contact):
     def _up(self):
         assert self._id is not None
         pos = self._pos
-        super(_TouchContact, self)._up()
+        super()._up()
         self._testHelper.fakeTouchEvent(
             self._id, avg.Event.CURSOR_UP, avg.Event.TOUCH, pos
         )
@@ -185,7 +185,7 @@ class _TouchContact(_Contact):
 
     def _move(self):
         assert self._id is not None
-        super(_TouchContact, self)._move()
+        super()._move()
         self._testHelper.fakeTouchEvent(
             self._id, avg.Event.CURSOR_MOTION, avg.Event.TOUCH, self._pos
         )
