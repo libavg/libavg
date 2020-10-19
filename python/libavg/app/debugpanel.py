@@ -386,6 +386,9 @@ class KeyboardManagerBindingsShower(DebugWidget):
 
         self._placeNodes()
 
+    def kill(self):
+        kbmgr.publisher.unsubscribe(kbmgr.publisher.BINDINGS_UPDATED, self.update)
+
     def _placeNodes(self):
         if not self.keybindingWordNodes:
             return
