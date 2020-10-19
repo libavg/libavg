@@ -183,7 +183,8 @@ class SliderBase(avg.DivNode):
         self._thumbPos = thumbPos
         self.setThumbPos(thumbPos)
 
-        self.subscribe(self.SIZE_CHANGED, lambda newSize: self._positionNodes())
+        self._sizeChangedID = self.subscribe(
+                self.SIZE_CHANGED, lambda newSize: self._positionNodes())
         if orientation == Orientation.HORIZONTAL:
             self.size = (width, trackBmp.getSize().y)
         else:
@@ -229,6 +230,17 @@ class SliderBase(avg.DivNode):
                 self.__recognizer.enable(False)
 
     enabled = property(getEnabled, setEnabled)
+
+    def unlink(self, kill=True):
+        super(SliderBase, self).unlink(kill)
+        self.unsubscribe(self._sizeChangedID)
+        self.__recognizer.abort()
+        if kill:
+            self.__recognizer = None
+            self._trackNode.unlink(True)
+            self._thumbNode.unlink(True)
+            self._trackNode = None
+            self._thumbNode = None
 
     def _positionNodes(self, newSliderPos=None):
         if newSliderPos is not None:

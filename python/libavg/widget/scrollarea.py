@@ -173,6 +173,16 @@ class ScrollArea(avg.DivNode):
         self.__enabled = enabled
     enabled = property(getEnabled, setEnabled)
 
+    def unlink(self, kill=True):
+        super(ScrollArea, self).unlink(kill)
+        if kill:
+            if self._hScrollBar:
+                self._hScrollBar.unlink(True)
+                self._hScrollBar = None
+            if self._vScrollBar:
+                self._vScrollBar.unlink(True)
+                self._vScrollBar = None
+
     def __onHThumbMove(self, thumbPos):
         self.__scrollPane.contentpos = (thumbPos, self.__scrollPane.contentpos.y)
         self.notifySubscribers(self.CONTENT_POS_CHANGED, [self.__scrollPane.contentpos])
