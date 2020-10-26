@@ -51,7 +51,6 @@ def subscribe(publisher, msgID, callable_):
 
 
 class DebugWidgetFrame(avg.DivNode):
-
     BORDER = 7
     FRAME_HEIGHT_CHANGED = avg.Publisher.genMessageID()
 
@@ -79,6 +78,7 @@ class DebugWidgetFrame(avg.DivNode):
         self.__widget.subscribe(self.__widget.WIDGET_HEIGHT_CHANGED,
                 self.adjustWidgetHeight)
         self.__widget.update()
+        self.sensitive = self.__widget.sensitive
 
     def _onSizeChanged(self, size):
         self.__boundary.size = size
@@ -125,8 +125,8 @@ class DebugWidget(avg.DivNode):
 
     WIDGET_HEIGHT_CHANGED = avg.Publisher.genMessageID()
 
-    def __init__(self, parent=None, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, parent=None, sensitive=False, **kwargs):
+        super().__init__(sensitive=sensitive, **kwargs)
         self.registerInstance(self, parent)
         self.publish(DebugWidget.WIDGET_HEIGHT_CHANGED)
         if self.CAPTION:
@@ -244,9 +244,8 @@ class Table(avg.DivNode):
 class ObjectDumpWidget(DebugWidget):
     CAPTION = 'Objects count'
 
-    def __init__(self, parent=None, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.registerInstance(self, parent)
         self.tableContainer = Table(parent=self, size=(self.width, self.SLOT_HEIGHT))
         self.tableDivs = defaultdict(lambda: TableRow(parent=self.tableContainer))
 
@@ -293,7 +292,6 @@ class ObjectDumpWidget(DebugWidget):
 class GraphWidget(DebugWidget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.registerInstance(self, None)
         self.__graph = None
 
     def onShow(self):
@@ -351,7 +349,6 @@ class KeyboardManagerBindingsShower(DebugWidget):
 
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
-        self.registerInstance(self, None)
         self.keybindingWordNodes = []
         kbmgr.publisher.subscribe(kbmgr.publisher.BINDINGS_UPDATED, self.update)
 
@@ -386,6 +383,9 @@ class KeyboardManagerBindingsShower(DebugWidget):
             self.keybindingWordNodes.append(node)
 
         self._placeNodes()
+
+    def kill(self):
+        kbmgr.publisher.unsubscribe(kbmgr.publisher.BINDINGS_UPDATED, self.update)
 
     def _placeNodes(self):
         if not self.keybindingWordNodes:
@@ -454,16 +454,16 @@ class KeyboardManagerBindingsShower(DebugWidget):
 
 class DebugPanel(avg.DivNode):
     def __init__(self, parent=None, fontsize=10, **kwargs):
+        self.__size = kwargs.pop('size')
         super().__init__(**kwargs)
         self.registerInstance(self, parent)
 
-        avg.RectNode(size=self.size, opacity=0, fillopacity=0.3, fillcolor='ff0000',
-                parent=self)
+        avg.RectNode(size=self.__size, opacity=0, fillopacity=0.3, fillcolor='ff0000',
+                sensitive=False, parent=self)
         avg.WordsNode(text='Debug panel', fontsize=fontsize,
                 pos=(0, self.height - fontsize - fontsize / 3),
-                parent=self)
+                sensitive=False, parent=self)
 
-        self.sensitive = False
         self.active = False
         self.__panel = None
         self.__callables = []
@@ -550,22 +550,22 @@ class DebugPanel(avg.DivNode):
 
     def forceLoadPanel(self):
         if self.__panel is None:
-            self.__panel = _DebugPanel(parent=self, size=self.size,
+            self.__panel = _DebugPanel(parent=self, size=self.__size,
                     fontsize=self.__fontsize)
             for callable_ in self.__callables:
                 callable_()
 
 
 class _DebugPanel(avg.DivNode):
-
     def __init__(self, parent=None, fontsize=10, **kwargs):
+        self.__size = kwargs.pop('size')
         super().__init__(**kwargs)
         self.registerInstance(self, parent)
 
         self.__slots = []
 
-        self.maxSize = self.size
-        self.size = (self.size[0], 0)
+        self.maxSize = self.__size
+        self.__size = (self.__size[0], 0)
         self.activeWidgetClasses = []
         self.__selectedWidget = None
 
@@ -600,7 +600,7 @@ class _DebugPanel(avg.DivNode):
             libavg.logger.warning("You can't add the same widget twice")
             return
 
-        widgetFrame = DebugWidgetFrame((max(0, self.width), DebugWidget.SLOT_HEIGHT),
+        widgetFrame = DebugWidgetFrame((max(0, self.__size[0]), DebugWidget.SLOT_HEIGHT),
                 widgetClass)
         height = 0
         for frame in self.__slots:
@@ -641,7 +641,7 @@ class _DebugPanel(avg.DivNode):
         for childID in range(0, self.getNumChildren()):
             child = self.getChild(childID)
             height += child.height
-        self.height = height
+        self.__size = (self.__size[0], height)
         self.reorderWidgets()
 
     def updateWidgets(self):
@@ -697,4 +697,4 @@ class _DebugPanel(avg.DivNode):
                 widgetFrame.pos = (0, height)
                 count += 1
                 height += widgetFrame.height
-        self.size = (self.maxSize[0], height)
+        self.__size = (self.maxSize[0], height)
