@@ -609,7 +609,6 @@ class WidgetTestCase(AVGTestCase):
 
 
     def testScrollBar(self):
-        
         def onThumbPosChanged(pos):
             self.thumbPos = pos
 
@@ -628,16 +627,16 @@ class WidgetTestCase(AVGTestCase):
                      lambda: self.node.setThumbPos(5),
                      lambda: self.compareImage("testScrollBar"+orName+"4"),
                      lambda: self.node.setRange((0,10)),
-                     lambda: self.node.setThumbPos(4.75),
+                     lambda: self.node.setThumbPos(4.0),
                      lambda: self.compareImage("testScrollBar"+orName+"5"),
                      lambda: self.node.setRange((10,20)),
-                     lambda: self.node.setThumbPos(14.75),
+                     lambda: self.node.setThumbPos(14.0),
                      lambda: self.compareImage("testScrollBar"+orName+"5"),
                      lambda: self.node.setThumbExtent(10),
                      lambda: self.compareImage("testScrollBar"+orName+"6"),
                      lambda: self.node.setRange((10,0)),
                      lambda: self.node.setThumbExtent(0.5),
-                     lambda: self.node.setThumbPos(4.75),
+                     lambda: self.node.setThumbPos(5.5),
                      lambda: self.compareImage("testScrollBar"+orName+"5"),
                     ))
 

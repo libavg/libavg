@@ -63,4 +63,5 @@ setup(name='libavg',
         'install_lib': my_install_lib
     },
     scripts=glob.glob('scripts/avg_*'),
+    zip_safe=False,
 )
