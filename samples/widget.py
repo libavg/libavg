@@ -22,32 +22,49 @@
 
 from libavg import avg, app, widget
 
+
 class SimpleUI(app.MainDiv):
     def onInit(self):
         avg.RectNode(size=(1024,768), fillopacity=1, fillcolor="FFFFFF",
                 parent=self)
 
-        hScrollBar = widget.ScrollBar(pos=(10,10), width=150, parent=self)
-        self.__addValueDisplay(hScrollBar, (175,12))
+        hScrollBar1 = widget.ScrollBar(pos=(10,10), width=150, parent=self)
+        self.__addValueDisplay(hScrollBar1, (175,8))
+        hScrollBar2 = widget.ScrollBar(pos=(10,30), width=150, parent=self,
+                range=(1.0,0.0))
+        self.__addValueDisplay(hScrollBar2, (175,28))
 
-        vScrollBar = widget.ScrollBar(pos=(15,60), height=150, 
+        vScrollBar1 = widget.ScrollBar(pos=(15,100), height=150,
                 orientation=widget.Orientation.VERTICAL, parent=self)
-        vScrollBar.thumbExtent = 5
-        vScrollBar.range = (10,0)
-        self.__addValueDisplay(vScrollBar, (10,220))
+        vScrollBar1.thumbExtent = 5
+        vScrollBar1.range = (0,10)
+        self.__addValueDisplay(vScrollBar1, (5,260))
+        vScrollBar2 = widget.ScrollBar(pos=(55,100), height=150,
+                orientation=widget.Orientation.VERTICAL, parent=self,
+                thumbExtent=5, range=(10,0))
+        self.__addValueDisplay(vScrollBar2, (45,260))
 
-        hSlider = widget.Slider(pos=(10,35), width=150, parent=self)
-        self.__addValueDisplay(hSlider, (175,33))
+        hSlider1 = widget.Slider(pos=(10,55), width=150, parent=self)
+        self.__addValueDisplay(hSlider1, (175,53))
+        hSlider2 = widget.Slider(pos=(10,75), width=150, parent=self,
+                range=(1.0,0.0))
+        self.__addValueDisplay(hSlider2, (175,73))
 
-        vSlider = widget.Slider(pos=(60.5,60), height=150, 
+        vSlider1 = widget.Slider(pos=(115,100), height=150,
                 orientation=widget.Orientation.VERTICAL, parent=self)
-        vSlider.range = (1,0)
-        self.__addValueDisplay(vSlider, (55,220))
-        self.controls = [hScrollBar, vScrollBar, hSlider, vSlider]
+        vSlider1.range = (0,5)
+        self.__addValueDisplay(vSlider1, (108,260))
+        vSlider2 = widget.Slider(pos=(155,100), height=150,
+                orientation=widget.Orientation.VERTICAL, parent=self,
+                range=(5,0))
+        self.__addValueDisplay(vSlider2, (148,260))
+
+        self.controls = [hScrollBar1, hScrollBar2, vScrollBar1, vScrollBar2,
+                hSlider1, hSlider2, vSlider1, vSlider2]
 
         self.createScrollArea(avg.Point2D(220,10))
 
-        checkBox = widget.CheckBox(pos=(10,270), text="Disable everything", 
+        checkBox = widget.CheckBox(pos=(10,300), text="Disable everything",
                 parent=self)
         checkBox.subscribe(widget.CheckBox.TOGGLED, self.onCheck)
 
