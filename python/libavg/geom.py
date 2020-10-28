@@ -135,7 +135,7 @@ class PieSlice(avg.PolygonNode):
         circlePart = (self.__endangle - self.__startangle)/6.28
         numPoints = self.__radius*2.*circlePart
         if numPoints < 4:
-            numPoints = 4
+            numPoints = 4.0
         for i in xrange(0, int(numPoints)):
             pos.append(getCirclePoint(i/numPoints))
         pos.append(getCirclePoint(1))
@@ -197,8 +197,9 @@ class Arc(avg.PolyLineNode):
         pos = []
         circlePart = (self.__endangle - self.__startangle)/6.28
         numPoints = self.__radius*2.*circlePart
+        if numPoints < 4:
+            numPoints = 4.0
         for i in xrange(0, int(numPoints)):
             pos.append(getCirclePoint(i/numPoints))
         pos.append(getCirclePoint(1))
         self.polyPos = pos
-

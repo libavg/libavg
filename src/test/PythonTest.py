@@ -104,6 +104,9 @@ class PythonTestCase(AVGTestCase):
             self.arc.radius = 50
             self.arc.pos = (80.5, 60.5)
 
+        def makeSmall():
+            self.arc.radius = 0.6
+
         root = self.loadEmptyScene()
         self.arc = geom.Arc(parent=root, pos=(20.5,20.5), 
                 radius=40, startangle=0, endangle=1.57, color="FF0000")
@@ -112,6 +115,8 @@ class PythonTestCase(AVGTestCase):
                 (lambda: self.compareImage("testArc1"),
                  changeAttrs,
                  lambda: self.compareImage("testArc2"),
+                 makeSmall,
+                 lambda: self.compareImage("testArc3"),
                 ))
 
     def btoa(self):
