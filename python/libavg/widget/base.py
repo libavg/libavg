@@ -264,7 +264,13 @@ class SwitchNode(avg.DivNode):
             for node in self.__nodeMap.itervalues():
                 if node:
                     node.size = newSize
-                    # Hack to support min. size in SwitchNodes containing StretchNodes 
-                    if node.size > newSize:
-                        self.size = node.size
+                    # Hack to support min. size in SwitchNodes containing StretchNodes
+                    if node.width > newSize.x:
+                        if node.height > newSize.y:
+                            self.size = node.size
+                        else:
+                            self.width = node.width
+                        return
+                    if node.height > newSize.y:
+                        self.height = node.height
                         return
