@@ -21,20 +21,16 @@
 # Current versions can be found at www.libavg.de
 #
 # Original authors of this file are
-#   OXullo Interecans <x at brainrapers dot org>
+#   OXullo Intersecans <x at brainrapers dot org>
 #   Richard Klemm <richy at coding-reality.de>
 
-from collections import defaultdict
-from collections import deque
+from collections import defaultdict, deque
 import math
 
 import libavg
-from libavg import avg
-from libavg import graph
+from libavg import avg, player, graph
 from touchvisualization import DebugTouchVisualization
 from touchvisualization import TouchVisualizationOverlay as TouchVisOverlay
-
-
 import keyboardmanager as kbmgr
 
 g_fontsize = 10
@@ -47,30 +43,26 @@ PANGO_ENTITIES_MAP = {
     "<": "&lt;",
 }
 
-def subscribe(publisher, msgID, callable_):
-    publisher.subscribe(msgID, callable_)
-    return lambda: publisher.unsubscribe(msgID, callable_)
-
 
 class DebugWidgetFrame(avg.DivNode):
     BORDER = 7
     FRAME_HEIGHT_CHANGED = avg.Publisher.genMessageID()
 
-    def __init__(self, size, widgetCls, *args, **kwargs):
-        super(DebugWidgetFrame, self).__init__(size=size, *args, **kwargs)
+    def __init__(self, size, widgetCls, **kwargs):
+        super(DebugWidgetFrame, self).__init__(size=size)
         self.registerInstance(self, None)
-        self.setup(widgetCls)
+        self.setup(widgetCls, **kwargs)
         self.subscribe(self.SIZE_CHANGED, self._onSizeChanged)
         self.size = size
         self._onSizeChanged(size)
 
-    def setup(self, widgetCls):
+    def setup(self, widgetCls, **kwargs):
         self.__background = avg.RectNode(parent=self, opacity=0.8,
-                                         fillcolor='000000', fillopacity=0.8)
+                fillcolor='000000', fillopacity=0.8)
         self.__widget = widgetCls(parent=self,
                 size=(max(0, self.width - self.BORDER * 2), 0),
-                pos=(self.BORDER, self.BORDER))
-        self.__selectHighlight = avg.RectNode(parent=self, color="35C0CD",
+                pos=(self.BORDER, self.BORDER), **kwargs)
+        self.__selectHighlight = avg.RectNode(parent=self, color='35C0CD',
                 strokewidth=self.BORDER, opacity=0.8,
                 pos=(self.BORDER / 2, self.BORDER / 2), active=False, sensitive=False)
         self.__boundary = avg.RectNode(parent=self, sensitive=False)
@@ -96,7 +88,7 @@ class DebugWidgetFrame(avg.DivNode):
         self.notifySubscribers(DebugWidgetFrame.FRAME_HEIGHT_CHANGED, [])
 
     def toggleSelect(self, event=None):
-        self.__selectHighlight.active = not(self.__selectHighlight.active)
+        self.__selectHighlight.active = not self.__selectHighlight.active
 
     def isSelected(self):
         return self.__selectHighlight.active
@@ -252,7 +244,7 @@ class ObjectDumpWidget(DebugWidget):
         self.tableDivs = defaultdict(lambda: TableRow(parent=self.tableContainer))
 
     def update(self):
-        objDump = libavg.player.getTestHelper().getObjectCount()
+        objDump = player.getTestHelper().getObjectCount()
         pos = (0, 0)
         for key in sorted(objDump.iterkeys()):
             val = objDump[key]
@@ -265,7 +257,7 @@ class ObjectDumpWidget(DebugWidget):
             self.notifySubscribers(DebugWidget.WIDGET_HEIGHT_CHANGED, [height])
 
     def persistColumn(self):
-        objDump = libavg.player.getTestHelper().getObjectCount()
+        objDump = player.getTestHelper().getObjectCount()
         for key, val in objDump.iteritems():
             self.tableDivs[key].insertValue(val)
 
@@ -273,18 +265,18 @@ class ObjectDumpWidget(DebugWidget):
         self.tableContainer.size = (size[0], size[1] - (g_fontsize + 2))
 
     def onShow(self):
-        self.intervalID = libavg.player.setInterval(1000, self.update)
+        self.intervalID = player.setInterval(1000, self.update)
         kbmgr.bindKeyDown(
                 keyname='I',
                 handler=self.persistColumn,
                 help="Object count snapshot",
-                modifiers=libavg.KEYMOD_CTRL)
+                modifiers=avg.KEYMOD_CTRL)
 
     def onHide(self):
         if self.intervalID:
-            libavg.player.clearInterval(self.intervalID)
+            player.clearInterval(self.intervalID)
             self.intervalID = None
-        kbmgr.unbindKeyDown(keyname='I', modifiers=libavg.KEYMOD_CTRL)
+        kbmgr.unbindKeyDown(keyname='I', modifiers=avg.KEYMOD_CTRL)
 
     def kill(self):
         self.onHide()
@@ -318,7 +310,7 @@ class MemoryGraphWidget(GraphWidget):
 
     def _createGraph(self):
         return graph.AveragingGraph(parent=self, size=self.size,
-                getValue=libavg.player.getMemoryUsage)
+                getValue=player.getMemoryUsage)
 
 
 class FrametimeGraphWidget(GraphWidget):
@@ -326,7 +318,7 @@ class FrametimeGraphWidget(GraphWidget):
 
     def _createGraph(self):
          return graph.SlidingBinnedGraph(parent=self,
-                 getValue=libavg.player.getFrameTime,
+                 getValue=player.getFrameTime,
                  binsThresholds=[0.0, 20.0, 40.0, 80.0, 160.0],
                  size=self.size)
 
@@ -336,20 +328,20 @@ class GPUMemoryGraphWidget(GraphWidget):
 
     def _createGraph(self):
         try:
-            libavg.player.getVideoMemUsed()
+            player.getVideoMemUsed()
         except avg.Exception:
             return avg.WordsNode(parent=self,
                     text='GPU memory graph is not supported on this hardware',
                     color='ff5555')
         else:
             return graph.AveragingGraph(parent=self, size=self.size,
-                    getValue=libavg.player.getVideoMemUsed)
+                    getValue=player.getVideoMemUsed)
 
 
 class KeyboardManagerBindingsShower(DebugWidget):
     CAPTION = 'Keyboard bindings'
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         super(KeyboardManagerBindingsShower, self).__init__(**kwargs)
         self.keybindingWordNodes = []
         kbmgr.publisher.subscribe(kbmgr.publisher.BINDINGS_UPDATED, self.update)
@@ -373,14 +365,13 @@ class KeyboardManagerBindingsShower(DebugWidget):
             else:
                 key = keystring
 
-            if binding.type == libavg.avg.Event.KEY_DOWN:
+            if binding.type == avg.Event.KEY_DOWN:
                 key = '%s %s' % (unichr(8595), key)
             else:
                 key = '%s %s' % (unichr(8593), key)
 
             node = avg.WordsNode(
-                    text='<span size="large"><b>%s</b></span>: %s' %
-                            (key, binding.help),
+                    text='<span size="large"><b>%s</b></span>: %s' % (key, binding.help),
                     fontsize=g_fontsize, parent=self)
             self.keybindingWordNodes.append(node)
 
@@ -476,17 +467,17 @@ class DebugPanel(avg.DivNode):
         kbmgr.bindKeyDown(keyname='G',
                 handler=lambda: self.toggleWidget(GPUMemoryGraphWidget),
                 help="GPU memory graph",
-                modifiers=libavg.avg.KEYMOD_CTRL)
+                modifiers=avg.KEYMOD_CTRL)
 
         kbmgr.bindKeyDown(keyname='M',
                 handler=lambda: self.toggleWidget(MemoryGraphWidget),
                 help="Memory graph",
-                modifiers=libavg.avg.KEYMOD_CTRL)
+                modifiers=avg.KEYMOD_CTRL)
 
         kbmgr.bindKeyDown(keyname='F',
                 handler=lambda: self.toggleWidget(FrametimeGraphWidget),
                 help="Frametime graph",
-                modifiers=libavg.avg.KEYMOD_CTRL)
+                modifiers=avg.KEYMOD_CTRL)
 
         kbmgr.bindKeyDown(text='?',
                 handler=lambda: self.toggleWidget(KeyboardManagerBindingsShower),
@@ -496,25 +487,26 @@ class DebugPanel(avg.DivNode):
         kbmgr.bindKeyDown(keyname='O',
                 handler=lambda: self.toggleWidget(ObjectDumpWidget),
                 help="Object count table",
-                modifiers=libavg.avg.KEYMOD_CTRL)
+                modifiers=avg.KEYMOD_CTRL)
 
-        kbmgr.bindKeyDown(keyname='V', handler=self.toggleTouchVisualization,
+        kbmgr.bindKeyDown(keyname='V',
+                handler=self.toggleTouchVisualization,
                 help="Cursor visualization",
-                modifiers=libavg.avg.KEYMOD_CTRL)
+                modifiers=avg.KEYMOD_CTRL)
 
-    def addWidget(self, widgetCls, *args, **kwargs):
-        callable_ = lambda: self.__panel.addWidget(widgetCls, *args, **kwargs)
+    def addWidget(self, widgetClass, **kwargs):
+        callable_ = lambda: self.__panel.addWidget(widgetClass, **kwargs)
         if self.__panel:
             callable_()
         else:
             self.__callables.append(callable_)
 
-    def toggleWidget(self, *args, **kwargs):
+    def toggleWidget(self, widgetClass, **kwargs):
         if not self.active:
             self.show()
-            self.__panel.ensureWidgetWisible(*args, **kwargs)
+            self.__panel.ensureWidgetVisible(widgetClass, **kwargs)
         else:
-            self.__panel.toggleWidget(*args, **kwargs)
+            self.__panel.toggleWidget(widgetClass, **kwargs)
 
         if not self.__panel.activeWidgetClasses:
             self.hide()
@@ -587,23 +579,23 @@ class _DebugPanel(avg.DivNode):
             if widget:
                 widget.hide()
 
-    def ensureWidgetWisible(self, widgetClass, *args, **kwargs):
-        if not widgetClass in self.activeWidgetClasses:
-            self.toggleWidget(widgetClass, *args, **kwargs)
+    def ensureWidgetVisible(self, widgetClass, **kwargs):
+        if widgetClass not in self.activeWidgetClasses:
+            self.toggleWidget(widgetClass, **kwargs)
 
-    def toggleWidget(self, widgetClass, *args, **kwargs):
+    def toggleWidget(self, widgetClass, **kwargs):
         if widgetClass in self.activeWidgetClasses:
             self._removeWidgetByClass(widgetClass)
         else:
-            self.addWidget(widgetClass, *args, **kwargs)
+            self.addWidget(widgetClass, **kwargs)
 
-    def addWidget(self, widgetClass, *args, **kwargs):
+    def addWidget(self, widgetClass, **kwargs):
         if widgetClass in self.activeWidgetClasses:
             libavg.logger.warning("You can't add the same widget twice")
             return
 
         widgetFrame = DebugWidgetFrame((max(0, self.__size[0]), DebugWidget.SLOT_HEIGHT),
-                widgetClass)
+                widgetClass, **kwargs)
         height = 0
         for frame in self.__slots:
             if frame:
@@ -691,7 +683,7 @@ class _DebugPanel(avg.DivNode):
         self.__selectedWidget = None
 
     def reorderWidgets(self):
-        #TODO: This is no layout management, yet
+        # TODO: This is no layout management, yet
         count = 0
         height = 0
         for idx, widgetFrame in enumerate(self.__slots):

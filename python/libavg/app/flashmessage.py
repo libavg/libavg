@@ -20,8 +20,7 @@
 #
 # Current versions can be found at www.libavg.de
 #
-# Original author of this file is OXullo Interecans <x at brainrapers dot org>
-
+# Original author of this file is OXullo Intersecans <x at brainrapers dot org>
 
 """
 Simple user notification API to report information to the user
@@ -29,13 +28,14 @@ Simple user notification API to report information to the user
 
 import libavg
 
+
 class FlashMessage(object):
     DEFAULT_TIMEOUT = 3000
     LINE_HEIGHT = 20
     BORDER = 2
-    
+
     messages = []
-    
+
     @classmethod
     def remove(cls, killedMessage):
         cls.messages.remove(killedMessage)
@@ -80,7 +80,7 @@ class FlashMessage(object):
 
     def move(self, index, animate=True):
         finalPos = (self.BORDER, index * self.LINE_HEIGHT)
-        
+
         if animate:
             libavg.avg.LinearAnim(self.__container, 'pos', duration=150,
                     startValue=self.__container.pos,
@@ -95,4 +95,3 @@ class FlashMessage(object):
             FlashMessage.remove(self)
 
         libavg.avg.Anim.fadeOut(self.__container, 200, finalizeRemoval)
-

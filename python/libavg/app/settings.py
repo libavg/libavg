@@ -20,8 +20,7 @@
 #
 # Current versions can be found at www.libavg.de
 #
-# Original author of this file is OXullo Interecans <x at brainrapers dot org>
-
+# Original author of this file is OXullo Intersecans <x at brainrapers dot org>
 
 import sys
 import re
@@ -56,7 +55,7 @@ class Option(object):
         if not isinstance(value, str):
             raise ValueError('The type of %s value (%s) '
                     'must be string instead of %s' % (self.__key, value, type(value)))
-        
+
         self.__value = value
 
     @property
@@ -74,7 +73,7 @@ class Option(object):
             return self.key
         else:
             return components[1]
-        
+
     @property
     def help(self):
         return self.__help
@@ -94,7 +93,7 @@ class KargsExtender(object):
         if not optionsKeyset.issuperset(kaKeyset):
             raise libavg.Exception(
                     'No such option/s: %s' % list(kaKeyset - optionsKeyset))
-            
+
         for option in optionsList:
             if option.key in self.__optionsKargs:
                 option.value = self.__optionsKargs[option.key]
@@ -111,6 +110,7 @@ class HelpPrintingOptionParser(optparse.OptionParser):
         optparse.OptionParser.print_help(self)
         print
         print "All options can also be set using the App.run() method."
+
 
 class ArgvExtender(object):
     def __init__(self, appVersionInfo, args=None):
@@ -166,7 +166,7 @@ class ArgvExtender(object):
                 for option in optionsList:
                     if option.key == key:
                         option.value = value
-        
+
         return optionsList
 
     @property
@@ -184,16 +184,16 @@ class ArgvExtender(object):
     def __groupOptionsKeys(self, optionsList):
         groups = {}
         for option in optionsList:
-            if not option.group in groups:
+            if option.group not in groups:
                 groups[option.group] = []
-            
+
             groups[option.group].append(option.key)
 
         return groups
 
 
 class Settings(object):
-    def __init__(self, defaults=[]):
+    def __init__(self, defaults=()):
         if (type(defaults) not in (tuple, list) or
                 not all([isinstance(opt, Option) for opt in defaults])):
             raise ValueError('Settings must be initialized with a list '
@@ -220,7 +220,7 @@ class Settings(object):
             raise libavg.Exception('Cannot find key %s in the settings' % key)
 
         return option
-        
+
     def get(self, key, convertFunc=lambda v: v):
         option = self.getOption(key)
 
@@ -233,11 +233,11 @@ class Settings(object):
         import json
 
         return self.get(key, json.loads)
-    
+
     def getPoint2D(self, key):
         value = self.get(key)
         maybeTuple = re.split(r'\s*[,xX]\s*', value)
-        
+
         if len(maybeTuple) != 2:
             raise ValueError('Cannot convert key %s value %s to Point2D' % (key, value))
 
@@ -245,19 +245,19 @@ class Settings(object):
 
     def getInt(self, key):
         return self.get(key, int)
-    
+
     def getFloat(self, key):
         return self.get(key, float)
 
     def getBoolean(self, key):
         value = self.get(key).lower()
-        
+
         if value in ('yes', 'true'):
             return True
         elif value in ('no', 'false'):
             return False
         else:
-            raise ValueError('Cannot convert %s to boolean' % value)
+            raise ValueError('Cannot convert key %s value %s to boolean' % (key, value))
 
     def set(self, key, value):
         option = self.getOption(key)
@@ -269,7 +269,7 @@ class Settings(object):
 
         if self.__getOptionOrNone(option.key):
             raise libavg.Exception('Option %s has been already defined' % option.key)
-            
+
         self.__options.append(option)
 
     def __getOptionOrNone(self, key):
@@ -278,5 +278,3 @@ class Settings(object):
                 return option
 
         return None
-
-

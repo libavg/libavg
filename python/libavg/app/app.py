@@ -20,8 +20,7 @@
 #
 # Current versions can be found at www.libavg.de
 #
-# Original author of this file is OXullo Interecans <x at brainrapers dot org>
-
+# Original author of this file is OXullo Intersecans <x at brainrapers dot org>
 
 import os
 import math
@@ -37,17 +36,17 @@ import flashmessage
 import touchvisualization
 
 
-class MainDiv(libavg.avg.DivNode):
+class MainDiv(avg.DivNode):
     VERSION = 'undef'
 
     def __init__(self, **kargs):
-        assert not 'parent' in kargs
+        assert 'parent' not in kargs
         super(MainDiv, self).__init__(**kargs)
         self.registerInstance(self, None)
         self.__touchVisOverlay = None
 
     def toggleTouchVisualization(self, visClass=touchvisualization.TouchVisualization):
-        if not(self.__touchVisOverlay is None):
+        if self.__touchVisOverlay is not None:
             self.__touchVisOverlay.unlink(True)
             del self.__touchVisOverlay
             self.__touchVisOverlay = None
@@ -88,13 +87,14 @@ class App(object):
         self._mtEmu = None
         self._clickTest = None
 
+        self._settings = None
         self._setupSettings()
 
     def run(self, mainDiv, **kargs):
         assert isinstance(mainDiv, MainDiv)
         self._mainDiv = mainDiv
 
-        self.mainDiv.settings = self._settings
+        mainDiv.settings = self._settings
         self._applySettingsExtenders(kargs)
         self._setupLogging()
 
@@ -119,7 +119,7 @@ class App(object):
 
         try:
             self._runLoop()
-        except Exception, e:
+        except Exception:
             self._stopClickTest()
             self._teardownKeyboardManager()
             raise
@@ -151,7 +151,7 @@ class App(object):
         pass
 
     def takeScreenshot(self, targetFolder='.'):
-        screenBmp = libavg.player.screenshot()
+        screenBmp = player.screenshot()
 
         filenameTemplate = os.path.join(targetFolder, '%s-%03d.png')
 
@@ -172,7 +172,7 @@ class App(object):
                     parent=self._appParent)
 
     def dumpTextObjectCount(self):
-        objects = libavg.player.getTestHelper().getObjectCount()
+        objects = player.getTestHelper().getObjectCount()
         savedSeverity = libavg.logger.getCategories()[libavg.logger.Category.APP]
         libavg.logger.configureCategory(libavg.logger.Category.APP,
                 libavg.logger.Severity.INFO)
@@ -207,45 +207,46 @@ class App(object):
         self._settings.addOption(Option('log_avg_categories', ''))
 
     def _applySettingsExtenders(self, kargs):
-        self.settings.applyExtender(settings.KargsExtender(kargs))
-        argvExtender = settings.ArgvExtender(self.mainDiv.VERSION)
-        self.mainDiv.onArgvParserCreated(argvExtender.parser)
-        self.settings.applyExtender(argvExtender)
-        self.mainDiv.onArgvParsed(argvExtender.parsedArgs[0], argvExtender.parsedArgs[1],
+        self._settings.applyExtender(settings.KargsExtender(kargs))
+        argvExtender = settings.ArgvExtender(self._mainDiv.VERSION)
+        self._mainDiv.onArgvParserCreated(argvExtender.parser)
+        self._settings.applyExtender(argvExtender)
+        self._mainDiv.onArgvParsed(argvExtender.parsedArgs[0], argvExtender.parsedArgs[1],
                 argvExtender.parser)
 
     def _setupLogging(self):
-        catMap = self.settings.get('log_avg_categories').strip()
+        catMap = self._settings.get('log_avg_categories').strip()
         if catMap:
             for catPair in catMap.split(' '):
                 cat, strLevel = catPair.split(':')
                 level = getattr(avg.logger.Severity, strLevel)
-
-                libavg.avg.logger.configureCategory(cat, level)
+                avg.logger.configureCategory(cat, level)
 
     def _setupRootNode(self):
-        libavg.player.loadString('''<?xml version="1.0"?>
+        # FIXME: "../../libavg/doc/avg.dtd" doesn't exist (anymore)
+        player.loadString('''<?xml version="1.0"?>
         <!DOCTYPE avg SYSTEM "../../libavg/doc/avg.dtd">
         <avg width="%s" height="%s">
         </avg>''' % tuple(self._resolution))
 
     def _setupMultisampling(self):
-        samples = self.settings.getInt('app_multisample_samples')
-        libavg.player.setMultiSampleSamples(samples)
+        samples = self._settings.getInt('app_multisample_samples')
+        player.setMultiSampleSamples(samples)
 
     def _setupMouse(self):
-        libavg.player.enableMouse(self.settings.getBoolean('app_mouse_enabled'))
+        player.enableMouse(self._settings.getBoolean('app_mouse_enabled'))
+        player.showCursor(self._settings.getBoolean('app_show_cursor'))
 
-    def _setupMultitouch(self):
-        if self.settings.getBoolean('tuio_enabled'):
-            os.putenv('AVG_ENABLE_TUIO', "1")
+    def _setupTUIO(self):
+        if self._settings.getBoolean('tuio_enabled'):
+            os.putenv('AVG_ENABLE_TUIO', '1')
 
-            tuio_port = self.settings.get('tuio_port')
+            tuio_port = self._settings.get('tuio_port')
             if tuio_port:
                 os.putenv('AVG_TUIO_PORT', tuio_port)
 
     def _getAppParentGeometry(self):
-        rotation = self.settings.get('app_rotation').lower()
+        rotation = self._settings.get('app_rotation').lower()
         size = self._resolution
         pos = (0, 0)
         angle = 0
@@ -263,41 +264,41 @@ class App(object):
         elif rotation == 'inverted':
             angle = math.pi
         elif rotation != 'normal':
-            raise TypeError('Invalid rotation %s' % rotation)
+            raise ValueError('Invalid rotation %s' % rotation)
 
-        return (pos, size, angle)
+        return pos, size, angle
 
     def _setupAppParent(self, pos, size, angle):
-        self._appParent = libavg.avg.DivNode(parent=libavg.player.getRootNode(),
+        self._appParent = avg.DivNode(parent=player.getRootNode(),
                 pos=pos, size=size, angle=angle)
 
     def _setupMainDiv(self):
-        self._appParent.appendChild(self.mainDiv)
-        self.mainDiv.size = self._appParent.size
+        self._appParent.appendChild(self._mainDiv)
+        self._mainDiv.size = self._appParent.size
 
     def _setupTopPanel(self):
-        self._overlayPanel = libavg.avg.DivNode(parent=self._appParent, id='overlayPanel')
+        self._overlayPanel = avg.DivNode(parent=self._appParent, id='overlayPanel')
 
     def _setupDebugPanel(self):
         self._debugPanel = debugpanel.DebugPanel(parent=self._appParent,
-                    size=self._appParent.size, id='debugPanel',
-                    fontsize=self.settings.getFloat('app_panel_fontsize'))
+                size=self._appParent.size, id='debugPanel',
+                fontsize=self._settings.getFloat('app_panel_fontsize'))
 
     def _setupDebuggingWidgets(self):
         pass
 
     def _setupResolution(self):
-        rotation = self.settings.get('app_rotation').lower()
-        resolutionStr = self.settings.get('app_resolution').lower()
-        windowSizeStr = self.settings.get('app_window_size')
-        if self.settings.get('app_windowconfig') == '':
+        rotation = self._settings.get('app_rotation').lower()
+        resolutionStr = self._settings.get('app_resolution').lower()
+        windowSizeStr = self._settings.get('app_window_size')
+        if self._settings.get('app_windowconfig') == '':
             if resolutionStr != '':
-                resolution = self.settings.getPoint2D('app_resolution')
+                resolution = self._settings.getPoint2D('app_resolution')
             else:
-                resolution = libavg.player.getScreenResolution()
+                resolution = player.getScreenResolution()
 
             if windowSizeStr != '':
-                windowSize = self.settings.getPoint2D('app_window_size')
+                windowSize = self._settings.getPoint2D('app_window_size')
             else:
                 windowSize = resolution
 
@@ -309,67 +310,64 @@ class App(object):
             self._windowSize = windowSize
         else:
             if rotation != 'normal' or windowSizeStr != '':
-                raise TypeError('App parameters: app_windowconfig is incompatible '+
+                raise ValueError('App parameters: app_windowconfig is incompatible '
                         'with app_window_size and app_rotation')
-            player.setWindowConfig(self.settings.get('app_windowconfig'))
-            self._resolution = self.settings.getPoint2D('app_resolution')
+            player.setWindowConfig(self._settings.get('app_windowconfig'))
+            self._resolution = self._settings.getPoint2D('app_resolution')
 
     def _applyResolution(self):
-        if self.settings.get('app_windowconfig') == '':
+        if self._settings.get('app_windowconfig') == '':
 
-            fullscreen = self.settings.getBoolean('app_fullscreen')
+            fullscreen = self._settings.getBoolean('app_fullscreen')
 
             if fullscreen:
                 resolution = self._resolution
             else:
                 resolution = self._windowSize
 
-            libavg.player.setResolution(
+            player.setResolution(
                     fullscreen,
                     int(resolution.x), int(resolution.y),
-                    0  # color depth
-                    )
-
-            libavg.player.showCursor(self.settings.getBoolean('app_show_cursor'))
+                    0)  # color depth
 
     def _setupKeyboardManager(self):
         keyboardmanager.init()
+
         keyboardmanager.bindKeyDown(
                 keyname='D',
                 handler=self._debugPanel.toggleVisibility,
                 help='Show/hide the debug panel',
-                modifiers=libavg.avg.KEYMOD_CTRL)
+                modifiers=avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
                 keyname='H',
-                handler=lambda: libavg.player.showCursor(
-                        not libavg.player.isCursorShown()),
+                handler=lambda: player.showCursor(not player.isCursorShown()),
                 help='Show/hide cursor',
-                modifiers=libavg.avg.KEYMOD_CTRL)
+                modifiers=avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
                 keyname='P',
                 handler=self.takeScreenshot,
                 help='Take screenshot',
-                modifiers=libavg.avg.KEYMOD_CTRL)
+                modifiers=avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
                 keyname='B',
                 handler=self.dumpTextObjectCount,
                 help='Dump objects count to the console',
-                modifiers=libavg.avg.KEYMOD_CTRL)
+                modifiers=avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
                 keyname='E',
                 handler=self._toggleMtEmulation,
                 help='Toggle multitouch emulation',
-                modifiers=libavg.avg.KEYMOD_CTRL)
+                modifiers=avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
                 keyname='C',
                 handler=self._toggleClickTest,
                 help='Toggle click test',
-                modifiers=libavg.avg.KEYMOD_CTRL)
+                modifiers=avg.KEYMOD_CTRL)
 
         self.debugPanel.setupKeys()
 
@@ -381,7 +379,7 @@ class App(object):
                     handler=self._mtEmu.enableDualTouch,
                     help='Enable pinch gesture emulation',
                     # NOTE: modifier required because Shift itself is a modifier
-                    modifiers=libavg.avg.KEYMOD_SHIFT)
+                    modifiers=keyboardmanager.KEYMOD_ANY)
             keyboardmanager.bindKeyUp(
                     keyname='Shift',
                     handler=self._mtEmu.disableDualTouch,
@@ -391,13 +389,15 @@ class App(object):
                     keyname='T',
                     handler=self._mtEmu.toggleSource,
                     help='Toggle source between TOUCH and TRACK',
-                    modifiers=libavg.avg.KEYMOD_CTRL)
+                    modifiers=avg.KEYMOD_CTRL)
         else:
             self._mtEmu.deinit()
             keyboardmanager.unbindKeyDown(
                     keyname='T',
-                    modifiers=libavg.avg.KEYMOD_CTRL)
-            keyboardmanager.unbindKeyDown(keyname='Shift')
+                    modifiers=avg.KEYMOD_CTRL)
+            keyboardmanager.unbindKeyDown(
+                    keyname='Shift',
+                    modifiers=keyboardmanager.KEYMOD_ANY)
             keyboardmanager.unbindKeyUp(keyname='Shift')
 
             del self._mtEmu
@@ -419,12 +419,12 @@ class App(object):
         keyboardmanager.unbindAll()
 
     def _setupOnInit(self):
-        self._setupMultitouch()
-        libavg.player.setTimeout(0, self._onInitInternal)
+        self._setupTUIO()
+        player.setTimeout(0, self._onInitInternal)
 
     def _runLoop(self):
-        libavg.player.play()
+        player.play()
 
     def _onInitInternal(self):
-        self.mainDiv.onInit()
-        libavg.player.subscribe(libavg.player.ON_FRAME, self.mainDiv.onFrame)
+        self._mainDiv.onInit()
+        player.subscribe(player.ON_FRAME, self._mainDiv.onFrame)

@@ -20,8 +20,7 @@
 #
 # Current versions can be found at www.libavg.de
 #
-# Original author of this file is OXullo Interecans <x at brainrapers dot org>
-
+# Original author of this file is OXullo Intersecans <x at brainrapers dot org>
 
 from collections import namedtuple
 
@@ -33,14 +32,17 @@ KEYMOD_ANY = -1
 LOGCAT = avg.logger.configureCategory('KEYBOARDMANAGER',
         avg.logger.Severity.WARN)
 
+
 class KeyboardManagerPublisher(avg.Publisher):
     BINDINGS_UPDATED = avg.Publisher.genMessageID()
+
     def __init__(self):
         super(KeyboardManagerPublisher, self).__init__()
         self.publish(self.BINDINGS_UPDATED)
 
     def notifyUpdate(self):
         self.notifySubscribers(self.BINDINGS_UPDATED, [])
+
 
 publisher = KeyboardManagerPublisher()
 
@@ -58,25 +60,31 @@ def init():
     player.subscribe(player.KEY_UP, _onKey)
     avg.logger.debug('Keyboardmanager initialized', LOGCAT)
 
+
 def bindKeyDown(scancode=None, keyname=None, text=None, handler=None, help=None,
         modifiers=avg.KEYMOD_NONE):
     _bindKey(scancode, keyname, text, handler, help, modifiers, avg.Event.KEY_DOWN)
+
 
 def bindKeyUp(scancode=None, keyname=None, handler=None, help=None,
         modifiers=avg.KEYMOD_NONE):
     _bindKey(scancode, keyname, None, handler, help, modifiers, avg.Event.KEY_UP)
 
+
 def unbindKeyDown(scancode=None, keyname=None, text=None, modifiers=avg.KEYMOD_NONE):
     _unbindKey(scancode, keyname, text, modifiers, avg.Event.KEY_DOWN)
 
+
 def unbindKeyUp(scancode=None, keyname=None, modifiers=avg.KEYMOD_NONE):
     _unbindKey(scancode, keyname, None, modifiers, avg.Event.KEY_UP)
+
 
 def unbindAll():
     global _keyBindings, _keyBindingsStack
     _keyBindings = []
     _keyBindingsStack = []
     publisher.notifyUpdate()
+
 
 def push():
     """
@@ -87,6 +95,7 @@ def push():
     _keyBindings = []
     publisher.notifyUpdate()
 
+
 def pop():
     """
     Pop from the stack the current non-modified defined key bindings
@@ -95,16 +104,20 @@ def pop():
     _keyBindings = _keyBindingsStack.pop()
     publisher.notifyUpdate()
 
+
 def getCurrentBindings():
     return _keyBindings
+
 
 def enable():
     global _isEnabled
     _isEnabled = True
 
+
 def disable():
     global _isEnabled
     _isEnabled = False
+
 
 def _bindKey(scancode, keyname, text, handler, help, modifiers, type_):
     err = False
@@ -126,6 +139,7 @@ def _bindKey(scancode, keyname, text, handler, help, modifiers, type_):
     _keyBindings.append(keyBinding)
     publisher.notifyUpdate()
 
+
 def _unbindKey(scancode, keyname, text, modifiers, type_):
     for keyBinding in _keyBindings:
         if (keyBinding.scancode == scancode and keyBinding.keyname == keyname and
@@ -136,12 +150,14 @@ def _unbindKey(scancode, keyname, text, modifiers, type_):
 
     publisher.notifyUpdate()
 
+
 def _onKey(event):
     if _isEnabled:
         for keyBinding in _keyBindings:
             if _testMatchEvent(keyBinding, event):
                 keyBinding.handler()
                 return
+
 
 def _testMatchEvent(keyBinding, event):
     if event.type != keyBinding.type:
@@ -153,12 +169,14 @@ def _testMatchEvent(keyBinding, event):
         return True
     return keyBinding.scancode == event.scancode or keyBinding.text == event.text
 
+
 def _testModifiers(mod1, mod2):
     if mod1 == KEYMOD_ANY or mod2 == KEYMOD_ANY:
         return True
     mod1 &= ~IGNORED_KEYMODS
     mod2 &= ~IGNORED_KEYMODS
     return mod1 == mod2 or mod1 & mod2
+
 
 def _checkDuplicates(keyBinding):
     for oldBinding in _keyBindings:
@@ -170,6 +188,7 @@ def _checkDuplicates(keyBinding):
             raise avg.Exception('Key binding scancode=%s keyname=%s text=%s modifiers=%s'
                     ' already defined' % (keyBinding.scancode, keyBinding.keyname,
                     keyBinding.text, keyBinding.modifiers))
+
 
 def _testMatchKeyName(bindingName, keyPressedName):
     if bindingName == keyPressedName:

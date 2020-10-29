@@ -20,10 +20,9 @@
 #
 # Current versions can be found at www.libavg.de
 #
-# Original author of this file is OXullo Interecans <x at brainrapers dot org>
+# Original author of this file is OXullo Intersecans <x at brainrapers dot org>
 
 from app import App
 from app import MainDiv
 
 instance = None
-
