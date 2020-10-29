@@ -203,7 +203,7 @@ class App(object):
         self._settings.addOption(Option('app_panel_fontsize', '10'))
         self._settings.addOption(Option('app_mouse_enabled', 'true'))
         self._settings.addOption(Option('tuio_enabled', 'false'))
-        self._settings.addOption(Option('multitouch_tuio_port', ''))
+        self._settings.addOption(Option('tuio_port', '3333'))
         self._settings.addOption(Option('log_avg_categories', ''))
 
     def _applySettingsExtenders(self, kargs):
@@ -240,7 +240,7 @@ class App(object):
         if self.settings.getBoolean('tuio_enabled'):
             os.putenv('AVG_ENABLE_TUIO', "1")
 
-            tuio_port = self.settings.get('multitouch_tuio_port').upper()
+            tuio_port = self.settings.get('tuio_port')
             if tuio_port:
                 os.putenv('AVG_TUIO_PORT', tuio_port)
 
