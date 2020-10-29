@@ -104,6 +104,7 @@ class App(object):
         self._setupRootNode()
         self._setupMultisampling()
         self._setupMouse()
+        self._setupVolume()
         pos, size, angle = self._getAppParentGeometry()
         self._setupAppParent(pos, size, angle)
         self._setupMainDiv()
@@ -202,6 +203,7 @@ class App(object):
         self._settings.addOption(Option('app_rotation', 'normal'))
         self._settings.addOption(Option('app_panel_fontsize', '10'))
         self._settings.addOption(Option('app_mouse_enabled', 'true'))
+        self._settings.addOption(Option('app_volume', '1'))
         self._settings.addOption(Option('tuio_enabled', 'false'))
         self._settings.addOption(Option('tuio_port', '3333'))
         self._settings.addOption(Option('log_avg_categories', ''))
@@ -236,6 +238,9 @@ class App(object):
     def _setupMouse(self):
         player.enableMouse(self._settings.getBoolean('app_mouse_enabled'))
         player.showCursor(self._settings.getBoolean('app_show_cursor'))
+
+    def _setupVolume(self):
+        player.volume = self._settings.getFloat('app_volume')
 
     def _setupTUIO(self):
         if self._settings.getBoolean('tuio_enabled'):
