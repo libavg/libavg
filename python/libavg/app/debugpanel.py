@@ -561,7 +561,6 @@ class _DebugPanel(avg.DivNode):
         self.maxSize = self.__size
         self.__size = (self.__size[0], 0)
         self.activeWidgetClasses = []
-        self.__selectedWidget = None
 
         global g_fontsize
         g_fontsize = fontsize
@@ -642,25 +641,6 @@ class _DebugPanel(avg.DivNode):
         for childID in xrange(0, self.getNumChildren()):
             self.getChild(childID).widget.update()
 
-    def selectWidget(self, idx):
-        idx = idx % self.getNumChildren()
-        for childID in xrange(0, self.getNumChildren()):
-            self.getChild(childID).unselect()
-        self.getChild(idx).select()
-        self.__selectedWidget = idx
-
-    def selectPreviousWidget(self):
-        if self.__selectedWidget is None:
-            self.selectWidget(-1)
-        else:
-            self.selectWidget(self.__selectedWidget - 1)
-
-    def selectNextWidget(self):
-        if self.__selectedWidget is None:
-            self.selectWidget(0)
-        else:
-            self.selectWidget(self.__selectedWidget + 1)
-
     def removeWidgetFrame(self, widgetFrame):
         self.activeWidgetClasses.remove(widgetFrame.widget.__class__)
         for idx, slot in enumerate(self.__slots):
@@ -671,16 +651,6 @@ class _DebugPanel(avg.DivNode):
         widgetFrame.unlink(True)
         self.reorderWidgets()
         self.updateWidgets()
-
-    def removeSelectedWidgetFrames(self):
-        candidates = []
-        for childID in xrange(0, self.getNumChildren()):
-            child = self.getChild(childID)
-            if child.isSelected():
-                candidates.append(child)
-        for widgetFrame in candidates:
-            self.removeWidgetFrame(widgetFrame)
-        self.__selectedWidget = None
 
     def reorderWidgets(self):
         # TODO: This is no layout management, yet
