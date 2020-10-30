@@ -35,14 +35,6 @@ import keyboardmanager as kbmgr
 
 g_fontsize = 10
 
-PANGO_ENTITIES_MAP = {
-    "&": "&amp;",
-    '"': "&quot;",
-    "'": "&apos;",
-    ">": "&gt;",
-    "<": "&lt;",
-}
-
 
 class DebugWidgetFrame(avg.DivNode):
     BORDER = 7
