@@ -1206,6 +1206,7 @@ void Player::initMainCanvas(NodePtr pRootNode)
 NodePtr Player::internalLoad(const string& sAVG, const string& sFilename)
 {
     XMLParser parser;
+    // FIXME: "avg.dtd" doesn't exist (anymore)
     parser.setDTD(TypeRegistry::get()->getDTD(), "avg.dtd");
     parser.parse(sAVG, sFilename);
     xmlNodePtr xmlNode = parser.getRootNode();

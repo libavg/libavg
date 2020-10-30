@@ -27,6 +27,15 @@ import os
 from libavg import avg, player
 
 
+PANGO_ENTITIES_MAP = {
+    "&": "&amp;",
+    '"': "&quot;",
+    "'": "&apos;",
+    ">": "&gt;",
+    "<": "&lt;",
+}
+
+
 def getMediaDir(_file_=None, subdir='media'):
     """call with _file_=__file__"""
     if _file_ is None:
@@ -34,6 +43,7 @@ def getMediaDir(_file_=None, subdir='media'):
     myDir = os.path.dirname(_file_)
     mediaDir = os.path.join(myDir, subdir)
     return os.path.abspath(mediaDir)
+
 
 def getMediaDirFromNode(node, path=''):
     """
@@ -47,14 +57,14 @@ def getMediaDirFromNode(node, path=''):
     else:
         return path
 
+
 def initFXCache(numFXNodes):
     nodes = []
     mediadir = os.path.join(os.path.dirname(__file__), 'data')
     for i in range(numFXNodes):
-        node = avg.ImageNode(href=mediadir+"/black.png", 
+        node = avg.ImageNode(href=mediadir+"/black.png",
                 parent=player.getRootNode())
         node.setEffect(avg.NullFXNode())
         nodes.append(node)
     for node in nodes:
         node.unlink(True)
-

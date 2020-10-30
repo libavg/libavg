@@ -26,14 +26,13 @@ from libavg import avg, player
 
 
 class BaseTouchVisualization(avg.DivNode):
-
     def __init__(self, event, parent=None, **kwargs):
         super().__init__(**kwargs)
         self.registerInstance(self, parent)
 
         event.contact.subscribe(avg.Contact.CURSOR_MOTION, self._onMotion)
         event.contact.subscribe(avg.Contact.CURSOR_UP, self._onUp)
-        self.pos = self.getParent().getRelPos(event.pos)
+        self.pos = self.parent.getRelPos(event.pos)
         self._fingerSize = 7 * player.getPixelsPerMM() # Assume 14mm width for a finger.
         self._radius = self._getRadius(event)
 
@@ -42,7 +41,7 @@ class BaseTouchVisualization(avg.DivNode):
         del self
 
     def _onMotion(self, event):
-        self.pos = self.getParent().getRelPos(event.pos)
+        self.pos = self.parent.getRelPos(event.pos)
         self._radius = self._getRadius(event)
 
     def _onUp(self, event):
@@ -56,9 +55,7 @@ class BaseTouchVisualization(avg.DivNode):
             return max(self._fingerSize, event.majoraxis.getNorm())
 
 
-
 class DebugTouchVisualization(BaseTouchVisualization):
-
     def __init__(self, event, **kwargs):
         super().__init__(event, **kwargs)
         self.positions = [event.pos]
@@ -70,12 +67,11 @@ class DebugTouchVisualization(BaseTouchVisualization):
         else:
             color = 'd8e5e5'
             self.opacity = 0.5
-            
+
         self.__transparentCircle = avg.CircleNode(r=self._radius+20, fillcolor=color,
                 fillopacity=0.2, opacity=0.0, strokewidth=1, sensitive=False, parent=self)
-        self.__pulsecircle = avg.CircleNode(r=self._radius, fillcolor=color, color=color,
-                fillopacity=0.5, opacity=0.5, strokewidth=1,
-                sensitive=False, parent=self)
+        self.__pulseCircle = avg.CircleNode(r=self._radius, fillcolor=color, color=color,
+                fillopacity=0.5, opacity=0.5, strokewidth=1, sensitive=False, parent=self)
         if event.source in [avg.Event.TOUCH, avg.Event.TRACK]:
             self.__majorAxis = avg.LineNode(pos1=(0,0), pos2=event.majoraxis,
                     color='FFFFFF', sensitive=False, parent=self)
@@ -84,14 +80,14 @@ class DebugTouchVisualization(BaseTouchVisualization):
         if event.source == avg.Event.TOUCH:
             self.__handAxis = avg.LineNode(pos1=(0,0), pos2=self.__getHandVector(event),
                     opacity=0.5, color='A0FFA0', sensitive=False, parent=self)
-        fontPos = avg.Point2D(self.__pulsecircle.r, 0)
+        fontPos = avg.Point2D(self.__pulseCircle.r, 0)
 
         self.__textNode = avg.WordsNode(pos=fontPos, fontsize=9, parent=self)
         self.motionPath = avg.PolyLineNode(pos=self.positions,
                 opacity=0.7, color=color, parent=kwargs['parent'])
         self.motionVector = avg.LineNode(pos1=(0,0) , pos2=-event.contact.motionvec,
                 opacity=0.4, parent=self)
-        pulseCircleAnim = avg.LinearAnim(self.__pulsecircle, 'r', 200, 50, self._radius)
+        pulseCircleAnim = avg.LinearAnim(self.__pulseCircle, 'r', 200, 50, self._radius)
         pulseCircleAnim.start()
 
     def unlink(self, kill=True):
@@ -104,8 +100,8 @@ class DebugTouchVisualization(BaseTouchVisualization):
         self.positions.append(event.pos)
         if len(self.positions) > 100:
             self.positions.pop(0)
-       
-        self.__pulsecircle.r = self._radius
+
+        self.__pulseCircle.r = self._radius
         self.setAxisSecondPos(event)
         self.motionVector.pos2 = -event.contact.motionvec
         if event.source == avg.Event.TOUCH:
@@ -137,10 +133,9 @@ class DebugTouchVisualization(BaseTouchVisualization):
 
 
 class TouchVisualization(BaseTouchVisualization):
-
     mediadir = os.path.join(os.path.dirname(__file__), os.path.pardir, 'data')
     sources = [avg.Event.TOUCH]
-    bmp = avg.Bitmap(mediadir+"/TouchFeedback.png")
+    bmp = avg.Bitmap(os.path.join(mediadir, "TouchFeedback.png"))
 
     def __init__(self, event, **kwargs):
         super().__init__(event, **kwargs)
@@ -159,11 +154,11 @@ class TouchVisualization(BaseTouchVisualization):
         self.__setRadius(self._radius)
 
     def _onUp(self, event):
-        
-        def gone(self):
-            super()._onUp(event)
-            self.unlink(True)
-            del self
+
+        def gone(self_):
+            BaseTouchVisualization._onUp(self_, event)
+            self_.unlink(True)
+            del self_
 
         avg.Anim.fadeIn(self.__circle, 100, 1)
         avg.LinearAnim(self.__circle, "size", 100, self.__circle.size, (4,4)).start()
@@ -173,11 +168,10 @@ class TouchVisualization(BaseTouchVisualization):
     def __setRadius(self, radius):
         self.__circle.pos = (-radius, -radius)
         self.__circle.size = (radius*2, radius*2)
-        
+
 
 class TouchVisualizationOverlay(avg.DivNode):
-    def __init__(self, isDebug, visClass, rootNode=None, parent=None, 
-            **kwargs):
+    def __init__(self, isDebug, visClass, rootNode=None, parent=None, **kwargs):
         super().__init__(**kwargs)
         self.registerInstance(self, parent)
 
@@ -187,7 +181,7 @@ class TouchVisualizationOverlay(avg.DivNode):
             rootNode = player.getRootNode()
 
         if isDebug:
-            self.elementoutlinecolor='FFFFAA'
+            self.elementoutlinecolor = 'FFFFAA'
             avg.RectNode(parent=self, size=self.size, fillopacity=0.2, fillcolor='000000')
         rootNode.subscribe(avg.Node.CURSOR_DOWN, self.__onTouchDown)
         rootNode.subscribe(avg.Node.HOVER_DOWN, self.__onTouchDown)

@@ -20,7 +20,7 @@
 #
 # Current versions can be found at www.libavg.de
 #
-# Original author of this file is OXullo Interecans <x at brainrapers dot org>
+# Original author of this file is OXullo Intersecans <x at brainrapers dot org>
 
 import sys
 import re
@@ -111,6 +111,7 @@ class HelpPrintingOptionParser(optparse.OptionParser):
         print()
         print('All options can also be set using the App.run() method.')
 
+
 class ArgvExtender:
     def __init__(self, appVersionInfo, args=None):
         self.__appVersionInfo = appVersionInfo
@@ -183,7 +184,7 @@ class ArgvExtender:
     def __groupOptionsKeys(self, optionsList):
         groups = {}
         for option in optionsList:
-            if not option.group in groups:
+            if option.group not in groups:
                 groups[option.group] = []
 
             groups[option.group].append(option.key)
@@ -192,7 +193,7 @@ class ArgvExtender:
 
 
 class Settings:
-    def __init__(self, defaults=[]):
+    def __init__(self, defaults=()):
         if (type(defaults) not in (tuple, list) or
                 not all([isinstance(opt, Option) for opt in defaults])):
             raise ValueError('Settings must be initialized with a list '
@@ -256,7 +257,7 @@ class Settings:
         elif value in ('no', 'false'):
             return False
         else:
-            raise ValueError('Cannot convert %s to boolean' % value)
+            raise ValueError('Cannot convert key %s value %s to boolean' % (key, value))
 
     def set(self, key, value):
         option = self.getOption(key)
@@ -277,5 +278,3 @@ class Settings:
                 return option
 
         return None
-
-
