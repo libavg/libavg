@@ -62,9 +62,6 @@ class DebugWidgetFrame(avg.DivNode):
         self.__widget = widgetCls(parent=self,
                 size=(max(0, self.width - self.BORDER * 2), 0),
                 pos=(self.BORDER, self.BORDER), **kwargs)
-        self.__selectHighlight = avg.RectNode(parent=self, color='35C0CD',
-                strokewidth=self.BORDER, opacity=0.8,
-                pos=(self.BORDER / 2, self.BORDER / 2), active=False, sensitive=False)
         self.__boundary = avg.RectNode(parent=self, sensitive=False)
 
         self.publish(DebugWidgetFrame.FRAME_HEIGHT_CHANGED)
@@ -78,26 +75,12 @@ class DebugWidgetFrame(avg.DivNode):
         self.__boundary.size = size
         self.__background.size = size
         childSize = (max(0, size[0] - self.BORDER * 2), max(0, size[1] - self.BORDER * 2))
-        self.__selectHighlight.size = (max(0, size[0] - self.BORDER),
-                max(0, size[1] - self.BORDER))
         self.__widget.size = childSize
         self.__widget.syncSize(childSize)
 
     def adjustWidgetHeight(self, height):
         self.size = (max(0, self.width), height + 2 * self.BORDER)
         self.notifySubscribers(DebugWidgetFrame.FRAME_HEIGHT_CHANGED, [])
-
-    def toggleSelect(self, event=None):
-        self.__selectHighlight.active = not self.__selectHighlight.active
-
-    def isSelected(self):
-        return self.__selectHighlight.active
-
-    def select(self):
-        self.__selectHighlight.active = True
-
-    def unselect(self):
-        self.__selectHighlight.active = False
 
     def show(self):
         self.active = True
