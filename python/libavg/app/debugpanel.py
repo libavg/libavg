@@ -244,7 +244,7 @@ class ObjectDumpWidget(DebugWidget):
         kbmgr.bindKeyDown(
                 keyname='I',
                 handler=self.persistColumn,
-                help="Object count snapshot",
+                help="Take objects count snapshot",
                 modifiers=avg.KEYMOD_CTRL)
 
     def onHide(self):
@@ -441,32 +441,32 @@ class DebugPanel(avg.DivNode):
     def setupKeys(self):
         kbmgr.bindKeyDown(keyname='G',
                 handler=lambda: self.toggleWidget(GPUMemoryGraphWidget),
-                help="GPU memory graph",
+                help='Show/hide GPU memory graph',
                 modifiers=avg.KEYMOD_CTRL)
 
         kbmgr.bindKeyDown(keyname='M',
                 handler=lambda: self.toggleWidget(MemoryGraphWidget),
-                help="Memory graph",
+                help='Show/hide memory graph',
                 modifiers=avg.KEYMOD_CTRL)
 
         kbmgr.bindKeyDown(keyname='F',
                 handler=lambda: self.toggleWidget(FrametimeGraphWidget),
-                help="Frametime graph",
+                help='Show/hide frametime graph',
                 modifiers=avg.KEYMOD_CTRL)
 
         kbmgr.bindKeyDown(text='?',
                 handler=lambda: self.toggleWidget(KeyboardManagerBindingsShower),
-                help="Show keyboard bindings",
+                help='Show/hide keyboard bindings',
                 modifiers=kbmgr.KEYMOD_ANY)
 
         kbmgr.bindKeyDown(keyname='O',
                 handler=lambda: self.toggleWidget(ObjectDumpWidget),
-                help="Object count table",
+                help='Show/hide objects count table',
                 modifiers=avg.KEYMOD_CTRL)
 
         kbmgr.bindKeyDown(keyname='V',
                 handler=self.toggleTouchVisualization,
-                help="Cursor visualization",
+                help='Toggle contact visualization',
                 modifiers=avg.KEYMOD_CTRL)
 
     def addWidget(self, widgetClass, **kwargs):

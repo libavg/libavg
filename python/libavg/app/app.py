@@ -344,13 +344,13 @@ class App(object):
         keyboardmanager.bindKeyDown(
                 keyname='D',
                 handler=self._debugPanel.toggleVisibility,
-                help='Show/hide the debug panel',
+                help='Show/hide debug panel',
                 modifiers=avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
                 keyname='H',
                 handler=lambda: player.showCursor(not player.isCursorShown()),
-                help='Show/hide cursor',
+                help='Show/hide mouse cursor',
                 modifiers=avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
@@ -362,7 +362,7 @@ class App(object):
         keyboardmanager.bindKeyDown(
                 keyname='B',
                 handler=self.dumpTextObjectCount,
-                help='Dump objects count to the console',
+                help='Dump objects count to console',
                 modifiers=avg.KEYMOD_CTRL)
 
         keyboardmanager.bindKeyDown(
