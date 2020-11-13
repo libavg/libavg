@@ -98,7 +98,7 @@ class App(object):
         self._applySettingsExtenders(kargs)
         self._setupLogging()
 
-        mainDiv.onStartup()
+        self._startupMainDiv()
 
         self._setupResolution()
         self._setupRootNode()
@@ -125,7 +125,7 @@ class App(object):
             self._teardownKeyboardManager()
             raise
 
-        mainDiv.onExit()
+        self._exitMainDiv()
 
         self._stopClickTest()
         self._teardownKeyboardManager()
@@ -223,6 +223,9 @@ class App(object):
                 cat, strLevel = catPair.split(':')
                 level = getattr(avg.logger.Severity, strLevel)
                 avg.logger.configureCategory(cat, level)
+
+    def _startupMainDiv(self):
+        self._mainDiv.onStartup()
 
     def _setupRootNode(self):
         # FIXME: "../../libavg/doc/avg.dtd" doesn't exist (anymore)
@@ -433,3 +436,6 @@ class App(object):
     def _onInitInternal(self):
         self._mainDiv.onInit()
         player.subscribe(player.ON_FRAME, self._mainDiv.onFrame)
+
+    def _exitMainDiv(self):
+        self._mainDiv.onExit()
