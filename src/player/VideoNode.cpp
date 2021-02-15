@@ -288,7 +288,6 @@ void VideoNode::seekToTime(long long time)
     }
     exceptionIfUnloaded("seekToTime");
     seek(time);
-    m_bSeekPending = true;
 }
 
 bool VideoNode::getLoop() const
@@ -442,6 +441,7 @@ void VideoNode::seek(long long destTime)
         m_PauseStartTime = Player::get()->getFrameTime();
         m_bFrameAvailable = false;
         m_bSeekPending = true;
+        m_SeekBeforeCanRenderTime = 0;
     } else {
         // If we get a seek command before decoding has really started, we need to defer 
         // the actual seek until the decoder is ready.
@@ -736,7 +736,6 @@ bool VideoNode::renderFrame()
             break;
         case FA_USE_LAST_FRAME:
             m_FramesInRowTooLate = 0;
-            m_bSeekPending = false;
 //            AVG_TRACE(Logger::category::PROFILE, "Video frame reused.");
             break;
         default:
