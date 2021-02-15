@@ -498,7 +498,19 @@ class WidgetTestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 50, 15),
                  lambda: self.compareImage("testUICheckBoxUnchecked_Down"),
                 ))
-        
+
+        root = self.loadEmptyScene()
+        avg.RectNode(size=(160,120), fillcolor="FFFFFF", fillopacity=1, parent=root)
+        checkBox = widget.CheckBox(text="checkboxtext", checked=True, pos=(10,10), parent=root)
+
+        self.start(True,
+                (lambda: self.compareImage("testUICheckBoxChecked_Up"),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 15, 15),
+                 lambda: self.compareImage("testUICheckBoxChecked_Down"),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 15, 15),
+                 lambda: self.compareImage("testUICheckBoxUnchecked_Up"),
+                ))
+
 
     def testScrollPane(self):
         def scrollLarge():

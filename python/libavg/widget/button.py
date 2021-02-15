@@ -378,6 +378,7 @@ class CheckBox(ToggleButton):
         checkedDownNode = self.__createImageNode(self.cfg["checkedDownBmp"])
         checkedDisabledNode = self.__createImageNode(self.cfg["checkedDisabledBmp"])
 
+        self.textNode = avg.WordsNode(pos=(20,0), text=text, fontstyle=self.cfg["font"])
         super(CheckBox, self).__init__(uncheckedUpNode=uncheckedUpNode,
                 uncheckedDownNode=uncheckedDownNode, 
                 uncheckedDisabledNode=uncheckedDisabledNode,
@@ -385,8 +386,7 @@ class CheckBox(ToggleButton):
                 checkedDownNode=checkedDownNode, 
                 checkedDisabledNode=checkedDisabledNode,
                 **kwargs)
-        self.textNode = avg.WordsNode(pos=(20,0), text=text, fontstyle=self.cfg["font"],
-                parent=self)
+        self.appendChild(self.textNode)
 
     def _enterUncheckedUp(self):
         self.textNode.fontstyle = self.cfg["font"]
