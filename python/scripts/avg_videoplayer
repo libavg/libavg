@@ -29,9 +29,11 @@ class VideoPlayer(app.MainDiv):
 
     def onArgvParserCreated(self, parser):
         parser.set_usage("%prog [options] <filename>")
-        parser.add_option("-d", "--disable-accel", dest="disableAccel",
-                action="store_true", default=False,
-                help="disable vdpau acceleration")
+        # NOTE: H/W video acceleration has been removed
+        # TODO: uncomment option when available again
+#        parser.add_option("-d", "--disable-accel", dest="disableAccel",
+#                action="store_true", default=False,
+#                help="disable vdpau acceleration")
 
     def onArgvParsed(self, options, args, parser):
         if len(args) != 1:
