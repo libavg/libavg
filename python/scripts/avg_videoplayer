@@ -81,7 +81,6 @@ class VideoPlayer(app.MainDiv):
         self.videoControl.subscribe(widget.MediaControl.SEEK_RELEASED, self.onSeekEnd)
         self.videoControl.subscribe(widget.MediaControl.SEEK_MOTION, self.onSeek)
 
-        self.isSeeking = False
         self.isPaused = False
 
     def onKeyDown(self, event):
@@ -101,7 +100,7 @@ class VideoPlayer(app.MainDiv):
         self.curFrameWords.text = "Frame: %i/%i"%(curFrame, numFrames)
         framesQueued = self.node.getNumFramesQueued()
         self.framesQueuedWords.text = "Frames queued: "+str(framesQueued)
-        if not(self.isSeeking):
+        if not self.node.isSeeking():
             self.videoControl.time = self.node.getCurTime()
 
     def onEOF(self):
@@ -118,12 +117,10 @@ class VideoPlayer(app.MainDiv):
 
     def onSeekStart(self):
         self.node.pause()
-        self.isSeeking = True
 
     def onSeekEnd(self):
-        if not(self.isPaused):
+        if not self.isPaused:
             self.node.play()
-        self.isSeeking = False
 
     def onSeek(self, time):
         self.node.seekToTime(int(time))
