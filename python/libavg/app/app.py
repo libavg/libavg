@@ -86,6 +86,7 @@ class App(object):
         self._windowSize = None
         self._mtEmu = None
         self._clickTest = None
+        self._clickTestConfig = {}
 
         self._settings = None
         self._setupSettings()
@@ -150,6 +151,16 @@ class App(object):
 
     def onBeforeLaunch(self):
         pass
+
+    def configClickTest(self,
+            mouse=clicktest.ClickTest.DEFAULT_MOUSE,
+            maxTouches=clicktest.ClickTest.DEFAULT_MAX_TOUCHES,
+            probabilities=clicktest.ClickTest.DEFAULT_PROBABILITIES,
+            visualize=clicktest.ClickTest.DEFAULT_VISUALIZE):
+        self._clickTestConfig = {
+            'mouse': mouse, 'maxTouches': maxTouches,
+            'probabilities': probabilities, 'visualize': visualize
+        }
 
     def takeScreenshot(self, targetFolder='.'):
         screenBmp = player.screenshot()
@@ -413,7 +424,7 @@ class App(object):
 
     def _toggleClickTest(self):
         if not self._clickTest:
-            self._clickTest = clicktest.ClickTest()
+            self._clickTest = clicktest.ClickTest(**self._clickTestConfig)
             self._clickTest.start()
         else:
             self._stopClickTest()

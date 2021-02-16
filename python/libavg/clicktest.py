@@ -29,8 +29,13 @@ logger = logging.getLogger(__name__)
 
 
 class ClickTest(object):
-    def __init__(self, mouse=False, maxTouches=10, probabilities=(0.5, 0.1, 0.2),
-            visualize=True):
+    DEFAULT_MOUSE = False
+    DEFAULT_MAX_TOUCHES = 10
+    DEFAULT_PROBABILITIES = (0.5, 0.1, 0.2)  # down, up, move
+    DEFAULT_VISUALIZE = True
+
+    def __init__(self, mouse=DEFAULT_MOUSE, maxTouches=DEFAULT_MAX_TOUCHES,
+            probabilities=DEFAULT_PROBABILITIES, visualize=DEFAULT_VISUALIZE):
         self._mouse = bool(mouse)
         self._maxTouches = max(0, maxTouches)
         self._probabilities = tuple(min(1.0, max(0.0, p)) for p in probabilities)
