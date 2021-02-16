@@ -34,7 +34,7 @@ char videoNodeName[] = "video";
 
 long long getDurationDeprecated(VideoNode* pNode)
 {
-    avgDeprecationWarning("1.9.0", "VideoNode.getDuration()", "VideoNode.duration");
+    avgDeprecationWarning("1.8.2", "VideoNode.getDuration()", "VideoNode.duration");
     return pNode->getDuration();
 }
 
