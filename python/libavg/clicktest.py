@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # libavg - Media Playback Engine.
-# Copyright (C) 2020 Thomas Schott, <scotty at c-base dot org>
+# Copyright (C) 2020-2021 Thomas Schott, <scotty at c-base dot org>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
