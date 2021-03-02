@@ -540,7 +540,7 @@ Area Nodes
             To get this message, call :py:meth:`Publisher.subscribe`.
 
             .. py:method:: Node.END_OF_FILE()
-            
+
                 Emitted when the end of the video stream has been reached.
 
         .. py:attribute:: enablesound
@@ -548,6 +548,11 @@ Area Nodes
             On construction, set to :py:const:`True` if any audio present in the video
             file should be played back as well. A value of :py:const:`False` ignores 
             audio and just plays a silent video. 
+
+        .. py:attribute:: duration
+
+            Returns the duration of the video in milliseconds. Some file formats don't
+            store valid durations; in this case, 0 is returned. Read-only.
 
         .. py:attribute:: fps
 
@@ -611,7 +616,10 @@ Area Nodes
 
         .. py:method:: getDuration() -> int
 
-            Returns the duration of the video in milliseconds. Some file formats don't 
+            .. deprecated:: 1.8.2
+                Use :py:attr:`duration` instead.
+
+            Returns the duration of the video in milliseconds. Some file formats don't
             store valid durations; in this case, 0 is returned. Read-only.
 
         .. py:method:: getNumFrames() -> int
@@ -822,7 +830,7 @@ Area Nodes
             Returns the text without text attribute markup language. <br/>
             is replaced by \\n.
 
-        .. py:classmethod:: addFontDir
+        .. py:classmethod:: addFontDir(dir)
 
             Adds a directory to be searched for fonts.
             May only be called before :py:meth:`Player.play`.

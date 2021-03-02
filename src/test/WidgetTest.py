@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # libavg - Media Playback Engine.
-# Copyright (C) 2003-2020 Ulrich von Zadow
+# Copyright (C) 2003-2021 Ulrich von Zadow
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -329,7 +329,7 @@ class WidgetTestCase(AVGTestCase):
         def onToggled(isToggled):
             self.messageTester.setMessageReceived(widget.ToggleButton.TOGGLED)
             self.toggled = isToggled
-        
+
         def createScene(**kwargs):
             root = self.loadEmptyScene()
             button = widget.ToggleButton(
@@ -358,13 +358,13 @@ class WidgetTestCase(AVGTestCase):
                      lambda: self.assert_(not self.toggled),
                      lambda: self.compareImage("testUIToggleUnchecked_Down"),
                      self._genMouseEventFrames(avg.Event.CURSOR_UP, 0, 0,
-                            [widget.ToggleButton.RELEASED, widget.ToggleButton.TOGGLED]),
+                             [widget.ToggleButton.RELEASED, widget.ToggleButton.TOGGLED]),
                      lambda: self.assert_(self.toggled),
                      lambda: self.compareImage("testUIToggleChecked_Up"),
                      lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 0, 0),
                      lambda: self.compareImage("testUIToggleChecked_Down"),
                      lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 0, 0),
-                     lambda: self.assert_(not(self.toggled)),
+                     lambda: self.assert_(not self.toggled),
                      lambda: self.compareImage("testUIToggleUnchecked_Up"),
                     ))
 
@@ -382,7 +382,7 @@ class WidgetTestCase(AVGTestCase):
                      lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 0, 0),
                      lambda: self.compareImage("testUIToggleChecked_Down"),
                      lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 100, 0),
-                     lambda: self.assert_(not(self.toggled)), 
+                     lambda: self.assert_(not self.toggled),
                      lambda: self.compareImage("testUIToggleChecked_Up"),
                     ))
 
@@ -397,9 +397,9 @@ class WidgetTestCase(AVGTestCase):
                      lambda: self._sendTouchEvent(2, avg.Event.CURSOR_DOWN, 0, 0),
                      lambda: button.setEnabled(False),
                      lambda: self._sendTouchEvent(2, avg.Event.CURSOR_UP, 0, 0),
-                     lambda: self.assert_(not(self.toggled)),
+                     lambda: self.assert_(not self.toggled),
                      lambda: self.compareImage("testUIToggleUnchecked_Disabled"),
-                     
+
                      lambda: button.setEnabled(True),
                      lambda: self.compareImage("testUIToggleUnchecked_Up"),
                      lambda: button.setChecked(True),
@@ -414,10 +414,22 @@ class WidgetTestCase(AVGTestCase):
                      lambda: self._sendTouchEvent(4, avg.Event.CURSOR_DOWN, 0, 0),
                      lambda: button.setEnabled(False),
                      lambda: self._sendTouchEvent(4, avg.Event.CURSOR_UP, 0, 0),
-                     lambda: self.assert_(not(self.toggled)),
+                     lambda: self.assert_(not self.toggled),
                      lambda: self.compareImage("testUIToggleChecked_Disabled"),
                     ))
-       
+
+        def testToggleChecked():
+            self.start(False,
+                    (lambda: self.compareImage("testUIToggleChecked_Up"),
+                     self._genMouseEventFrames(avg.Event.CURSOR_DOWN, 0, 0,
+                             [widget.ToggleButton.PRESSED]),
+                     lambda: self.compareImage("testUIToggleChecked_Down"),
+                     self._genMouseEventFrames(avg.Event.CURSOR_UP, 0, 0,
+                             [widget.ToggleButton.RELEASED, widget.ToggleButton.TOGGLED]),
+                     lambda: self.assert_(not self.toggled),
+                     lambda: self.compareImage("testUIToggleUnchecked_Up"),
+                    ))
+
         def testFromSrc():
             root = self.loadEmptyScene()
             button = widget.BmpToggleButton(
@@ -439,26 +451,29 @@ class WidgetTestCase(AVGTestCase):
                      lambda: button.setChecked(True),
                      lambda: self.compareImage("testUIToggleChecked_Disabled"),
                     ))
- 
+
         self.toggled = False
         button = createScene()
         testToggle()
-        
+
         button = createScene()
         testToggleAbort()
-        
-        button = createScene(enabled = False)
+
+        button = createScene(enabled=False)
         testToggleDisable()
 
-        button = createScene(activeAreaNode = avg.CircleNode(r=5, opacity=0))
+        button = createScene(checked=True)
+        testToggleChecked()
+
+        button = createScene(activeAreaNode=avg.CircleNode(r=5, opacity=0))
         testToggle()
-        
-        button = createScene(fatFingerEnlarge = True)
+
+        button = createScene(fatFingerEnlarge=True)
         testToggle()
 
         testFromSrc()
 
-    
+
     def testCheckBox(self):
 
         root = self.loadEmptyScene()
@@ -483,7 +498,19 @@ class WidgetTestCase(AVGTestCase):
                  lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 50, 15),
                  lambda: self.compareImage("testUICheckBoxUnchecked_Down"),
                 ))
-        
+
+        root = self.loadEmptyScene()
+        avg.RectNode(size=(160,120), fillcolor="FFFFFF", fillopacity=1, parent=root)
+        checkBox = widget.CheckBox(text="checkboxtext", checked=True, pos=(10,10), parent=root)
+
+        self.start(True,
+                (lambda: self.compareImage("testUICheckBoxChecked_Up"),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_DOWN, 15, 15),
+                 lambda: self.compareImage("testUICheckBoxChecked_Down"),
+                 lambda: self._sendMouseEvent(avg.Event.CURSOR_UP, 15, 15),
+                 lambda: self.compareImage("testUICheckBoxUnchecked_Up"),
+                ))
+
 
     def testScrollPane(self):
         def scrollLarge():

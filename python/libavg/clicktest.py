@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # libavg - Media Playback Engine.
-# Copyright (C) 2020 Thomas Schott, <scotty at c-base dot org>
+# Copyright (C) 2020-2021 Thomas Schott, <scotty at c-base dot org>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -29,8 +29,13 @@ logger = logging.getLogger(__name__)
 
 
 class ClickTest:
-    def __init__(self, mouse=False, maxTouches=10, probabilities=(0.5, 0.1, 0.2),
-            visualize=True):
+    DEFAULT_MOUSE = False
+    DEFAULT_MAX_TOUCHES = 10
+    DEFAULT_PROBABILITIES = (0.5, 0.1, 0.2)  # down, up, move
+    DEFAULT_VISUALIZE = True
+
+    def __init__(self, mouse=DEFAULT_MOUSE, maxTouches=DEFAULT_MAX_TOUCHES,
+            probabilities=DEFAULT_PROBABILITIES, visualize=DEFAULT_VISUALIZE):
         self._mouse = bool(mouse)
         self._maxTouches = max(0, maxTouches)
         self._probabilities = tuple(min(1.0, max(0.0, p)) for p in probabilities)

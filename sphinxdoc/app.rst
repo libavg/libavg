@@ -31,6 +31,13 @@ app module
 
             An instance of settings.Settings.
 
+        .. py:method:: configClickTest(**kargs)
+
+            Configures the integrated click test. Arguments and their defaults
+            are the same as for :py:class:`libavg.clicktest.ClickTest` and
+            applied on the next start of the test.
+            Toggling the click test is normally bound to the keypress :kbd:`CTRL-c`.
+
         .. py:method:: dumpTextObjectCount()
 
             Dumps on the console the current number of initialized objects. Normally
