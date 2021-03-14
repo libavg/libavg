@@ -37,9 +37,6 @@
 
 namespace avg {
 
-class FontStyle;
-typedef boost::shared_ptr<class FontStyle> FontStylePtr;
-
 class AVG_API FontStyle: public ExportedObject
 {
     public:
