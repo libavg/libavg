@@ -69,6 +69,7 @@ void EGLContext::useSDLContext(const SDL_SysWMinfo* pSDLWMInfo)
     m_bOwnsContext = false;
     m_Context = eglGetCurrentContext();
     m_Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    setCurrent();
 }
 
 void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize)
@@ -113,8 +114,7 @@ void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize)
     visTemplate.visualid = vid;
     int num_visuals;
     XVisualInfo* pVisualInfo = XGetVisualInfo((_XDisplay*)m_xDisplay, VisualIDMask,
-            &visTemplate,
-            &num_visuals);
+            &visTemplate, &num_visuals);
     AVG_ASSERT(pVisualInfo);
 #endif
 
@@ -127,18 +127,19 @@ void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize)
         cerr << "Didn't get exactly one config, but " << numFBConfig << endl;
         return;
     }
+
 #ifdef AVG_ENABLE_RPI
     m_Surface = createBCMPixmapSurface(m_Display, config);
 #else
-    XVisualInfo visTemplate, *results;
     visTemplate.screen = 0;
     int numVisuals;
-    results = XGetVisualInfo((_XDisplay*)m_xDisplay, VisualScreenMask,
+    pVisualInfo = XGetVisualInfo((_XDisplay*)m_xDisplay, VisualScreenMask,
             &visTemplate, & numVisuals);
+    AVG_ASSERT(pVisualInfo);
 
     Pixmap pmp = XCreatePixmap((_XDisplay*)m_xDisplay,
-            RootWindow((_XDisplay*)m_xDisplay, results[0].screen), 8, 8,
-            results[0].depth);
+            RootWindow((_XDisplay*)m_xDisplay, pVisualInfo[0].screen), 8, 8,
+            pVisualInfo[0].depth);
 
     m_Surface = eglCreatePixmapSurface(m_Display, config, (EGLNativePixmapType)pmp,
             NULL);

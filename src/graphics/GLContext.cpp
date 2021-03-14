@@ -82,7 +82,7 @@ void GLContext::init(const GLConfig& glConfig, bool bOwnsContext)
 
     m_sVendor = (const char *)glGetString(GL_VENDOR);
     m_sRenderer = (const char *)glGetString(GL_RENDERER);
-    if (m_GLConfig.m_bUseDebugContext) {
+    if (m_GLConfig.m_bUseDebugContext && !m_GLConfig.m_bGLES) {
         if (isDebugContextSupported()) {
             glproc::DebugMessageCallback(GLContext::debugLogCallback, 0);
         } else {

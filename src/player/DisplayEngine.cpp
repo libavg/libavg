@@ -110,8 +110,13 @@ void DisplayEngine::init(const DisplayParams& dp, GLConfig glConfig)
                     glConfig)));
         } else {
 #ifdef __linux__
+    #ifndef AVG_ENABLE_EGL
             m_pWindows.push_back(WindowPtr(new SecondaryWindow(dp.getWindowParams(i),
                     dp.isFullscreen(), glConfig)));
+    #else
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED,
+                    "Setting DisplayServer != 0 not supported for EGL yet.");
+    #endif
 #else
             throw Exception(AVG_ERR_VIDEO_INIT_FAILED,
                     "Setting DisplayServer != 0 is only valid under linux.");
