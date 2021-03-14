@@ -307,7 +307,7 @@ HWND SDLWindow::getWinHWnd()
 }
 #endif
 
-#if defined(__linux__) && !defined(AVG_ENABLE_RPI)
+#ifdef __linux__
 ::Display* SDLWindow::getX11Display()
 {
     SDL_SysWMinfo info;

@@ -21,11 +21,7 @@
 
 #include "Display.h"
 #ifdef __linux__
-    #ifdef AVG_ENABLE_RPI
-    #include "BCMDisplay.h"
-    #else
-    #include "X11Display.h"
-    #endif
+#include "X11Display.h"
 #endif
 #ifdef __APPLE__
 #include "AppleDisplay.h"
@@ -49,11 +45,7 @@ DisplayPtr Display::get()
 {
     if (!s_pInstance) {
 #ifdef __linux__
-    #ifdef AVG_ENABLE_RPI
-        s_pInstance = DisplayPtr(new BCMDisplay());
-    #else
         s_pInstance = DisplayPtr(new X11Display());
-    #endif
 #elif defined __APPLE__
         s_pInstance = DisplayPtr(new AppleDisplay());
 #elif defined _WIN32

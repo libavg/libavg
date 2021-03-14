@@ -21,11 +21,7 @@
 
 #include "EGLContext.h"
 #include "GLContextAttribs.h"
-#ifdef AVG_ENABLE_RPI
-    #include "BCMDisplay.h"
-#else
-    #include "X11Display.h"
-#endif
+#include "X11Display.h"
 
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
@@ -76,12 +72,8 @@ void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize)
 {
     m_bOwnsContext = true;
 
-#ifdef AVG_ENABLE_RPI
-    m_Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-#else
     m_xDisplay = (EGLNativeDisplayType)getX11Display();
     m_Display = eglGetDisplay(m_xDisplay);
-#endif
     checkEGLError(m_Display == EGL_NO_DISPLAY, "No EGL display available");
 
     bool bOk = eglInitialize(m_Display, NULL, NULL);
@@ -93,12 +85,6 @@ void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize)
     fbAttrs.append(EGL_BLUE_SIZE, 1);
     fbAttrs.append(EGL_DEPTH_SIZE, 0);
     fbAttrs.append(EGL_STENCIL_SIZE, 1);
-#ifdef AVG_ENABLE_RPI
-    int alphaSize = 1;
-#else
-    int alphaSize = 0;
-#endif
-    fbAttrs.append(EGL_ALPHA_SIZE, alphaSize);
     fbAttrs.append(EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT);
     EGLint numFBConfig;
     EGLConfig config;
@@ -109,14 +95,12 @@ void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize)
     bOk = eglGetConfigAttrib(m_Display, config, EGL_NATIVE_VISUAL_ID, &vid);
     AVG_ASSERT(bOk);
 
-#ifndef AVG_ENABLE_RPI
     XVisualInfo visTemplate;
     visTemplate.visualid = vid;
     int num_visuals;
     XVisualInfo* pVisualInfo = XGetVisualInfo((_XDisplay*)m_xDisplay, VisualIDMask,
             &visTemplate, &num_visuals);
     AVG_ASSERT(pVisualInfo);
-#endif
 
     if (!eglBindAPI(EGL_OPENGL_ES_API)) {
         cerr << "Failed to bind GLES API to EGL\n";
@@ -128,9 +112,6 @@ void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize)
         return;
     }
 
-#ifdef AVG_ENABLE_RPI
-    m_Surface = createBCMPixmapSurface(m_Display, config);
-#else
     visTemplate.screen = 0;
     int numVisuals;
     pVisualInfo = XGetVisualInfo((_XDisplay*)m_xDisplay, VisualScreenMask,
@@ -143,7 +124,6 @@ void EGLContext::createEGLContext(const GLConfig&, const IntPoint& windowSize)
 
     m_Surface = eglCreatePixmapSurface(m_Display, config, (EGLNativePixmapType)pmp,
             NULL);
-#endif
     
     //dumpEGLConfig(config);
     AVG_ASSERT(m_Surface);

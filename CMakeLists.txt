@@ -31,7 +31,6 @@ if(DEFINED AVG_VERSION_EXTRA)
 endif()
 
 message(STATUS "libavg v${AVG_VERSION_RELEASE}")
-
 message(STATUS "CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES Linux)
@@ -74,16 +73,16 @@ find_path(VIDEODEV2_FOUND
 
 
 # Options
-set(AVG_ENABLE_EGL FALSE CACHE BOOL "include EGL support")
-set(AVG_ENABLE_RPI FALSE CACHE BOOL "configure for RaspberryPi")
+set(AVG_ENABLE_EGL FALSE CACHE BOOL "configure for EGL display/context")
 
 if(${DC1394_2_FOUND})
     set(AVG_ENABLE_1394_2 TRUE CACHE BOOL "compile support for firewire cameras")
 endif()
 if(VIDEODEV2_FOUND)
-    set(AVG_ENABLE_V4L2 TRUE CACHE BOOL "Compile support for video4linux v2 video devices")
+    set(AVG_ENABLE_V4L2 TRUE CACHE BOOL "compile support for video4linux v2 video devices")
     find_package(JPEG REQUIRED)
 endif()
+
 
 # Python virtualenv handling: If a virtualenv is active, install everything there.
 set(virtual_env $ENV{VIRTUAL_ENV})
@@ -91,6 +90,7 @@ if (virtual_env)
     message(STATUS "Python virtualenv in use, setting install prefix to ${virtual_env}.")
     set(CMAKE_INSTALL_PREFIX ${virtual_env})
 endif()
+
 
 # Platform-specific configuration
 if(${PLATFORM_LINUX})
@@ -127,16 +127,16 @@ if(${PLATFORM_WINDOWS})
         "Use the prebuilt Visual Studio file './win/libavg.sln'. ")
 endif()
 
-if(${AVG_ENABLE_RPI})
-    set(ENV{PKG_CONFIG_PATH} ./pkg-config/rpi)
-endif()
 
+# Build type
 if(NOT CMAKE_BUILD_TYPE)
    set(CMAKE_BUILD_TYPE "Release" CACHE STRING
        "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
        FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
+
+# Compiler flags
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang|GNU")
     set(warnings_cxx "-Wall -Wno-invalid-offsetof -Woverloaded-virtual -Wswitch -Wuninitialized -Wempty-body -Wno-unused-local-typedefs")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -fPIC -ffast-math ${warnings_cxx}")
@@ -150,6 +150,7 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang|GNU")
     set_cxx_version()
 endif()
 
+
 # Feature configuration
 if(${AVG_ENABLE_GLX_X11})
     pkg_check_modules(GLX_X11 REQUIRED x11 gl)
@@ -157,12 +158,9 @@ endif()
 if(${AVG_ENABLE_EGL})
     pkg_check_modules(EGL REQUIRED x11 egl glesv2)
 endif()
-if(${AVG_ENABLE_RPI})
-    pkg_check_module(BCM REQUIRED bcm)
-endif()
+
 
 enable_testing()
-
 
 # Enable make check that dumps test output on failure
 if (CMAKE_CONFIGURATION_TYPES)

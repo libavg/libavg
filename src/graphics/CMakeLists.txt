@@ -15,10 +15,6 @@ if(${AVG_ENABLE_EGL})
     set (GRAPHICS_CFLAGS ${EGL_CFLAGS})
 endif()
 
-if(${AVG_ENABLE_RPI})
-    set (GRAPHICS_SOURCES ${GRAPHICS_SOURCES} BCMDisplay.cpp)
-endif()
-
 add_library(graphics
         ${GRAPHICS_SOURCES}
         Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp PixelFormat.cpp  
