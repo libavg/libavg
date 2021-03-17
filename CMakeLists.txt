@@ -46,14 +46,13 @@ endif()
 
 # Find dependencies
 if(${PLATFORM_MACOSX})
-    set(BOOST_ROOT "$ENV{AVG_PATH}")
+    # no cmake files for boost-python(2) provided by homebrew due to collision with boost-python3
+    set(Boost_NO_BOOST_CMAKE ON)
+    set(Boost_PYTHON_LIBRARY_RELEASE "/usr/local/lib/libboost_python27.dylib")
 endif()
 set(Boost_PYTHON_VERSION "2.7")
 find_package(Boost 1.46 REQUIRED system thread python)
 find_package(PkgConfig REQUIRED)
-if(${PLATFORM_MACOSX})
-    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:$ENV{AVG_PATH}/libavg/pkg-config/mac")
-endif()
 pkg_search_module(LIBXML2 REQUIRED libxml-2.0 libxml2)
 pkg_search_module(GDK_PIXBUF REQUIRED gdk-pixbuf-2.0)
 pkg_search_module(SDL2 REQUIRED sdl2)
@@ -114,10 +113,6 @@ if(${PLATFORM_MACOSX})
     set(PLATFORM_MACOSX_LIBS
             ${COCOA} ${COREAUDIO} ${AUDIOUNIT} ${FORCEFEEDBACK} ${COREVIDEO}
             ${IOKIT} ${COREFOUNDATION} ${OPENGL} ${CARBON})
-    # The following lines work around broken pkg-config scripts on mac.
-    string (REPLACE ";" " " FFMPEG_LDFLAGS "${FFMPEG_LDFLAGS}")
-    set(RSVG_LDFLAGS "${RSVG_LDFLAGS} -lpixman-1 -lpangocairo-1.0")
-    set(GDK_PIXBUF_LDFLAGS "${GDK_PIXBUF_LDFLAGS} -lgmodule-2.0 -lgio-2.0 -lresolv")
     link_libraries(${PLATFORM_MACOSX_LIBS})
 endif()
 
@@ -139,6 +134,9 @@ endif(NOT CMAKE_BUILD_TYPE)
 # Compiler flags
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang|GNU")
     set(warnings_cxx "-Wall -Wno-invalid-offsetof -Woverloaded-virtual -Wswitch -Wuninitialized -Wempty-body -Wno-unused-local-typedefs")
+    if(${PLATFORM_MACOSX})
+        set(warnings_cxx "${warnings_cxx} -Wno-deprecated-register")
+    endif()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -fPIC -ffast-math ${warnings_cxx}")
     set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -pipe -fPIC -ffast-math -Wall")
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
