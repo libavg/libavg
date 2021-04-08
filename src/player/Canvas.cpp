@@ -72,6 +72,7 @@ void Canvas::initPlayback(int multiSampleSamples)
     m_pRootNode->connectDisplay();
     m_MultiSampleSamples = multiSampleSamples;
     m_pVertexArray = GLContextManager::get()->createVertexArray(2000, 3000);
+    m_pOutlinesVA = GLContextManager::get()->createVertexArray();
 }
 
 void Canvas::stopPlayback(bool bIsAbort)
@@ -85,6 +86,7 @@ void Canvas::stopPlayback(bool bIsAbort)
         m_IDMap.clear();
         m_bIsPlaying = false;
         m_pVertexArray = VertexArrayPtr();
+        m_pOutlinesVA = VertexArrayPtr();
     }
 }
 
@@ -294,17 +296,16 @@ SubVertexArray& Canvas::getStdSubVA()
 
 void Canvas::renderOutlines(GLContext* pContext, const glm::mat4& transform)
 {
-    VertexArrayPtr pVA = GLContextManager::get()->createVertexArray();
-    pVA->initForGLContext(pContext);
+    m_pOutlinesVA->reset();
+    m_pRootNode->renderOutlines(m_pOutlinesVA, Pixel32(0,0,0,0));
     pContext->setBlendMode(GLContext::BLEND_BLEND, false);
-    m_pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
     StandardShader* pShader = pContext->getStandardShader();
     pShader->setTransform(transform);
     pShader->setUntextured();
     pShader->setAlpha(0.5f);
     pShader->activate();
-    if (pVA->getNumVerts() != 0) {
-        pVA->draw(pContext);
+    if (m_pOutlinesVA->getNumVerts() != 0) {
+        m_pOutlinesVA->draw(pContext);
     }
 }
 

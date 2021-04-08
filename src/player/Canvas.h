@@ -126,7 +126,8 @@ class AVG_API Canvas: public ExportedObject
         bool m_bIsPlaying;
         VertexArrayPtr m_pVertexArray;
         SubVertexArray m_StdSubVA;
-       
+        VertexArrayPtr m_pOutlinesVA;
+
         typedef std::map<std::string, NodePtr> NodeIDMap;
         NodeIDMap m_IDMap;
 
