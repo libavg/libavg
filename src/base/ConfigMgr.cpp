@@ -67,7 +67,7 @@ ConfigMgr* ConfigMgr::get()
 ConfigMgr::ConfigMgr()
 {
     addSubsys("scr");
-    addOption("scr", "gles", "false");
+    addOption("scr", "gles", "false"); // NOTE: forced to true for EGL by Player
     addOption("scr", "bpp", "24");
     addOption("scr", "fullscreen", "false");
     addOption("scr", "windowwidth", "0");
@@ -78,10 +78,8 @@ ConfigMgr::ConfigMgr()
     addOption("scr", "multisamplesamples", "8");
     addOption("scr", "shaderusage", "auto");
     addOption("scr", "gamma", "-1,-1,-1");
-    addOption("scr", "vsyncmode", "auto");
-    addOption("scr", "videoaccel", "true");
     addOption("scr", "imgcachesize", "-1,-1");
-    
+
     addSubsys("aud");
     addOption("aud", "channels", "2");
     addOption("aud", "samplerate", "44100");
@@ -95,9 +93,9 @@ ConfigMgr::ConfigMgr()
     addOption("gesture", "maxswipecontactdist", "100");
     addOption("gesture", "holddelay", "500");
     addOption("gesture", "mindragdist", "5");
+    addOption("gesture", "friction", "-1");
     addOption("gesture", "filtermincutoff", "0.1");
     addOption("gesture", "filterbeta", "0.03");
-    addOption("gesture", "friction", "-1");
 
     addSubsys("touch");
     addOption("touch", "area", "0, 0");

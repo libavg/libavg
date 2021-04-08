@@ -82,7 +82,7 @@ void GLContext::init(const GLConfig& glConfig, bool bOwnsContext)
 
     m_sVendor = (const char *)glGetString(GL_VENDOR);
     m_sRenderer = (const char *)glGetString(GL_RENDERER);
-    if (m_GLConfig.m_bUseDebugContext) {
+    if (m_GLConfig.m_bUseDebugContext && !m_GLConfig.m_bGLES) {
         if (isDebugContextSupported()) {
             glproc::DebugMessageCallback(GLContext::debugLogCallback, 0);
         } else {
@@ -190,26 +190,18 @@ GLBufferCache& GLContext::getPBOCache()
 unsigned GLContext::genFBO()
 {
     unsigned fboID;
-#ifdef AVG_ENABLE_RPI
-    glproc::GenFramebuffers(1, &fboID);
-#else
     if (m_FBOIDs.empty()) {
         glproc::GenFramebuffers(1, &fboID);
     } else {
         fboID = m_FBOIDs.back();
         m_FBOIDs.pop_back();
     }
-#endif
     return fboID;
 }
 
 void GLContext::returnFBOToCache(unsigned fboID)
 {
-#ifdef AVG_ENABLE_RPI
-    glproc::DeleteFramebuffers(1, &fboID);
-#else
     m_FBOIDs.push_back(fboID);
-#endif
 }
 
 void GLContext::setBlendColor(const glm::vec4& color)

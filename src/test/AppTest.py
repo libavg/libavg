@@ -46,6 +46,7 @@ class TestApp(libavg.app.App):
         player.assumePixelsPerMM(1)
         for k, v in self.CUSTOM_SETTINGS.items():
             self.settings.set(k, v)
+        self.settings.set('app_multisample_samples', '1')
 
         if mainDiv is None:
             mainDiv = libavg.app.MainDiv()

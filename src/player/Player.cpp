@@ -1106,10 +1106,14 @@ void Player::initConfig()
     m_AP.m_OutputBufferSamples =
             atoi(pMgr->getOption("aud", "outputbuffersamples")->c_str());
 
+#ifdef AVG_ENABLE_EGL
+    m_GLConfig.m_bGLES = true;
+#else
     m_GLConfig.m_bGLES = pMgr->getBoolOption("scr", "gles", false);
+#endif
     m_GLConfig.m_bUsePOTTextures = pMgr->getBoolOption("scr", "usepow2textures", false);
-
     m_GLConfig.m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
+
     int multiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 8);
     if (multiSampleSamples < 1) {
         AVG_LOG_ERROR("multisamplesamples must be >= 1. Aborting")
@@ -1129,11 +1133,10 @@ void Player::initConfig()
         throw Exception(AVG_ERR_OUT_OF_RANGE,
                "avgrc parameter shaderusage must be full, minimal or auto");
     }
+
     string sDummy;
     m_GLConfig.m_bUseDebugContext = getEnv("AVG_USE_DEBUG_GL_CONTEXT", sDummy);
-#ifdef AVG_ENABLE_EGL
-    m_GLConfig.m_bGLES = true;
-#endif
+
     BitmapLoader::init(!m_GLConfig.m_bGLES);
 
     float gamma[3];

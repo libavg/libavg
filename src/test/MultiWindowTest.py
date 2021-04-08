@@ -140,8 +140,32 @@ class MultiWindowTestCase(AVGTestCase):
                  lambda: setHueSat(self.wordsNode),
                  lambda: self.compareImage("testMultiWindowFXWords2"),
                 ))
-        
-        
+
+    def testMultiWindowOutlines(self):
+        def changeColors():
+            divNode.elementoutlinecolor = "FFFFFF"
+            imgNode.elementoutlinecolor = "00FF00"
+
+        def changeNodes():
+            divNode.size = (50, 60)
+            imgNode.pos = (10, 20)
+            imgNode.angle = -0.42
+
+        root = self.loadEmptyScene()
+        player.setWindowConfig("avgwindowconfig.xml")
+        divNode = avg.DivNode(pos=(30, 20), parent=root)
+        imgNode = avg.ImageNode(href="rgb24-64x64.png", angle=0.42, parent=divNode)
+        divNode.elementoutlinecolor = "FF0000"
+
+        self.start(False,
+                   (
+                       lambda: self.compareImage("testMultiWindowOutlines1"),
+                       changeColors,
+                       lambda: self.compareImage("testMultiWindowOutlines2"),
+                       changeNodes,
+                       lambda: self.compareImage("testMultiWindowOutlines3"),
+                   ))
+
 
 def multiWindowTestSuite(tests):
     if not player.isUsingGLES():
@@ -151,10 +175,10 @@ def multiWindowTestSuite(tests):
                 "testMultiWindowCanvas",
                 "testMultiWindowManualCanvas",
                 "testMultiWindowFX",
-                "testMultiWindowFXWords"
+                "testMultiWindowFXWords",
+                "testMultiWindowOutlines"
                 )
         return createAVGTestSuite(availableTests, MultiWindowTestCase, tests)
     else:
         sys.stderr.write("Skipping multi-window tests - not supported for GLES.\n")
         return unittest.TestSuite()
-        

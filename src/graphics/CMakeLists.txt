@@ -10,11 +10,9 @@ if(${AVG_ENABLE_CGL_QUARTZ})
 endif()
 
 if(${AVG_ENABLE_EGL})
-    set (GRAPHICS_SOURCES ${GRAPHICS_SOURCES} EGLContext.cpp)
-endif()
-
-if(${AVG_ENABLE_RPI})
-    set (GRAPHICS_SOURCES ${GRAPHICS_SOURCES} BCMDisplay.cpp)
+    set (GRAPHICS_SOURCES ${GRAPHICS_SOURCES} EGLContext.cpp X11Display.cpp)
+    set (GRAPHICS_LIBS ${EGL_LDFLAGS})
+    set (GRAPHICS_CFLAGS ${EGL_CFLAGS})
 endif()
 
 add_library(graphics

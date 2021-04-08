@@ -88,11 +88,14 @@ SDLWindow::SDLWindow(const DisplayParams& dp, const WindowParams& wp, GLConfig g
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     if (glConfig.m_bGLES) {
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
     }
     if (glConfig.m_bUseDebugContext && !glConfig.m_bGLES) {
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
     }
 
+    const int requestedMultiSampleSamples = glConfig.m_MultiSampleSamples;
     while (glConfig.m_MultiSampleSamples && !m_SDLGLContext) {
         if (glConfig.m_MultiSampleSamples > 1) {
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
@@ -102,6 +105,8 @@ SDLWindow::SDLWindow(const DisplayParams& dp, const WindowParams& wp, GLConfig g
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
             SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
         }
+        // NOTE: subsequent calls of SDL_CreateWindow() may fail (and exit)
+        //       for EGL after the first failed call
         m_pSDLWindow = SDL_CreateWindow(wp.m_sTitle.c_str(), pos.x, pos.y,
                 getSize().x, getSize().y, flags);
         if (m_pSDLWindow) {
@@ -121,8 +126,9 @@ SDLWindow::SDLWindow(const DisplayParams& dp, const WindowParams& wp, GLConfig g
 
     if (!m_SDLGLContext) {
         throw Exception(AVG_ERR_UNSUPPORTED, string("Creating window failed: ")
-                + SDL_GetError() + ". (size=" + toString(wp.m_Size) + ", bpp=" +
-                toString(dp.getBPP()) + ").");
+                + SDL_GetError() + ". (size=" + toString(wp.m_Size) +
+                ", bpp=" + toString(dp.getBPP()) +
+                ", mss=" + toString(requestedMultiSampleSamples) + ").");
     }
     SDL_GL_MakeCurrent(m_pSDLWindow, m_SDLGLContext);
     SDL_SysWMinfo info;
@@ -163,7 +169,7 @@ void SDLWindow::swapBuffers() const
 {
     ScopeTimer timer(SwapBufferProfilingZone);
     getGLContext()->activate();
-#ifdef AVG_ENABLE_RPI
+#ifdef AVG_ENABLE_EGL
     SDL_GL_SwapWindow(m_pSDLWindow);
 #else
     getGLContext()->swapBuffers();
@@ -301,7 +307,7 @@ HWND SDLWindow::getWinHWnd()
 }
 #endif
 
-#if defined(__linux__) && !defined(AVG_ENABLE_RPI)
+#ifdef __linux__
 ::Display* SDLWindow::getX11Display()
 {
     SDL_SysWMinfo info;

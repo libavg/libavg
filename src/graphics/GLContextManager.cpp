@@ -93,9 +93,8 @@ GLContext* GLContextManager::createContext(const GLConfig& glConfig,
     pContext = new CGLContext(glConfig, windowSize, pSDLWMInfo);
 #elif defined __linux__
     #ifdef AVG_ENABLE_EGL
-        GLConfig tempConfig = glConfig;
-        tempConfig.m_bGLES = true;
-        pContext = new EGLContext(tempConfig, windowSize, pSDLWMInfo);
+        AVG_ASSERT(glConfig.m_bGLES);
+        pContext = new EGLContext(glConfig, windowSize, pSDLWMInfo);
     #else
         pContext = new GLXContext(glConfig, windowSize, pSDLWMInfo);
     #endif

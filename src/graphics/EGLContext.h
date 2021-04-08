@@ -51,9 +51,7 @@ private:
             const std::string& name) const;
 
     bool m_bOwnsContext;
-#ifndef AVG_ENABLE_RPI
     EGLNativeDisplayType m_xDisplay;
-#endif
     EGLDisplay m_Display;
     ::EGLContext m_Context;
     EGLSurface m_Surface;

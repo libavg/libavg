@@ -1,14 +1,16 @@
 <avgrc>
   <scr>
-    <gles>false</gles>
+    <gles>false</gles> <!-- NOTE: forced to true for EGL -->
     <bpp>24</bpp>
     <fullscreen>false</fullscreen>
+    <windowwidth>0</windowwidth>
+    <windowheight>0</windowheight>
+    <dotspermm>0</dotspermm>
     <usepow2textures>false</usepow2textures>
     <usepixelbuffers>true</usepixelbuffers>
-    <multisamplesamples>4</multisamplesamples>
-    <dotspermm>0</dotspermm>
+    <multisamplesamples>8</multisamplesamples>
     <shaderusage>auto</shaderusage>
-    <videoaccel>true</videoaccel>
+    <gamma>-1,-1,-1</gamma>
     <imgcachesize>-1,-1</imgcachesize>
   </scr>
   <aud>
@@ -31,13 +33,13 @@
     <mindragdist>5</mindragdist>
     <!-- Friction for drag and transform gestures with inertia. -1 means no friction. -->
     <friction>-1</friction>
-    <!-- The following two parameters configure the jitter filter for transform 
+    <!-- The following two parameters configure the jitter filter for transform
          gestures. Use avg_jitterfilter.py to find correct values for your hardware. -->
     <filtermincutoff>0.1</filtermincutoff>
     <filterbeta>0.03</filterbeta>
   </gesture>
   <touch>
-    <area>0, 0</area>
-    <offset>0, 0</offset>
+    <area>0,0</area>
+    <offset>0,0</offset>
   </touch>
-</avgrc>  
+</avgrc>

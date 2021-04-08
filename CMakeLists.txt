@@ -24,14 +24,13 @@ project(libavg)
 set(AVG_VERSION_MAJOR 2)
 set(AVG_VERSION_MINOR 0)
 set(AVG_VERSION_MICRO 0)
-set(AVG_VERSION_EXTRA dev5) # optional
+set(AVG_VERSION_EXTRA dev6) # optional
 set(AVG_VERSION_RELEASE "${AVG_VERSION_MAJOR}.${AVG_VERSION_MINOR}.${AVG_VERSION_MICRO}")
 if(DEFINED AVG_VERSION_EXTRA)
     set(AVG_VERSION_RELEASE "${AVG_VERSION_RELEASE}.${AVG_VERSION_EXTRA}")
 endif()
 
 message(STATUS "libavg v${AVG_VERSION_RELEASE}")
-
 message(STATUS "CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES Linux)
@@ -47,7 +46,9 @@ endif()
 
 # Find dependencies
 if(${PLATFORM_MACOSX})
-    set(BOOST_ROOT "$ENV{AVG_PATH}")
+    # no cmake files for boost-python(2) provided by homebrew due to collision with boost-python3
+    set(Boost_NO_BOOST_CMAKE ON)
+    set(Boost_PYTHON_LIBRARY_RELEASE "/usr/local/lib/libboost_python27.dylib")
 endif()
 find_package(Boost 1.46 COMPONENTS python3)
 if(${Boost_FOUND})
@@ -56,9 +57,6 @@ else()
     find_package(Boost 1.46 REQUIRED system thread python-py35)
 endif()
 find_package(PkgConfig REQUIRED)
-if(${PLATFORM_MACOSX})
-    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:$ENV{AVG_PATH}/libavg/pkg-config/mac")
-endif()
 pkg_search_module(LIBXML2 REQUIRED libxml-2.0 libxml2)
 pkg_search_module(GDK_PIXBUF REQUIRED gdk-pixbuf-2.0)
 pkg_search_module(SDL2 REQUIRED sdl2)
@@ -78,16 +76,16 @@ find_path(VIDEODEV2_FOUND
 
 
 # Options
-set(AVG_ENABLE_EGL FALSE CACHE BOOL "include EGL support")
-set(AVG_ENABLE_RPI FALSE CACHE BOOL "configure for RaspberryPi")
+set(AVG_ENABLE_EGL FALSE CACHE BOOL "configure for EGL display/context")
 
 if(${DC1394_2_FOUND})
     set(AVG_ENABLE_1394_2 TRUE CACHE BOOL "compile support for firewire cameras")
 endif()
 if(VIDEODEV2_FOUND)
-    set(AVG_ENABLE_V4L2 TRUE CACHE BOOL "Compile support for video4linux v2 video devices")
+    set(AVG_ENABLE_V4L2 TRUE CACHE BOOL "compile support for video4linux v2 video devices")
     find_package(JPEG REQUIRED)
 endif()
+
 
 # Python virtualenv handling: If a virtualenv is active, install everything there.
 set(virtual_env $ENV{VIRTUAL_ENV})
@@ -95,6 +93,7 @@ if (virtual_env)
     message(STATUS "Python virtualenv in use, setting install prefix to ${virtual_env}.")
     set(CMAKE_INSTALL_PREFIX ${virtual_env} CACHE PATH "Install prefix" FORCE)
 endif()
+
 
 # Platform-specific configuration
 if(${PLATFORM_LINUX})
@@ -118,10 +117,6 @@ if(${PLATFORM_MACOSX})
     set(PLATFORM_MACOSX_LIBS
             ${COCOA} ${COREAUDIO} ${AUDIOUNIT} ${FORCEFEEDBACK} ${COREVIDEO}
             ${IOKIT} ${COREFOUNDATION} ${OPENGL} ${CARBON})
-    # The following lines work around broken pkg-config scripts on mac.
-    string (REPLACE ";" " " FFMPEG_LDFLAGS "${FFMPEG_LDFLAGS}")
-    set(RSVG_LDFLAGS "${RSVG_LDFLAGS} -lpixman-1 -lpangocairo-1.0")
-    set(GDK_PIXBUF_LDFLAGS "${GDK_PIXBUF_LDFLAGS} -lgmodule-2.0 -lgio-2.0 -lresolv")
     link_libraries(${PLATFORM_MACOSX_LIBS})
 endif()
 
@@ -131,18 +126,21 @@ if(${PLATFORM_WINDOWS})
         "Use the prebuilt Visual Studio file './win/libavg.sln'. ")
 endif()
 
-if(${AVG_ENABLE_RPI})
-    set(ENV{PKG_CONFIG_PATH} ./pkg-config/rpi)
-endif()
 
+# Build type
 if(NOT CMAKE_BUILD_TYPE)
    set(CMAKE_BUILD_TYPE "Release" CACHE STRING
        "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
        FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
+
+# Compiler flags
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang|GNU")
     set(warnings_cxx "-Wall -Wno-invalid-offsetof -Woverloaded-virtual -Wswitch -Wuninitialized -Wempty-body -Wno-unused-local-typedefs")
+    if(${PLATFORM_MACOSX})
+        set(warnings_cxx "${warnings_cxx} -Wno-deprecated-register")
+    endif()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -fPIC -ffast-math ${warnings_cxx}")
     set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -pipe -fPIC -ffast-math -Wall")
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
@@ -154,19 +152,17 @@ if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang|GNU")
     set_cxx_version()
 endif()
 
+
 # Feature configuration
 if(${AVG_ENABLE_GLX_X11})
     pkg_check_modules(GLX_X11 REQUIRED x11 gl)
 endif()
 if(${AVG_ENABLE_EGL})
-    pkg_check_modules(EGL REQUIRED egl glesv2)
+    pkg_check_modules(EGL REQUIRED x11 egl glesv2)
 endif()
-if(${AVG_ENABLE_RPI})
-    pkg_check_module(BCM REQUIRED bcm)
-endif()
+
 
 enable_testing()
-
 
 # Enable make check that dumps test output on failure
 if (CMAKE_CONFIGURATION_TYPES)
