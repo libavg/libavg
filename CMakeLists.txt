@@ -45,11 +45,6 @@ endif()
 
 
 # Find dependencies
-if(${PLATFORM_MACOSX})
-    # no cmake files for boost-python(2) provided by homebrew due to collision with boost-python3
-    set(Boost_NO_BOOST_CMAKE ON)
-    set(Boost_PYTHON_LIBRARY_RELEASE "/usr/local/lib/libboost_python27.dylib")
-endif()
 find_package(Boost 1.46 COMPONENTS python3)
 if(${Boost_FOUND})
     find_package(Boost 1.46 REQUIRED system thread python3)
