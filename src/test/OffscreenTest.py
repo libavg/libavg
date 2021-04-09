@@ -395,7 +395,7 @@ class OffscreenTestCase(AVGTestCase):
                 (createCanvas,
                  lambda: self.compareImage("testCanvasMultisample"),
                  screenshot,
-                 lambda: self.assertRaises(avg.Exception, lambda: testIllegalSamples(42)),
+                 lambda: self.assertRaises(avg.Exception, lambda: testIllegalSamples(666)),
                  lambda: self.assertRaises(avg.Exception, lambda: testIllegalSamples(0)),
                 ))
         self.canvas = None
