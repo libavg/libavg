@@ -85,8 +85,13 @@ void GPUBlurFilter::setStdDev(float stdDev)
     m_pGaussCurveTex = calcBlurKernelTex(m_StdDev, 1, m_bUseFloatKernel);
     setDimensions(getSrcSize(), stdDev);
     IntRect destRect2(IntPoint(0,0), getDestRect().size());
-    m_pProjection2 = ImagingProjectionPtr(new ImagingProjection(
+    if (m_pProjection2) {
+        m_pProjection2->setProjection(getDestRect().size(), destRect2);
+    }
+    else {
+        m_pProjection2 = ImagingProjectionPtr(new ImagingProjection(
             getDestRect().size(), destRect2));
+    }
 }
 
 void GPUBlurFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
@@ -112,7 +117,7 @@ void GPUBlurFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
     m_pProjection2->draw(pContext, pVShader);
 }
 
-void GPUBlurFilter::setDimensions(IntPoint size, float stdDev)
+void GPUBlurFilter::setDimensions(const IntPoint& size, float stdDev)
 {
     if (m_bClipBorders) {
         GPUFilter::setDimensions(size);

@@ -43,7 +43,7 @@ public:
     virtual void applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex);
 
 private:
-    void setDimensions(IntPoint size, float stdDev, const glm::vec2& offset);
+    void setDimensions(const IntPoint& size, float stdDev, const glm::vec2& offset);
 
     glm::vec2 m_Offset;
     float m_StdDev;

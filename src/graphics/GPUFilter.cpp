@@ -165,8 +165,8 @@ void GPUFilter::setDimensions(const IntPoint& srcSize)
 void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect)
 {
     bool bProjectionChanged = false;
+    GLContextManager* pCM = GLContextManager::get();
     if (destRect != m_DestRect) {
-        GLContextManager* pCM = GLContextManager::get();
         m_pFBOs.clear();
         for (unsigned i=0; i<m_NumTextures; ++i) {
             MCFBOPtr pFBO = pCM->createFBO(destRect.size(), m_PFDest, 1, 1, false,
@@ -183,11 +183,16 @@ void GPUFilter::setDimensions(const IntPoint& srcSize, const IntRect& destRect)
         m_bIsInitialized = false;
     }
     m_SrcSize = srcSize;
-    if (bProjectionChanged) {
+    if (!m_pProjection) {
         m_pProjection = ImagingProjectionPtr(new ImagingProjection(srcSize, destRect));
+        // NOTE: ImagingProjection ctor calls pCM->uploadData()
+    }
+    else if (bProjectionChanged) {
+        m_pProjection->setProjection(srcSize, destRect);
+        pCM->uploadData();
     }
 }
-  
+
 OGLShaderPtr GPUFilter::getShader() const
 {
     return avg::getShader(m_sShaderID);

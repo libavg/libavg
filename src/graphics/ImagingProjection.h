@@ -40,15 +40,17 @@ typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 class AVG_API ImagingProjection
 {
 public:
-    ImagingProjection(IntPoint size);
-    ImagingProjection(IntPoint srcSize, IntRect destRect);
+    ImagingProjection(const IntPoint& size);
+    ImagingProjection(const IntPoint& srcSize, const IntRect& destRect);
     virtual ~ImagingProjection();
 
+    void setProjection(const IntPoint& srcSize, const IntRect& destRect);
     void setColor(const Pixel32& color);
+
     void draw(GLContext* pContext, const OGLShaderPtr& pShader);
 
 private:
-    void init(IntPoint srcSize, IntRect destRect);
+    void init(const IntPoint& srcSize, const IntRect& destRect);
 
     IntPoint m_SrcSize;
     IntRect m_DestRect;
