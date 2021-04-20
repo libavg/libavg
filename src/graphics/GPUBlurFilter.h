@@ -41,7 +41,7 @@ public:
     virtual void applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex);
 
 private:
-    void setDimensions(IntPoint size, float stdDev);
+    void setDimensions(const IntPoint& size, float stdDev);
 
     float m_StdDev;
     bool m_bClipBorders;

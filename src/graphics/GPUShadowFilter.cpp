@@ -89,8 +89,13 @@ void GPUShadowFilter::setParams(const glm::vec2& offset, float stdDev, float opa
     m_pGaussCurveTex = calcBlurKernelTex(m_StdDev, m_Opacity, false);
     setDimensions(getSrcSize(), stdDev, offset);
     IntRect destRect2(IntPoint(0,0), getDestRect().size());
-    m_pProjection2 = ImagingProjectionPtr(new ImagingProjection(
+    if (m_pProjection2) {
+        m_pProjection2->setProjection(getDestRect().size(), destRect2);
+    }
+    else {
+        m_pProjection2 = ImagingProjectionPtr(new ImagingProjection(
             getDestRect().size(), destRect2));
+    }
 }
 
 void GPUShadowFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
@@ -128,7 +133,7 @@ void GPUShadowFilter::applyOnGPU(GLContext* pContext, GLTexturePtr pSrcTex)
     m_pProjection2->draw(pContext, avg::getShader(SHADERID_VERT));
 }
 
-void GPUShadowFilter::setDimensions(IntPoint size, float stdDev, const glm::vec2& offset)
+void GPUShadowFilter::setDimensions(const IntPoint& size, float stdDev, const glm::vec2& offset)
 {
     int radius = getBlurKernelRadius(stdDev);
     IntPoint radiusOffset(radius, radius);

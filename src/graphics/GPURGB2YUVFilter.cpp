@@ -23,7 +23,6 @@
 #include "Bitmap.h"
 #include "ShaderRegistry.h"
 #include "OGLShader.h"
-#include "ImagingProjection.h"
 #include "FBO.h"
 
 #include "../base/ObjectCounter.h"

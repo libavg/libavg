@@ -24,7 +24,7 @@ project(libavg)
 set(AVG_VERSION_MAJOR 2)
 set(AVG_VERSION_MINOR 0)
 set(AVG_VERSION_MICRO 0)
-set(AVG_VERSION_EXTRA dev6) # optional
+set(AVG_VERSION_EXTRA dev7) # optional
 set(AVG_VERSION_RELEASE "${AVG_VERSION_MAJOR}.${AVG_VERSION_MINOR}.${AVG_VERSION_MICRO}")
 if(DEFINED AVG_VERSION_EXTRA)
     set(AVG_VERSION_RELEASE "${AVG_VERSION_RELEASE}.${AVG_VERSION_EXTRA}")
@@ -45,11 +45,11 @@ endif()
 
 
 # Find dependencies
-find_package(Boost 1.46 COMPONENTS python3)
+find_package(Boost 1.58 COMPONENTS python3)
 if(${Boost_FOUND})
-    find_package(Boost 1.46 REQUIRED system thread python3)
+    find_package(Boost 1.58 REQUIRED system thread python3)
 else()
-    find_package(Boost 1.46 REQUIRED system thread python-py35)
+    find_package(Boost 1.58 REQUIRED system thread python-py35)
 endif()
 find_package(PkgConfig REQUIRED)
 pkg_search_module(LIBXML2 REQUIRED libxml-2.0 libxml2)
@@ -58,11 +58,10 @@ pkg_search_module(SDL2 REQUIRED sdl2)
 pkg_search_module(DC1394_2 libdc1394-2)
 pkg_check_modules(FFMPEG libswscale libavformat libavcodec libavutil libswresample)
 set(Python_ADDITIONAL_VERSIONS 3.8 3.7 3.6 3.5)
-find_package(PythonLibs REQUIRED)
+find_package(PythonLibs REQUIRED) # NOTE: "PythonLibs" deprecated in CMake 3.12, use "Python" instead
 pkg_search_module(PANGOFT2 REQUIRED pangoft2)
 pkg_search_module(RSVG REQUIRED librsvg-2.0)
 pkg_search_module(FONTCONFIG REQUIRED fontconfig)
-find_package(RT)
 
 find_path(VIDEODEV2_FOUND
     NAMES videodev2.h
@@ -110,15 +109,14 @@ if(${PLATFORM_MACOSX})
     find_library(OPENGL OpenGL)
     find_library(CARBON Carbon)
     set(PLATFORM_MACOSX_LIBS
-            ${COCOA} ${COREAUDIO} ${AUDIOUNIT} ${FORCEFEEDBACK} ${COREVIDEO}
-            ${IOKIT} ${COREFOUNDATION} ${OPENGL} ${CARBON})
+        ${COCOA} ${COREAUDIO} ${AUDIOUNIT} ${FORCEFEEDBACK} ${COREVIDEO}
+        ${IOKIT} ${COREFOUNDATION} ${OPENGL} ${CARBON})
     link_libraries(${PLATFORM_MACOSX_LIBS})
 endif()
 
 if(${PLATFORM_WINDOWS})
     message(FATAL_ERROR
-        "Windows is not supported by the CMake build setup right now. "
-        "Use the prebuilt Visual Studio file './win/libavg.sln'. ")
+        "Windows is not supported by the CMake build setup right now.")
 endif()
 
 

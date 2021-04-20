@@ -32,7 +32,7 @@ using namespace std;
 
 namespace avg {
 
-ImagingProjection::ImagingProjection(IntPoint size)
+ImagingProjection::ImagingProjection(const IntPoint& size)
     : m_Color(0, 0, 0, 0)
 {
     GLContextManager* pCM = GLContextManager::get();
@@ -42,7 +42,7 @@ ImagingProjection::ImagingProjection(IntPoint size)
     init(size, IntRect(IntPoint(0,0), size));
 }
 
-ImagingProjection::ImagingProjection(IntPoint srcSize, IntRect destRect)
+ImagingProjection::ImagingProjection(const IntPoint& srcSize, const IntRect& destRect)
     : m_Color(0, 0, 0, 0)
 {
     GLContextManager* pCM = GLContextManager::get();
@@ -54,6 +54,11 @@ ImagingProjection::ImagingProjection(IntPoint srcSize, IntRect destRect)
 
 ImagingProjection::~ImagingProjection()
 {
+}
+
+void ImagingProjection::setProjection(const IntPoint& srcSize, const IntRect& destRect)
+{
+    init(srcSize, destRect);
 }
 
 void ImagingProjection::setColor(const Pixel32& color)
@@ -72,7 +77,7 @@ void ImagingProjection::draw(GLContext* pContext, const OGLShaderPtr& pShader)
     m_pVA->draw(pContext);
 }
 
-void ImagingProjection::init(IntPoint srcSize, IntRect destRect)
+void ImagingProjection::init(const IntPoint& srcSize, const IntRect& destRect)
 {
     m_SrcSize = srcSize;
     m_DestRect = destRect;
