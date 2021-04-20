@@ -63,7 +63,6 @@ find_package(PythonLibs REQUIRED)
 pkg_search_module(PANGOFT2 REQUIRED pangoft2)
 pkg_search_module(RSVG REQUIRED librsvg-2.0)
 pkg_search_module(FONTCONFIG REQUIRED fontconfig)
-find_package(RT)
 
 find_path(VIDEODEV2_FOUND
     NAMES videodev2.h

@@ -19,13 +19,6 @@ target_link_libraries(base
 target_link_libraries(base
     PUBLIC ${PYTHON_LIBRARIES})
 
-if (RT_LIBRARY)
-    target_include_directories(base
-        PUBLIC SYSTEM ${RT_INCLUDE_DIR})
-    target_link_libraries(base
-        PUBLIC ${RT_LIBRARY})
-endif()
-
 link_libraries(base)
 add_executable(testbase testbase.cpp)
 set_target_properties(testbase PROPERTIES ENABLE_EXPORTS TRUE) # cmake >= 3.4 (CMP0065) - required for Backtrace
