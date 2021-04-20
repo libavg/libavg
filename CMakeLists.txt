@@ -110,15 +110,14 @@ if(${PLATFORM_MACOSX})
     find_library(OPENGL OpenGL)
     find_library(CARBON Carbon)
     set(PLATFORM_MACOSX_LIBS
-            ${COCOA} ${COREAUDIO} ${AUDIOUNIT} ${FORCEFEEDBACK} ${COREVIDEO}
-            ${IOKIT} ${COREFOUNDATION} ${OPENGL} ${CARBON})
+        ${COCOA} ${COREAUDIO} ${AUDIOUNIT} ${FORCEFEEDBACK} ${COREVIDEO}
+        ${IOKIT} ${COREFOUNDATION} ${OPENGL} ${CARBON})
     link_libraries(${PLATFORM_MACOSX_LIBS})
 endif()
 
 if(${PLATFORM_WINDOWS})
     message(FATAL_ERROR
-        "Windows is not supported by the CMake build setup right now. "
-        "Use the prebuilt Visual Studio file './win/libavg.sln'. ")
+        "Windows is not supported by the CMake build setup right now.")
 endif()
 
 
